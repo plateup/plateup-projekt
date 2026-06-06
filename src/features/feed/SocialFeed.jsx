@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Avatar } from '../../components/ui';
+import { Card, Avatar } from '../../components/ui/index.jsx';
 import { MoreHorizontal, Heart, MessageCircle, Share2, Award } from 'lucide-react';
 
 const WorkoutPost = ({ post }) => {
