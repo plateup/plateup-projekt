@@ -2,84 +2,127 @@ import React, { useState } from 'react';
 import { useWorkoutSession } from './useWorkoutSession';
 import ExerciseCard from './ExerciseCard';
 import Navigation from './Navigation';
+import WorkoutStart from './WorkoutStart';
+import ExerciseLibrary from './ExerciseLibrary';
+import RestTimerOverlay from './RestTimerOverlay';
+import WorkoutRecap from './WorkoutRecap';
+import { Plus } from 'lucide-react';
 
 export default function LiveWorkout() {
   const [activeTab, setActiveTab] = useState('workout');
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [showRecap, setShowRecap] = useState(false);
   const {
     exercises,
     sessionStatus,
     workoutTimeFormatted,
     restTime,
+    isResting,
     activeRestSetId,
     startWorkout,
-    pauseWorkout,
     executeReset,
     completeAndSaveWorkout,
     updateSet,
     toggleSetComplete,
     toggleSetType,
     moveSet,
+    addExerciseToSession,
+    addSetToExercise,
+    updateExerciseRestDuration,
+    setRestTime
   } = useWorkoutSession();
 
   const [showResetModal, setShowResetModal] = useState(false);
+  const [isTimerMinimized, setIsTimerMinimized] = useState(false);
 
   const isIdle = sessionStatus === 'idle';
   const isActive = sessionStatus === 'active';
-  const isPaused = sessionStatus === 'paused';
+
+  const handleComplete = () => {
+    completeAndSaveWorkout();
+    setShowRecap(true);
+  };
+
+  const handleAddExercise = (exercise) => {
+    addExerciseToSession(exercise);
+    setShowLibrary(false);
+  };
+
+  const skipRest = () => {
+    setRestTime(0);
+    setIsTimerMinimized(false);
+  };
+
+  if (isIdle) {
+    return (
+      <div className="min-h-screen bg-black text-white antialiased flex flex-col items-center w-full px-4 pt-10">
+        <div className="w-full max-w-2xl">
+          <WorkoutStart 
+            onStartBlank={() => startWorkout()} 
+            onStartRoutine={(routine) => startWorkout(routine)} 
+          />
+        </div>
+        <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-black text-white antialiased flex flex-col justify-start items-center w-full">
+    <div className="animate-in fade-in duration-700">
       
-      {/* Dolna nawigacja */}
-      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      {/* Rest Timer Overlay / Mini Bar */}
+      {isResting && restTime > 0 && (
+        !isTimerMinimized ? (
+          <RestTimerOverlay 
+            duration={90} 
+            timeLeft={restTime} 
+            onClose={skipRest}
+            onMinimize={() => setIsTimerMinimized(true)}
+          />
+        ) : (
+          <div 
+            onClick={() => setIsTimerMinimized(false)}
+            className="fixed top-8 left-1/2 -translate-x-1/2 z-[210] bg-white text-black px-6 py-3 rounded-full flex items-center gap-3 font-black shadow-2xl animate-in slide-in-from-top duration-300 cursor-pointer active:scale-95"
+          >
+            <div className="w-2 h-2 rounded-full bg-black animate-pulse" />
+            <span>Rest: {Math.floor(restTime / 60)}:{(restTime % 60).toString().padStart(2, '0')}</span>
+          </div>
+        )
+      )}
 
-      {/* GŁÓWNY KONTENER: Zmieniony na max-w-2xl dla idealnego dopasowania do wielkości Feedu */}
-      <div className="w-full max-w-2xl pb-32 pt-4 transition-all duration-300 px-4">
+      {/* Main Container */}
+      <div className="max-w-4xl mx-auto">
         
-        {/* NAGŁÓWEK (Identyczna wielkość i styl co ekran Feed) */}
-        <header className="bg-black py-5 flex justify-between items-center border-b border-neutral-900/60 mb-6">
-          <h2 className="text-3xl font-bold tracking-tight text-white">Trening</h2>
-          <div className="bg-neutral-950 border border-neutral-900 text-white px-4 py-1.5 rounded-2xl font-mono text-base font-bold">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-2">Training</h2>
+            <p className="text-[#8E8E93] font-bold">Session in progress</p>
+          </div>
+          <div className="bg-[#1C1C1E] border border-[#2C2C2E] text-white px-8 py-4 rounded-[24px] font-mono text-3xl font-black shadow-xl">
             {workoutTimeFormatted}
           </div>
         </header>
 
-        {/* STATUS TRENINGU */}
-        <div className="mb-6">
-          <div className="bg-neutral-950 border border-neutral-900 rounded-3xl p-4 flex items-center justify-between gap-3">
-            <div className="text-xs text-neutral-500 font-bold tracking-wide">
-              {isIdle && "Trening nie został rozpoczęty."}
-              {isActive && "Trening jest rejestrowany..."}
-              {isPaused && "Trening jest wstrzymany."}
+        {/* Status Bar */}
+        <div className="mb-12">
+          <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-[32px] p-6 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-white animate-pulse" />
+              <span className="text-sm font-black uppercase tracking-widest text-white">
+                Live Workout
+              </span>
             </div>
-            <div className="flex gap-2">
-              {isIdle && (
-                <button onClick={startWorkout} className="bg-white text-black font-extrabold text-xs px-4 py-2.5 rounded-xl active:scale-95 transition-all">
-                  Rozpocznij
-                </button>
-              )}
-              {isActive && (
-                <button onClick={pauseWorkout} className="bg-neutral-900 border border-neutral-800 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl active:scale-95 transition-all hover:bg-neutral-800">
-                  Wstrzymaj
-                </button>
-              )}
-              {isPaused && (
-                <button onClick={startWorkout} className="bg-white text-black font-extrabold text-xs px-4 py-2.5 rounded-xl active:scale-95 transition-all">
-                  Wznów
-                </button>
-              )}
-              {!isIdle && (
-                <button onClick={() => setShowResetModal(true)} className="bg-neutral-900 text-neutral-400 font-bold text-xs px-3 py-2.5 rounded-xl active:scale-95 transition-all border border-neutral-800 hover:bg-neutral-800">
-                  Reset
-                </button>
-              )}
+            <div className="flex gap-3">
+              <button onClick={() => setShowResetModal(true)} className="bg-white/5 border border-white/10 text-white/40 font-black text-xs px-6 py-3 rounded-xl hover:text-red-500 hover:bg-red-500/10 transition-all">
+                RESET
+              </button>
             </div>
           </div>
         </div>
 
-        {/* LISTA ĆWICZEŃ */}
-        <main className="space-y-5">
-          <div className={`space-y-5 transition-all duration-300 ${isIdle ? 'opacity-25 pointer-events-none scale-[0.99]' : 'opacity-100'}`}>
+        {/* Exercises List */}
+        <main className="space-y-8">
+          <div className="grid grid-cols-1 gap-8">
             {exercises.map((exercise) => (
               <ExerciseCard
                 key={exercise.id}
@@ -87,7 +130,8 @@ export default function LiveWorkout() {
                 updateSet={updateSet}
                 toggleSetComplete={toggleSetComplete}
                 toggleSetType={toggleSetType}
-                moveSet={moveSet}
+                addSetToExercise={addSetToExercise}
+                updateExerciseRestDuration={updateExerciseRestDuration}
                 isDisabled={!isActive}
                 activeRestSetId={activeRestSetId}
                 restTime={restTime}
@@ -95,34 +139,52 @@ export default function LiveWorkout() {
             ))}
           </div>
 
-          {!isIdle && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12">
             <button 
-              onClick={completeAndSaveWorkout}
-              className="w-full bg-white text-black py-4 rounded-3xl font-black text-sm tracking-tight hover:bg-neutral-200 active:scale-[0.98] transition-all mt-6 shadow-xl"
+              onClick={() => setShowLibrary(true)}
+              className="py-6 rounded-[32px] border-2 border-dashed border-[#2C2C2E] flex items-center justify-center gap-3 text-[#8E8E93] font-black hover:border-blue-500/50 hover:text-blue-500 transition-all"
             >
-              Zakończ i Zapisz Trening
+              <Plus size={24} strokeWidth={3} />
+              ADD EXERCISE
             </button>
-          )}
-        </main>
 
-        {/* MODAL RESETU */}
-        {showResetModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-neutral-950 border border-neutral-900 w-full max-w-sm rounded-3xl p-6 text-center space-y-6">
-              <h3 className="text-base font-bold text-white tracking-tight">Czy na pewno chcesz zresetować ten trening?</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => setShowResetModal(false)} className="bg-neutral-900 border border-neutral-800 text-white font-bold py-3 rounded-xl text-xs hover:bg-neutral-800">
-                  Anuluj
-                </button>
-                <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-white text-black font-bold py-3 rounded-xl text-xs hover:bg-neutral-200">
-                  Zresetuj
-                </button>
-              </div>
+            <button 
+              onClick={handleComplete}
+              className="bg-white text-black py-6 rounded-[32px] font-black text-lg tracking-tight hover:bg-neutral-200 active:scale-[0.98] transition-all shadow-2xl shadow-white/5"
+            >
+              FINISH WORKOUT
+            </button>
+          </div>
+        </main>
+      </div>
+
+      {showRecap && (
+        <WorkoutRecap onClose={() => setShowRecap(false)} />
+      )}
+
+      {showLibrary && (
+        <ExerciseLibrary 
+          onSelect={handleAddExercise}
+          onClose={() => setShowLibrary(false)}
+        />
+      )}
+
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1C1C1E] border border-[#2C2C2E] w-full max-w-sm rounded-[40px] p-8 text-center space-y-6">
+            <h3 className="text-xl font-black text-white tracking-tight">Reset training?</h3>
+            <p className="text-[#8E8E93] font-bold">This action cannot be undone.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setShowResetModal(false)} className="bg-black text-[#8E8E93] font-black py-4 rounded-2xl text-xs hover:bg-white/5 transition-all">
+                CANCEL
+              </button>
+              <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-red-500 text-white font-black py-4 rounded-2xl text-xs hover:bg-red-600 transition-all">
+                RESET
+              </button>
             </div>
           </div>
-        )}
-
-      </div>
+        </div>
+      )}
     </div>
   );
 }

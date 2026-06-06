@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function SetRow({ 
   exerciseId, 
@@ -7,104 +8,110 @@ export default function SetRow({
   updateSet, 
   toggleSetComplete, 
   toggleSetType,
-  isDisabled, 
-  isRestingOnThisSet, 
-  restTime 
+  isDisabled 
 }) {
-  
+  const [showTypeSelector, setShowTypeSelector] = useState(false);
+
+  const types = [
+    { id: 'normal', label: 'Regular', short: index + 1 },
+    { id: 'warmup', label: 'Warmup', short: 'W' },
+    { id: 'failure', label: 'Failure', short: 'F' },
+    { id: 'drop', label: 'Drop Set', short: 'D' },
+    { id: 'cluster', label: 'Cluster', short: 'C' },
+  ];
+
+  const currentType = types.find(t => t.id === set.type) || types[0];
+
+  const handleTypeSelect = (typeId) => {
+    toggleSetType(exerciseId, set.id, typeId);
+    setShowTypeSelector(false);
+  };
+
   return (
-    <div className={`grid grid-cols-5 items-center text-center py-1.5 px-3 rounded-2xl transition-colors ${
-      set.isCompleted 
-        ? 'bg-emerald-950/10 border border-emerald-500/10' 
-        : 'border border-transparent'
+    <div className={`relative grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 items-center p-2 rounded-2xl transition-all ${
+      set.isCompleted ? 'bg-white/5' : ''
     }`}>
       
-      {/* KOLUMNA 1: NUMER SERII */}
-      <div className="flex flex-col items-center justify-center min-h-[36px]">
-        <button
-          type="button"
-          disabled={isDisabled || set.isCompleted}
-          onClick={() => toggleSetType(exerciseId, set.id)}
-          className={`text-xs font-black px-2 py-0.5 rounded-lg transition-all ${
-            set.type === 'warmup' 
-              ? 'text-amber-500 scale-105' 
-              : set.isCompleted ? 'text-emerald-500/70' : 'text-neutral-400 hover:text-white'
+      {/* Set Number / Type Trigger */}
+      <div className="relative">
+        <button 
+          onClick={() => setShowTypeSelector(!showTypeSelector)}
+          className={`w-full aspect-square rounded-xl flex items-center justify-center font-black transition-all ${
+            set.type !== 'normal' ? 'bg-white/10 text-white' : 'text-[#8E8E93] hover:text-white'
           }`}
         >
-          {set.type === 'warmup' ? 'W' : index + 1}
-        </button>
-      </div>
-
-      {/* KOLUMNA 2: CIĘŻAR (KG) */}
-      <div className="px-1">
-        <input
-          type="number"
-          placeholder={set.prevKg || '—'}
-          value={set.kg}
-          disabled={isDisabled || set.isCompleted}
-          onChange={(e) => updateSet(exerciseId, set.id, 'kg', e.target.value)}
-          className={`w-full bg-neutral-900 rounded-xl py-2 text-center text-sm font-bold border-transparent focus:border-transparent focus:ring-0 outline-none focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
-            set.isCompleted 
-              ? 'text-emerald-500 bg-transparent font-medium' 
-              : 'text-white placeholder-neutral-700'
-          }`}
-        />
-      </div>
-
-      {/* KOLUMNA 3: POWTÓRZENIA (REPS) */}
-      <div className="px-1">
-        <input
-          type="number"
-          placeholder={set.prevReps || '—'}
-          value={set.reps}
-          disabled={isDisabled || set.isCompleted}
-          onChange={(e) => updateSet(exerciseId, set.id, 'reps', e.target.value)}
-          className={`w-full bg-neutral-900 rounded-xl py-2 text-center text-sm font-bold border-transparent focus:border-transparent focus:ring-0 outline-none focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
-            set.isCompleted 
-              ? 'text-emerald-500 bg-transparent font-medium' 
-              : 'text-white placeholder-neutral-700'
-          }`}
-        />
-      </div>
-
-      {/* KOLUMNA 4: RPE */}
-      <div className="px-1">
-        <input
-          type="number"
-          step="0.5"
-          placeholder={set.prevRpe || '—'}
-          value={set.rpe}
-          disabled={isDisabled || set.isCompleted}
-          onChange={(e) => updateSet(exerciseId, set.id, 'rpe', e.target.value)}
-          className={`w-full bg-neutral-900 rounded-xl py-2 text-center text-sm font-bold border-transparent focus:border-transparent focus:ring-0 outline-none focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
-            set.isCompleted 
-              ? 'text-emerald-500 bg-transparent font-medium' 
-              : 'text-white placeholder-neutral-700'
-          }`}
-        />
-      </div>
-
-      {/* KOLUMNA 5: STATUS (PTASZEK) */}
-      <div className="flex items-center justify-center relative">
-        <button
-          onClick={() => toggleSetComplete(exerciseId, set.id)}
-          disabled={isDisabled}
-          className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all border ${
-            set.isCompleted
-              ? 'bg-emerald-500 border-emerald-400 text-black font-black scale-100'
-              : 'bg-neutral-900 border-neutral-800 text-transparent hover:border-neutral-700 active:scale-90'
-          }`}
-        >
-          ✓
+          {currentType.short}
         </button>
 
-        {isRestingOnThisSet && restTime > 0 && (
-          <div className="absolute left-full ml-2 text-white font-mono font-bold text-[11px] bg-neutral-950 px-2 py-1 rounded-lg border border-neutral-900 shadow-xl whitespace-nowrap z-10">
-            {Math.floor(restTime / 60)}:{(restTime % 60).toString().padStart(2, '0')}
+        {showTypeSelector && (
+          <div className="absolute left-0 top-full mt-2 w-48 bg-[#1C1C1E] border border-[#2C2C2E] rounded-2xl shadow-2xl z-[110] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            {types.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => handleTypeSelect(t.id)}
+                className="w-full flex items-center justify-between p-4 hover:bg-white/5 text-left transition-colors"
+              >
+                <span className="text-sm font-bold">{t.label}</span>
+                {set.type === t.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+              </button>
+            ))}
           </div>
         )}
       </div>
 
+      {/* Weight KG */}
+      <div className="relative">
+        <input
+          type="text"
+          inputMode="decimal"
+          placeholder={set.prevKg || "0"}
+          className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
+          value={set.kg}
+          onChange={(e) => updateSet(exerciseId, set.id, 'kg', e.target.value)}
+          disabled={isDisabled || set.isCompleted}
+        />
+      </div>
+
+      {/* Reps */}
+      <div className="relative">
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder={set.prevReps || "0"}
+          className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
+          value={set.reps}
+          onChange={(e) => updateSet(exerciseId, set.id, 'reps', e.target.value)}
+          disabled={isDisabled || set.isCompleted}
+        />
+      </div>
+
+      {/* RPE */}
+      <div className="relative">
+        <input
+          type="text"
+          inputMode="decimal"
+          placeholder={set.prevRpe || "-"}
+          className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
+          value={set.rpe}
+          onChange={(e) => updateSet(exerciseId, set.id, 'rpe', e.target.value)}
+          disabled={isDisabled || set.isCompleted}
+        />
+      </div>
+
+      {/* Checkbox */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => toggleSetComplete(exerciseId, set.id)}
+          disabled={isDisabled}
+          className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+            set.isCompleted 
+              ? 'bg-white text-black shadow-lg shadow-white/10' 
+              : 'bg-black border border-[#2C2C2E] text-transparent hover:border-white/20'
+          }`}
+        >
+          <Check size={24} strokeWidth={4} className={set.isCompleted ? 'scale-100' : 'scale-0'} />
+        </button>
+      </div>
     </div>
   );
 }
