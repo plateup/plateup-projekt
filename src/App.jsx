@@ -4,6 +4,7 @@ import AppShell from './features/feed/AppShell';
 import SocialFeed from './features/feed/SocialFeed';
 import Landing from './features/auth/Landing';
 import Auth from './features/auth/Auth';
+import LiveWorkout from './features/workout/LiveWorkout';
 
 function App() {
   const [session, setSession] = useState(null);
@@ -31,12 +32,7 @@ function App() {
   return (
     <AppShell activeTab={activeTab} setActiveTab={setActiveTab}>
       {activeTab === 'feed' && <SocialFeed />}
-      {activeTab === 'workout' && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <h2 className="text-3xl font-black mb-4 tracking-tight">Workout Hub</h2>
-          <p className="text-[#8E8E93] font-medium">Coming soon in your next training.</p>
-        </div>
-      )}
+      {activeTab === 'workout' && <LiveWorkout />}
       {activeTab === 'profile' && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-24 h-24 rounded-full bg-black dark:bg-white mb-6" />
