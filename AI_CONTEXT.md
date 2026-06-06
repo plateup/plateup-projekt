@@ -4,6 +4,7 @@ Ten plik służy jako źródło prawdy dla modeli AI (ChatGPT, Claude, Gemini), 
 
 ## 📌 Status Projektu
 - **Technologia:** React + JavaScript (JSX) + Tailwind CSS + Vite.
+- **Backend:** Supabase (Auth + DB).
 - **Stylistyka:** Apple Human Interface Guidelines / Lift App style.
 - **Architektura:** Feature-Based (każdy moduł w osobnym folderze `src/features/`).
 
@@ -15,12 +16,12 @@ Ten plik służy jako źródło prawdy dla modeli AI (ChatGPT, Claude, Gemini), 
 - **Animacje:** Subtelne przejścia Framer Motion, scale-95 na kliknięciach, fade-in na nowych ekranach.
 
 ## 🛠 Wykonane Prace
-1. Inicjalizacja projektu React (JS).
-2. Konfiguracja Tailwind CSS.
-3. Utworzenie struktury folderów `features/`.
-4. Stworzenie dokumentacji workflow.
+1. Inicjalizacja projektu React (JS) i Tailwind.
+2. Integracja z Supabase (Auth Client).
+3. System Autentykacji: Landing Page, Login, Rejestracja.
+4. UI: AppShell, Social Feed (Responsive), Design System.
 
 ## 🚀 Kolejne Kroki
-- [ ] Implementacja AppShell (Navigation Bar).
-- [ ] Implementacja Social Feed (Tab 1).
-- [ ] Stworzenie Design Systemu (komponenty UI).
+- [ ] Implementacja Workout Hub (Tab 2).
+- [ ] Integracja bazy danych dla treningów.
+- [ ] System gamifikacji i profilu.
