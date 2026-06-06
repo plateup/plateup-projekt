@@ -84,15 +84,20 @@ export default function SocialFeed() {
   ];
 
   return (
-    <div className="pb-8">
-      <header className="flex items-center justify-between mb-8">
-        <h1 className="text-4xl font-black tracking-tight">Feed</h1>
-        <div className="w-10 h-10 rounded-full bg-black dark:bg-white overflow-hidden" />
+    <div className="pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <header className="flex items-center justify-between mb-10 md:mb-16">
+        <div>
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-2">Feed</h1>
+          <p className="text-[#8E8E93] font-medium">Activity from your network</p>
+        </div>
+        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-black dark:bg-white overflow-hidden shadow-lg border-2 border-white dark:border-black" />
       </header>
       
-      {mockPosts.map(post => (
-        <WorkoutPost key={post.id} post={post} />
-      ))}
+      <div className="grid grid-cols-1 gap-6">
+        {mockPosts.map(post => (
+          <WorkoutPost key={post.id} post={post} />
+        ))}
+      </div>
     </div>
   );
 }

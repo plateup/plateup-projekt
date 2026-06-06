@@ -11,7 +11,8 @@ Ten plik służy jako źródło prawdy dla modeli AI (ChatGPT, Claude, Gemini), 
 - **Kolory:** Czysta czerń (#000000) i czysta biel (#FFFFFF). Akcent: Electric Blue (opcjonalnie) lub Monochrome.
 - **Kształty:** Bardzo duże zaokrąglenia (np. `rounded-3xl` w Tailwind), imitujące "Apple Squircle".
 - **Typografia:** Inter lub systemowy sans-serif. Duże nagłówki (font-bold).
-- **Layout:** Dużo "white space", brak zbędnych linii, separacja za pomocą koloru tła (jasny szary / ciemny szary).
+- **Layout:** Dużo "white space", brak zbędnych linii, separacja za pomocą koloru tła (jasny szary / ciemny szary). System responsywny: max-w-md (Mobile), max-w-2xl (Tablet), max-w-4xl (Desktop).
+- **Animacje:** Subtelne przejścia Framer Motion, scale-95 na kliknięciach, fade-in na nowych ekranach.
 
 ## 🛠 Wykonane Prace
 1. Inicjalizacja projektu React (JS).

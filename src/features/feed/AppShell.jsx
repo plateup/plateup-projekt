@@ -9,13 +9,13 @@ export default function AppShell({ children, activeTab, setActiveTab }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F2F2F7] dark:bg-[#000000] text-black dark:text-white pb-24">
-      <main className="max-w-md mx-auto px-4 pt-8">
+    <div className="min-h-screen bg-[#F2F2F7] dark:bg-[#000000] text-black dark:text-white pb-24 transition-colors duration-500">
+      <main className="w-full max-w-md md:max-w-2xl lg:max-w-4xl mx-auto px-4 md:px-8 pt-8 md:pt-12">
         {children}
       </main>
 
-      {/* Apple Style Bottom Nav */}
-      <nav className="fixed bottom-6 left-4 right-4 max-w-md mx-auto h-20 bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-[32px] flex items-center justify-around px-6 shadow-2xl">
+      {/* Apple Style Bottom Nav - Responsive Width */}
+      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md md:max-w-lg lg:max-w-xl h-20 bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-[40px] flex items-center justify-around px-8 shadow-2xl z-50">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
