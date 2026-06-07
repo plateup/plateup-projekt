@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from './services/supabaseClient';
 import AppShell from './features/feed/AppShell';
 import Dashboard from './features/feed/Dashboard';
+import SocialFeed from './features/feed/SocialFeed';
 import Stats from './features/stats/Stats';
 import Profile from './features/profile/Profile';
 import Landing from './features/auth/Landing';
@@ -33,8 +34,9 @@ function App() {
 
   return (
     <AppShell activeTab={activeTab} setActiveTab={setActiveTab}>
-      {activeTab === 'feed' && <Dashboard />}
-      {activeTab === 'workout' && <LiveWorkout />}
+      {activeTab === 'feed' && <Dashboard setActiveTab={setActiveTab} />}
+      {activeTab === 'social' && <SocialFeed />}
+      <LiveWorkout isVisible={activeTab === 'workout'} onRestore={() => setActiveTab('workout')} />
       {activeTab === 'stats' && <Stats />}
       {activeTab === 'profile' && <Profile />}
     </AppShell>

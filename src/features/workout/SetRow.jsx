@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
 
 export default function SetRow({ 
   exerciseId, 
@@ -8,12 +8,13 @@ export default function SetRow({
   updateSet, 
   toggleSetComplete, 
   toggleSetType,
+  removeSetFromExercise,
   isDisabled 
 }) {
   const [showTypeSelector, setShowTypeSelector] = useState(false);
 
   const types = [
-    { id: 'normal', label: 'Regular', short: index + 1 },
+    { id: 'normal', label: 'Regular', short: index || 1 },
     { id: 'warmup', label: 'Warmup', short: 'W' },
     { id: 'failure', label: 'Failure', short: 'F' },
     { id: 'drop', label: 'Drop Set', short: 'D' },
@@ -24,6 +25,11 @@ export default function SetRow({
 
   const handleTypeSelect = (typeId) => {
     toggleSetType(exerciseId, set.id, typeId);
+    setShowTypeSelector(false);
+  };
+
+  const handleRemove = () => {
+    removeSetFromExercise(exerciseId, set.id);
     setShowTypeSelector(false);
   };
 
@@ -51,10 +57,18 @@ export default function SetRow({
                 onClick={() => handleTypeSelect(t.id)}
                 className="w-full flex items-center justify-between p-4 hover:bg-white/5 text-left transition-colors"
               >
-                <span className="text-sm font-bold">{t.label}</span>
+                <span className="text-sm font-bold text-white">{t.label}</span>
                 {set.type === t.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
               </button>
             ))}
+            <div className="h-[1px] bg-white/5 w-full" />
+            <button
+              onClick={handleRemove}
+              className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-white/60 hover:text-white"
+            >
+              <Trash2 size={16} />
+              <span className="text-sm font-bold">Remove Set</span>
+            </button>
           </div>
         )}
       </div>

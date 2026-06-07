@@ -9,6 +9,7 @@ export default function ExerciseCard({
   toggleSetComplete, 
   toggleSetType,
   addSetToExercise,
+  removeSetFromExercise,
   updateExerciseRestDuration,
   isDisabled,
   activeRestSetId,
@@ -24,7 +25,7 @@ export default function ExerciseCard({
   };
 
   return (
-    <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-[40px] overflow-hidden transition-all hover:border-[#3C3C3E]">
+    <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] transition-all hover:border-white/10 shadow-lg relative">
       <div className="p-6 md:p-8">
         
         {/* Header */}
@@ -58,7 +59,7 @@ export default function ExerciseCard({
                 <button className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold">
                   <Edit3 size={16} /> Edit Exercise
                 </button>
-                <button className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold text-red-500">
+                <button className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold text-white/80">
                   <Trash2 size={16} /> Remove
                 </button>
               </div>
@@ -78,18 +79,22 @@ export default function ExerciseCard({
 
           {/* Sets */}
           <div className="space-y-2">
-            {exercise.sets.map((set, index) => (
-              <SetRow
-                key={set.id}
-                index={index}
-                exerciseId={exercise.id}
-                set={set}
-                updateSet={updateSet}
-                toggleSetComplete={toggleSetComplete}
-                toggleSetType={toggleSetType}
-                isDisabled={isDisabled}
-              />
-            ))}
+            {exercise.sets.map((set, index) => {
+              const displayIndex = exercise.sets.slice(0, index + 1).filter(s => s.type !== 'warmup').length;
+              return (
+                <SetRow
+                  key={set.id}
+                  index={displayIndex}
+                  exerciseId={exercise.id}
+                  set={set}
+                  updateSet={updateSet}
+                  toggleSetComplete={toggleSetComplete}
+                  toggleSetType={toggleSetType}
+                  removeSetFromExercise={removeSetFromExercise}
+                  isDisabled={isDisabled}
+                />
+              );
+            })}
           </div>
 
           {/* Add Set Button */}

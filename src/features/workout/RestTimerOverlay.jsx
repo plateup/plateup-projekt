@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { X, Bell } from 'lucide-react';
+import { FastForward, ChevronUp } from 'lucide-react';
 
 export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimize }) {
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
-    setProgress((timeLeft / duration) * 100);
+    const baseDuration = duration || 90;
+    setProgress((timeLeft / baseDuration) * 100);
   }, [timeLeft, duration]);
 
-  // Format time MM:SS
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -16,66 +16,49 @@ export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimi
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-in fade-in duration-300">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
-      
-      <div className="relative bg-[#1C1C1E] w-full max-w-sm rounded-[48px] p-10 border border-[#2C2C2E] shadow-2xl flex flex-col items-center">
-        <div className="absolute top-8 left-10 flex gap-4">
-           <button 
-             onClick={onMinimize}
-             className="text-[#8E8E93] font-black text-[10px] uppercase tracking-widest hover:text-white"
-           >
-             Minimize
-           </button>
-        </div>
+    <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[200] w-[calc(100%-2rem)] max-w-sm pointer-events-none animate-in slide-in-from-top-8 duration-500">
+      <div className="bg-black/60 backdrop-blur-3xl rounded-[40px] p-6 border border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.8)] pointer-events-auto flex flex-col items-center">
         
-        <button 
-          onClick={onClose}
-          className="absolute top-6 right-6 p-3 bg-black/50 rounded-full text-[#8E8E93] hover:text-white transition-colors"
-        >
-          <X size={20} />
-        </button>
+        <div className="w-full flex justify-between items-center mb-6 px-2">
+          <span className="text-white font-black text-xs uppercase tracking-widest">Rest Timer</span>
+          <button 
+            onClick={onMinimize}
+            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
+          >
+            <ChevronUp size={20} strokeWidth={3} />
+          </button>
+        </div>
 
-        <h3 className="text-[#8E8E93] font-black uppercase tracking-widest text-[10px] mb-12">Resting</h3>
-
-        {/* Circular Progress */}
-        <div className="relative w-64 h-64 flex items-center justify-center">
+        {/* Timer Circle */}
+        <div className="relative w-48 h-48 flex items-center justify-center mb-8">
           <svg className="w-full h-full -rotate-90">
+            <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-white/5" />
             <circle
-              cx="128"
-              cy="128"
-              r="115"
+              cx="96"
+              cy="96"
+              r="88"
               stroke="currentColor"
-              strokeWidth="10"
+              strokeWidth="8"
               fill="transparent"
-              className="text-white/5"
-            />
-            <circle
-              cx="128"
-              cy="128"
-              r="115"
-              stroke="currentColor"
-              strokeWidth="10"
-              fill="transparent"
-              strokeDasharray={722}
-              strokeDashoffset={722 - (722 * progress) / 100}
+              strokeDasharray={553}
+              strokeDashoffset={553 - (553 * progress) / 100}
               strokeLinecap="round"
-              className="text-white transition-all duration-1000 ease-linear shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+              className="text-white transition-all duration-1000 ease-linear shadow-white"
             />
           </svg>
           <div className="absolute flex flex-col items-center">
-            <span className="text-7xl font-black tabular-nums tracking-tighter">{formatTime(timeLeft)}</span>
+            <span className="text-6xl font-black tabular-nums tracking-tighter text-white">{formatTime(timeLeft)}</span>
           </div>
         </div>
 
-        <div className="mt-14 flex gap-4 w-full">
-          <button 
-            onClick={onClose}
-            className="flex-1 bg-white text-black h-16 rounded-2xl font-black text-sm active:scale-95 transition-all shadow-xl shadow-white/5"
-          >
-            SKIP REST
-          </button>
-        </div>
+        <button 
+          onClick={onClose}
+          className="w-full bg-white text-black h-16 rounded-[24px] font-black text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-xl hover:bg-neutral-200"
+        >
+          <FastForward size={20} className="fill-current" />
+          SKIP REST
+        </button>
+
       </div>
     </div>
   );

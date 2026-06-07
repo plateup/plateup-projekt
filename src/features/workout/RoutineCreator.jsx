@@ -42,12 +42,12 @@ export default function RoutineCreator({ onClose, onSave }) {
   return (
     <div className="fixed inset-0 bg-black z-[100] flex flex-col animate-in slide-in-from-bottom duration-300">
       <header className="p-6 flex items-center justify-between border-b border-[#1C1C1E]">
-        <button onClick={onClose} className="text-[#8E8E93] font-bold">Cancel</button>
-        <h2 className="text-xl font-black">New Routine</h2>
+        <button onClick={onClose} className="text-[#8E8E93] font-bold hover:text-white transition-colors">Cancel</button>
+        <h2 className="text-xl font-black text-white">New Routine</h2>
         <button 
           onClick={handleSave} 
           disabled={saving || !name.trim() || selectedExercises.length === 0}
-          className="text-blue-500 font-bold disabled:opacity-50"
+          className="text-white font-bold disabled:opacity-50 hover:text-[#8E8E93] transition-colors"
         >
           {saving ? 'Saving...' : 'Save'}
         </button>
@@ -57,7 +57,7 @@ export default function RoutineCreator({ onClose, onSave }) {
         <input 
           type="text"
           placeholder="Routine Name (e.g. Upper Body)"
-          className="w-full bg-transparent text-3xl font-black outline-none mb-10 placeholder:text-[#2C2C2E]"
+          className="w-full bg-transparent text-white text-3xl font-black outline-none mb-10 placeholder:text-[#2C2C2E]"
           value={name}
           onChange={(e) => setName(e.target.value)}
           autoFocus
@@ -67,10 +67,10 @@ export default function RoutineCreator({ onClose, onSave }) {
           {selectedExercises.map((ex) => (
             <div key={ex.tempId} className="flex items-center justify-between p-5 bg-[#1C1C1E] rounded-3xl border border-[#2C2C2E]">
               <div>
-                <h4 className="font-black text-lg">{ex.name}</h4>
+                <h4 className="font-black text-white text-lg">{ex.name}</h4>
                 <p className="text-sm text-[#8E8E93] font-bold uppercase">{ex.muscle_group}</p>
               </div>
-              <button onClick={() => removeExercise(ex.tempId)} className="text-red-500/50 hover:text-red-500 p-2">
+              <button onClick={() => removeExercise(ex.tempId)} className="text-[#8E8E93] hover:text-white transition-colors p-2">
                 <Trash2 size={20} />
               </button>
             </div>
@@ -78,7 +78,7 @@ export default function RoutineCreator({ onClose, onSave }) {
 
           <button 
             onClick={() => setShowLibrary(true)}
-            className="w-full py-6 rounded-3xl border-2 border-dashed border-[#2C2C2E] flex items-center justify-center gap-2 text-[#8E8E93] font-black hover:border-blue-500/50 hover:text-blue-500 transition-all"
+            className="w-full py-6 rounded-3xl bg-white/5 flex items-center justify-center gap-2 text-white font-black hover:bg-white/10 active:scale-[0.98] transition-all border border-white/10 shadow-sm"
           >
             <Plus size={24} />
             Add Exercise

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Home, Dumbbell, User, BarChart2 } from 'lucide-react';
+import { Home, Dumbbell, User, BarChart2, Users } from 'lucide-react';
 
 export default function AppShell({ children, activeTab, setActiveTab }) {
   const tabs = [
     { id: 'feed', icon: Home, label: 'Feed' },
+    { id: 'social', icon: Users, label: 'Social' },
     { id: 'workout', icon: Dumbbell, label: 'Workout' },
     { id: 'stats', icon: BarChart2, label: 'Stats' },
     { id: 'profile', icon: User, label: 'Profile' },
