@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabaseClient';
-import { User, Mail, Settings, LogOut, Shield, Bell, ChevronRight, ChevronLeft, Award, Zap, Flame, Target, Edit3, Check } from 'lucide-react';
+import { User, Mail, Settings, LogOut, Shield, Bell, ChevronRight, ChevronLeft, Award, Zap, Flame, Target, Edit3, Check, BarChart2 } from 'lucide-react';
+import Stats from '../stats/Stats';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -8,10 +9,23 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [activeView, setActiveView] = useState('main');
+  const [exp, setExp] = useState(0);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     fetchProfile();
+    setExp(parseInt(localStorage.getItem('plateup_exp') || '0', 10));
   }, []);
+
+  const getLevelInfo = (exp) => {
+    if (exp < 1000) return { level: 1, rank: 'Beginner', current: exp, max: 1000, progress: (exp/1000)*100 };
+    if (exp < 3000) return { level: 2, rank: 'Novice', current: exp-1000, max: 2000, progress: ((exp-1000)/2000)*100 };
+    if (exp < 6000) return { level: 3, rank: 'Iron Lifter', current: exp-3000, max: 3000, progress: ((exp-3000)/3000)*100 };
+    if (exp < 10000) return { level: 4, rank: 'Gym Rat', current: exp-6000, max: 4000, progress: ((exp-6000)/4000)*100 };
+    return { level: 5, rank: 'Titan', current: exp-10000, max: 10000, progress: Math.min(((exp-10000)/10000)*100, 100) };
+  };
+
+  const levelInfo = getLevelInfo(exp);
 
   const fetchProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -20,7 +34,7 @@ export default function Profile() {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
       
       const fetchedAvatar = data?.avatar_url || localStorage.getItem('plateup_avatar');
       const fetchedName = data?.username || data?.display_name || localStorage.getItem('plateup_username') || user.email?.split('@')[0] || 'User';
@@ -47,12 +61,13 @@ export default function Profile() {
       .update({ username: editName, display_name: editName })
       .eq('id', profile.id);
     
-    if (error) alert("Failed to save to database. Make sure 'profiles' table exists.");
+    if (error) setErrorMsg("Failed to save to database. Make sure 'profiles' table exists.");
   };
 
   const handleAvatarUpload = async (event) => {
     try {
       setLoading(true);
+      setErrorMsg(null);
       if (!event.target.files || event.target.files.length === 0) return;
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
@@ -69,7 +84,7 @@ export default function Profile() {
       localStorage.setItem('plateup_avatar', publicUrl);
       window.dispatchEvent(new Event('profileUpdated'));
     } catch (error) {
-      alert('Error uploading avatar! Check if avatars bucket is public.');
+      setErrorMsg('Error uploading avatar! Check if avatars bucket is public.');
     } finally {
       setLoading(false);
     }
@@ -118,14 +133,44 @@ export default function Profile() {
   }
 
   if (activeView === 'prs') {
+    const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
+    const prs = [];
+    Object.keys(history).forEach(exName => {
+      let bestWeight = 0;
+      let bestReps = 0;
+      history[exName].forEach(set => {
+        const weight = parseFloat(set.kg) || 0;
+        const reps = parseInt(set.reps, 10) || 0;
+        if (weight > bestWeight || (weight === bestWeight && reps > bestReps)) {
+          bestWeight = weight;
+          bestReps = reps;
+        }
+      });
+      if (bestWeight > 0) {
+        prs.push({ exercise: exName, weight: bestWeight + ' kg', reps: bestReps, date: 'Recent' });
+      }
+    });
+
     return <SettingsView title="Personal Records" onBack={() => setActiveView('main')}>
       <div className="space-y-4">
-        <PRRow exercise="Bench Press" weight="100 kg" reps="5" date="Oct 12, 2023" />
-        <PRRow exercise="Squat" weight="140 kg" reps="3" date="Nov 05, 2023" />
-        <PRRow exercise="Deadlift" weight="160 kg" reps="1" date="Dec 01, 2023" />
-        <PRRow exercise="Overhead Press" weight="65 kg" reps="5" date="Dec 15, 2023" />
+        {prs.length > 0 ? prs.map((pr, i) => (
+          <PRRow key={i} exercise={pr.exercise} weight={pr.weight} reps={pr.reps} date={pr.date} />
+        )) : (
+          <div className="text-[#8E8E93] text-center mt-10">No personal records yet. Finish a workout first!</div>
+        )}
       </div>
     </SettingsView>;
+  }
+
+  if (activeView === 'stats') {
+    return (
+      <div className="animate-in fade-in duration-300">
+        <button onClick={() => setActiveView('main')} className="mb-8 flex items-center gap-2 font-bold text-[#8E8E93]">
+          <ChevronLeft /> Back to Profile
+        </button>
+        <Stats />
+      </div>
+    );
   }
 
   return (
@@ -137,41 +182,70 @@ export default function Profile() {
         </div>
       </header>
 
-      <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] p-8 mb-10 flex flex-col md:flex-row items-center gap-8 shadow-xl relative overflow-hidden group">
-        <div className="relative w-24 h-24 rounded-[20px] bg-black border border-white/10 flex items-center justify-center text-3xl font-black shadow-2xl z-10 overflow-hidden group-hover:border-white/20 transition-all">
-          {profile?.avatar_url ? (
-             <img src={profile?.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-          ) : (
-             <span className="text-white">{editName?.charAt(0).toUpperCase() || 'U'}</span>
-          )}
-          <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-            <span className="text-[10px] font-black uppercase tracking-widest text-white">Upload</span>
-            <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-          </label>
+      {errorMsg && (
+        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl font-bold text-sm text-center">
+          {errorMsg}
         </div>
-        <div className="flex-1 text-center md:text-left relative z-10">
-          {isEditing ? (
-             <div className="flex flex-col md:flex-row items-center md:items-start gap-4 mb-2">
-                <input 
-                  type="text" 
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  className="bg-black border border-white/10 rounded-xl px-4 py-2 font-black text-xl text-white outline-none focus:border-white/40 w-full md:w-auto text-center md:text-left"
-                />
-                <button onClick={handleSaveProfile} className="bg-white text-black px-6 py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-neutral-200">
-                  Save
-                </button>
-             </div>
-          ) : (
-            <h2 className="text-3xl font-black mb-1 text-white flex items-center justify-center md:justify-start gap-3">
-               {editName}
-               <button onClick={() => setIsEditing(true)} className="text-[#8E8E93] hover:text-white transition-colors">
-                  <Edit3 size={18} />
-               </button>
-            </h2>
-          )}
-          <p className="text-[#8E8E93] font-bold mt-2">{profile?.email}</p>
+      )}
+
+      <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] p-8 mb-10 flex flex-col items-center gap-8 shadow-xl relative overflow-hidden group">
+        <div className="flex flex-col md:flex-row items-center gap-8 w-full z-10">
+          <div className="relative w-24 h-24 rounded-[20px] bg-black border border-white/10 flex items-center justify-center text-3xl font-black shadow-2xl overflow-hidden group-hover:border-white/20 transition-all shrink-0">
+            {profile?.avatar_url ? (
+               <img src={profile?.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+               <span className="text-white">{editName?.charAt(0).toUpperCase() || 'U'}</span>
+            )}
+            <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+              <span className="text-[10px] font-black uppercase tracking-widest text-white">Upload</span>
+              <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+            </label>
+          </div>
+          <div className="flex-1 text-center md:text-left">
+            {isEditing ? (
+               <div className="flex flex-col md:flex-row items-center md:items-start gap-4 mb-2">
+                  <input 
+                    type="text" 
+                    value={editName}
+                    onChange={e => setEditName(e.target.value)}
+                    className="bg-black border border-white/10 rounded-xl px-4 py-2 font-black text-xl text-white outline-none focus:border-white/40 w-full md:w-auto text-center md:text-left"
+                  />
+                  <button onClick={handleSaveProfile} className="bg-white text-black px-6 py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-neutral-200">
+                    Save
+                  </button>
+               </div>
+            ) : (
+              <h2 className="text-3xl font-black mb-1 text-white flex items-center justify-center md:justify-start gap-3">
+                 {editName}
+                 <button onClick={() => setIsEditing(true)} className="text-[#8E8E93] hover:text-white transition-colors">
+                    <Edit3 size={18} />
+                 </button>
+              </h2>
+            )}
+            <p className="text-[#8E8E93] font-bold mt-2">{profile?.email}</p>
+          </div>
         </div>
+
+        {/* Level Bar */}
+        <div className="w-full bg-black/40 rounded-[24px] p-5 border border-white/5 z-10 mt-2">
+          <div className="flex justify-between items-end mb-3">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#8E8E93] mb-1">Level {levelInfo.level}</div>
+              <div className="text-lg font-black text-white">{levelInfo.rank}</div>
+            </div>
+            <div className="text-right">
+              <span className="text-white font-black">{Math.floor(levelInfo.current)}</span>
+              <span className="text-[#8E8E93] text-xs font-bold ml-1">/ {levelInfo.max} EXP</span>
+            </div>
+          </div>
+          <div className="h-3 w-full bg-black rounded-full overflow-hidden border border-white/10">
+            <div 
+              className="h-full bg-white transition-all duration-1000 ease-out" 
+              style={{ width: `${Math.max(2, levelInfo.progress)}%` }}
+            />
+          </div>
+        </div>
+        
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-white/[0.02] rounded-full blur-3xl pointer-events-none" />
       </div>
 
@@ -185,7 +259,8 @@ export default function Profile() {
 
         <SectionHeader title="Achievements" />
         <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] overflow-hidden">
-          <MenuLink icon={<Award size={20} />} label="My Badges" onClick={() => setActiveView('badges')} />
+          <MenuLink icon={<BarChart2 size={20} />} label="Full Statistics" onClick={() => setActiveView('stats')} />
+          <MenuLink icon={<Award size={20} />} label="My Badges" border onClick={() => setActiveView('badges')} />
           <MenuLink icon={<Target size={20} />} label="Personal Records" border onClick={() => setActiveView('prs')} />
         </div>
 

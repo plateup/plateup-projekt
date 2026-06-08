@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import SetRow from './SetRow';
-import { MoreHorizontal, Plus, Timer, Edit3, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell } from 'lucide-react';
 import RestTimerModal from './RestTimerModal';
+import PlateCalculator from './PlateCalculator';
 
 export default function ExerciseCard({ 
   exercise, 
@@ -10,6 +11,7 @@ export default function ExerciseCard({
   toggleSetType,
   addSetToExercise,
   removeSetFromExercise,
+  duplicateSetInExercise,
   updateExerciseRestDuration,
   isDisabled,
   activeRestSetId,
@@ -17,12 +19,21 @@ export default function ExerciseCard({
 }) {
   const [showTimerModal, setShowTimerModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [showPlateCalc, setShowPlateCalc] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   const formatRest = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
+
+  const isBarbellExercise = exercise.name.toLowerCase().includes('barbell') || 
+                            exercise.name.toLowerCase().includes('sztang') ||
+                            exercise.name.toLowerCase().includes('bench press') ||
+                            exercise.name.toLowerCase().includes('squat') ||
+                            exercise.name.toLowerCase().includes('deadlift') ||
+                            exercise.name.toLowerCase().includes('overhead press');
 
   return (
     <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] transition-all hover:border-white/10 shadow-lg relative">
@@ -36,13 +47,24 @@ export default function ExerciseCard({
             </div>
             <div>
               <h3 className="text-xl font-black tracking-tight text-white leading-none mb-2">{exercise.name}</h3>
-              <button 
-                onClick={() => setShowTimerModal(true)}
-                className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#8E8E93] hover:text-white transition-colors"
-              >
-                <Timer size={12} />
-                Rest: {formatRest(exercise.restDuration || 90)}
-              </button>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setShowTimerModal(true)}
+                  className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#8E8E93] hover:text-white transition-colors"
+                >
+                  <Timer size={12} />
+                  Rest: {formatRest(exercise.restDuration || 90)}
+                </button>
+                {isBarbellExercise && (
+                  <button 
+                    onClick={() => setShowPlateCalc(true)}
+                    className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#8E8E93] hover:text-white transition-colors"
+                  >
+                    <Dumbbell size={12} />
+                    Calc
+                  </button>
+                )}
+              </div>
             </div>
           </div>
           
@@ -59,7 +81,10 @@ export default function ExerciseCard({
                 <button className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold">
                   <Edit3 size={16} /> Edit Exercise
                 </button>
-                <button className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold text-white/80">
+                <button 
+                  onClick={() => removeSetFromExercise(exercise.id, 'all')}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold text-red-500"
+                >
                   <Trash2 size={16} /> Remove
                 </button>
               </div>
@@ -91,6 +116,7 @@ export default function ExerciseCard({
                   toggleSetComplete={toggleSetComplete}
                   toggleSetType={toggleSetType}
                   removeSetFromExercise={removeSetFromExercise}
+                  duplicateSetInExercise={duplicateSetInExercise}
                   isDisabled={isDisabled}
                 />
               );
@@ -117,6 +143,13 @@ export default function ExerciseCard({
             updateExerciseRestDuration(exercise.id, newSeconds);
             setShowTimerModal(false);
           }}
+        />
+      )}
+
+      {showPlateCalc && (
+        <PlateCalculator 
+          initialWeight={Math.max(...exercise.sets.map(s => parseFloat(s.kg) || 0))}
+          onClose={() => setShowPlateCalc(false)}
         />
       )}
     </div>

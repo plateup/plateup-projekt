@@ -41,7 +41,7 @@ export default function Dashboard({ setActiveTab }) {
           .from('profiles')
           .select('username, display_name, avatar_url')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
         if (data) {
           const fetchedName = data.username || data.display_name || 'Athlete';
           setUsername(fetchedName);

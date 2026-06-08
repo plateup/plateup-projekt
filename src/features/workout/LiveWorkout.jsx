@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWorkoutSession } from './useWorkoutSession';
 import ExerciseCard from './ExerciseCard';
 import Navigation from './Navigation';
@@ -7,6 +7,7 @@ import ExerciseLibrary from './ExerciseLibrary';
 import RestTimerOverlay from './RestTimerOverlay';
 import WorkoutRecap from './WorkoutRecap';
 import { Plus, ChevronUp } from 'lucide-react';
+import { ModalPortal } from '../../components/ui';
 
 export default function LiveWorkout({ isVisible = true, onRestore }) {
   const [activeTab, setActiveTab] = useState('workout');
@@ -16,6 +17,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
   const {
     exercises,
     sessionStatus,
+    workoutTime,
     workoutTimeFormatted,
     workoutTitle,
     setWorkoutTitle,
@@ -34,12 +36,26 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     addExerciseToSession,
     addSetToExercise,
     removeSetFromExercise,
+    duplicateSetInExercise,
     updateExerciseRestDuration,
     setRestTime
   } = useWorkoutSession();
 
   const [showResetModal, setShowResetModal] = useState(false);
   const [isTimerMinimized, setIsTimerMinimized] = useState(false);
+
+  useEffect(() => {
+    const pendingRoutine = localStorage.getItem('plateup_pending_routine');
+    if (pendingRoutine && isVisible) {
+      try {
+        const routineData = JSON.parse(pendingRoutine);
+        startWorkout(routineData);
+      } catch (e) {
+        console.error(e);
+      }
+      localStorage.removeItem('plateup_pending_routine');
+    }
+  }, [isVisible]);
 
   const isIdle = sessionStatus === 'idle';
   const isActive = sessionStatus === 'active';
@@ -48,13 +64,19 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     let totalVolume = 0;
     const completedExercises = [];
     const muscleStats = {};
+    let newPrs = 0;
     
     exercises.forEach(ex => {
       let exVolume = 0;
       let validSets = 0;
       let bestSet = null;
       let maxKg = 0;
+      let isPr = false;
       
+      const pastBest = ex.pastSets && ex.pastSets.length > 0 
+        ? Math.max(...ex.pastSets.map(s => parseFloat(s.kg) || 0)) 
+        : 0;
+
       ex.sets.forEach(set => {
         if (set.isCompleted && set.kg && set.reps) {
           const weight = parseFloat(set.kg);
@@ -68,12 +90,18 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
         }
       });
       
+      if (maxKg > pastBest && pastBest > 0) {
+        isPr = true;
+        newPrs++;
+      }
+
       if (validSets > 0) {
         totalVolume += exVolume;
         completedExercises.push({
           name: ex.name,
           sets: validSets,
-          best: bestSet || '-'
+          best: bestSet || '-',
+          isPR: isPr
         });
         
         // Aggregate volume per muscle group
@@ -90,14 +118,27 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
       normalizedMuscleStats[muscle] = Math.round((muscleStats[muscle] / maxMuscleVolume) * 100);
     });
 
+    // EXP Calculation
+    const durationMinutes = workoutTime / 60;
+    let baseExp = (totalVolume * 0.01) + (durationMinutes * 2) + (newPrs * 50); // 50 EXP per PR
+    const hasLegs = Object.keys(muscleStats).some(m => m.toLowerCase().includes('leg'));
+    if (hasLegs) baseExp *= 1.2;
+    
+    const totalExpEarned = Math.round(baseExp);
+
+    // Save EXP globally
+    const currentExp = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
+    localStorage.setItem('plateup_exp', (currentExp + totalExpEarned).toString());
+
     const summary = {
       name: workoutTitle,
       duration: workoutTimeFormatted,
       volume: totalVolume > 0 ? `${totalVolume.toLocaleString()} kg` : '0 kg',
-      prs: 0,
+      prs: newPrs,
+      expEarned: totalExpEarned,
       exercises: completedExercises,
       muscleStats: normalizedMuscleStats,
-      rawStats: { time: workoutTimeFormatted, volume: `${totalVolume.toLocaleString()} kg`, sets: completedExercises.reduce((acc, ex) => acc + ex.sets, 0), prs: 0 }
+      rawStats: { time: workoutTimeFormatted, volume: `${totalVolume.toLocaleString()} kg`, sets: completedExercises.reduce((acc, ex) => acc + ex.sets, 0), prs: newPrs }
     };
 
     setCompletedWorkoutSummary(summary);
@@ -105,8 +146,12 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     setShowRecap(true);
   };
 
-  const handleAddExercise = (exercise) => {
-    addExerciseToSession(exercise);
+  const handleAddExercise = (exercisesToAdd) => {
+    if (Array.isArray(exercisesToAdd)) {
+      exercisesToAdd.forEach(ex => addExerciseToSession(ex));
+    } else {
+      addExerciseToSession(exercisesToAdd);
+    }
     setShowLibrary(false);
   };
 
@@ -135,19 +180,21 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
   // Active workout minimized view
   if (!isVisible && isActive) {
     return (
-      <div 
-        onClick={onRestore}
-        className="fixed bottom-[120px] left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-lg bg-white text-black p-4 rounded-[24px] z-[90] flex items-center justify-between shadow-2xl cursor-pointer hover:bg-neutral-200 active:scale-95 transition-all animate-in slide-in-from-bottom-8 duration-300"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-black animate-pulse" />
-          <span className="font-black text-sm uppercase tracking-widest">Active Workout</span>
+      <ModalPortal>
+        <div 
+          onClick={onRestore}
+          className="fixed bottom-[120px] left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-lg bg-white text-black p-4 rounded-[24px] z-[500] flex items-center justify-between shadow-2xl cursor-pointer hover:bg-neutral-200 active:scale-95 transition-all animate-in slide-in-from-bottom-8 duration-300"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-black animate-pulse" />
+            <span className="font-black text-sm uppercase tracking-widest">Active Workout</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="font-mono font-black">{workoutTimeFormatted}</span>
+            <ChevronUp size={20} />
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="font-mono font-black">{workoutTimeFormatted}</span>
-          <ChevronUp size={20} />
-        </div>
-      </div>
+      </ModalPortal>
     );
   }
 
@@ -166,13 +213,15 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
             onMinimize={() => setIsTimerMinimized(true)}
           />
         ) : (
-          <div 
-            onClick={() => setIsTimerMinimized(false)}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-[210] bg-black border border-white/20 text-white px-6 py-3 rounded-full flex items-center gap-3 font-black shadow-[0_10px_40px_rgba(0,0,0,0.5)] animate-in slide-in-from-top duration-300 cursor-pointer active:scale-95 backdrop-blur-3xl"
-          >
-            <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span>{Math.floor(restTime / 60)}:{(restTime % 60).toString().padStart(2, '0')}</span>
-          </div>
+          <ModalPortal>
+            <div 
+              onClick={() => setIsTimerMinimized(false)}
+              className="fixed top-6 left-1/2 -translate-x-1/2 z-[500] bg-black border border-white/20 text-white px-6 py-3 rounded-full flex items-center gap-3 font-black shadow-[0_10px_40px_rgba(0,0,0,0.5)] animate-in slide-in-from-top duration-300 cursor-pointer active:scale-95 backdrop-blur-3xl"
+            >
+              <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              <span>{Math.floor(restTime / 60)}:{(restTime % 60).toString().padStart(2, '0')}</span>
+            </div>
+          </ModalPortal>
         )
       )}
 
@@ -222,6 +271,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
                 toggleSetType={toggleSetType}
                 addSetToExercise={addSetToExercise}
                 removeSetFromExercise={removeSetFromExercise}
+                duplicateSetInExercise={duplicateSetInExercise}
                 updateExerciseRestDuration={updateExerciseRestDuration}
                 isDisabled={!isActive}
                 activeRestSetId={activeRestSetId}
@@ -254,20 +304,22 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
       )}
 
       {showResetModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1C1C1E] border border-[#2C2C2E] w-full max-w-sm rounded-[40px] p-8 text-center space-y-6">
-            <h3 className="text-xl font-black text-white tracking-tight">Reset training?</h3>
-            <p className="text-[#8E8E93] font-bold">This action cannot be undone.</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => setShowResetModal(false)} className="bg-black text-[#8E8E93] font-black py-4 rounded-2xl text-xs hover:bg-white/5 transition-all">
-                CANCEL
-              </button>
-              <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-white text-black font-black py-4 rounded-2xl text-xs hover:bg-neutral-200 transition-all">
-                RESET
-              </button>
+        <ModalPortal>
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[500] p-4">
+            <div className="bg-[#1C1C1E] border border-[#2C2C2E] w-full max-w-sm rounded-[40px] p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
+              <h3 className="text-xl font-black text-white tracking-tight">Reset training?</h3>
+              <p className="text-[#8E8E93] font-bold">This action cannot be undone.</p>
+              <div className="grid grid-cols-2 gap-3">
+                <button onClick={() => setShowResetModal(false)} className="bg-black text-[#8E8E93] font-black py-4 rounded-2xl text-xs hover:bg-white/5 transition-all">
+                  CANCEL
+                </button>
+                <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-white text-black font-black py-4 rounded-2xl text-xs hover:bg-neutral-200 transition-all">
+                  RESET
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

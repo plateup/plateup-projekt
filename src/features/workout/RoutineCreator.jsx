@@ -2,15 +2,23 @@ import React, { useState } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { Plus, X, Save, Trash2 } from 'lucide-react';
 import ExerciseLibrary from './ExerciseLibrary';
+import { ModalPortal } from '../../components/ui';
 
-export default function RoutineCreator({ onClose, onSave }) {
-  const [name, setName] = useState('');
-  const [selectedExercises, setSelectedExercises] = useState([]);
+export default function RoutineCreator({ onClose, onSave, initialRoutine = null }) {
+  const [name, setName] = useState(initialRoutine ? initialRoutine.name : '');
+  const [selectedExercises, setSelectedExercises] = useState(
+    initialRoutine ? initialRoutine.exercises.map(ex => ({ ...ex, tempId: Date.now() + Math.random() })) : []
+  );
   const [showLibrary, setShowLibrary] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const addExercise = (ex) => {
-    setSelectedExercises([...selectedExercises, { ...ex, tempId: Date.now() }]);
+  const addExercise = (exercisesToAdd) => {
+    if (Array.isArray(exercisesToAdd)) {
+      const newExs = exercisesToAdd.map(ex => ({ ...ex, tempId: Date.now() + Math.random() }));
+      setSelectedExercises([...selectedExercises, ...newExs]);
+    } else {
+      setSelectedExercises([...selectedExercises, { ...exercisesToAdd, tempId: Date.now() + Math.random() }]);
+    }
     setShowLibrary(false);
   };
 
@@ -24,24 +32,40 @@ export default function RoutineCreator({ onClose, onSave }) {
     
     const { data: { user } } = await supabase.auth.getUser();
     
-    const { error } = await supabase
-      .from('routines')
-      .insert([{
-        user_id: user.id,
-        name,
-        exercises: selectedExercises.map(ex => ({ id: ex.id, name: ex.name, muscle_group: ex.muscle_group }))
-      }]);
+    if (initialRoutine) {
+      const { error } = await supabase
+        .from('routines')
+        .update({
+          name,
+          exercises: selectedExercises.map(ex => ({ id: ex.id, name: ex.name, muscle_group: ex.muscle_group }))
+        })
+        .eq('id', initialRoutine.id);
+        
+      if (!error) {
+        onSave();
+        onClose();
+      }
+    } else {
+      const { error } = await supabase
+        .from('routines')
+        .insert([{
+          user_id: user.id,
+          name,
+          exercises: selectedExercises.map(ex => ({ id: ex.id, name: ex.name, muscle_group: ex.muscle_group }))
+        }]);
 
-    if (!error) {
-      onSave();
-      onClose();
+      if (!error) {
+        onSave();
+        onClose();
+      }
     }
     setSaving(false);
   };
 
   return (
-    <div className="fixed inset-0 bg-black z-[100] flex flex-col animate-in slide-in-from-bottom duration-300">
-      <header className="p-6 flex items-center justify-between border-b border-[#1C1C1E]">
+    <ModalPortal>
+      <div className="fixed inset-0 bg-black z-[500] flex flex-col animate-in slide-in-from-bottom duration-300">
+        <header className="p-6 flex items-center justify-between border-b border-[#1C1C1E]">
         <button onClick={onClose} className="text-[#8E8E93] font-bold hover:text-white transition-colors">Cancel</button>
         <h2 className="text-xl font-black text-white">New Routine</h2>
         <button 
@@ -92,6 +116,7 @@ export default function RoutineCreator({ onClose, onSave }) {
           onClose={() => setShowLibrary(false)}
         />
       )}
-    </div>
+      </div>
+    </ModalPortal>
   );
 }

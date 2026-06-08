@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FastForward, ChevronUp } from 'lucide-react';
+import { ModalPortal } from '../../components/ui';
 
 export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimize }) {
   const [progress, setProgress] = useState(100);
@@ -16,8 +17,9 @@ export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimi
   };
 
   return (
-    <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[200] w-[calc(100%-2rem)] max-w-sm pointer-events-none animate-in slide-in-from-top-8 duration-500">
-      <div className="bg-black/60 backdrop-blur-3xl rounded-[40px] p-6 border border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.8)] pointer-events-auto flex flex-col items-center">
+    <ModalPortal>
+      <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[500] w-[calc(100%-2rem)] max-w-sm pointer-events-none animate-in slide-in-from-top-8 duration-500">
+        <div className="bg-black/60 backdrop-blur-3xl rounded-[40px] p-6 border border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.8)] pointer-events-auto flex flex-col items-center">
         
         <div className="w-full flex justify-between items-center mb-6 px-2">
           <span className="text-white font-black text-xs uppercase tracking-widest">Rest Timer</span>
@@ -61,5 +63,6 @@ export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimi
 
       </div>
     </div>
+    </ModalPortal>
   );
 }

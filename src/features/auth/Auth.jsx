@@ -54,10 +54,10 @@ export default function Auth({ onBack }) {
             .from('profiles')
             .select('email')
             .eq('username', email)
-            .single();
+            .maybeSingle();
           
           if (profileError || !profile || !profile.email) {
-            throw new Error('Username not found or no email associated.');
+            throw new Error('Username not found. Note: If this is your first time using a username, Supabase RLS might be blocking the search unless "profiles" table is public for reads.');
           }
           loginEmail = profile.email;
         }
@@ -82,14 +82,14 @@ export default function Auth({ onBack }) {
         <p className="text-[#8E8E93] max-w-xs mb-8 font-medium">
           We've sent a verification link to <span className="text-black dark:text-white font-bold">{email}</span>. Please click it to activate your account.
         </p>
-        <Button onClick={onBack} variant="secondary">Back to Landing</Button>
+        <button onClick={onBack} className="bg-white/10 text-white font-bold py-3 px-6 rounded-xl hover:bg-white/20 transition-all">Back to Landing</button>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#F2F2F7] dark:bg-black px-4 py-12 flex flex-col">
-      <button onClick={onBack} className="mb-8 flex items-center gap-2 font-bold text-[#8E8E93]">
+      <button onClick={onBack} className="mb-8 flex items-center gap-2 font-bold text-[#8E8E93] w-fit">
         <ChevronLeft /> Back
       </button>
 
@@ -140,9 +140,9 @@ export default function Auth({ onBack }) {
 
           {error && <p className="text-white/60 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold">{error}</p>}
 
-          <Button type="submit" disabled={loading} className="w-full h-16 rounded-[20px] font-black text-lg bg-white text-black hover:bg-neutral-200">
-            {loading ? <Loader2 className="animate-spin mx-auto" /> : (isRegister ? 'Sign Up' : 'Sign In')}
-          </Button>
+          <button type="submit" disabled={loading} className="w-full h-16 rounded-[20px] font-black text-lg bg-white text-black hover:bg-neutral-200 transition-all active:scale-95 shadow-lg flex items-center justify-center">
+            {loading ? <Loader2 className="animate-spin" /> : (isRegister ? 'Sign Up' : 'Sign In')}
+          </button>
         </form>
 
         <div className="my-8 flex items-center gap-4">
@@ -153,12 +153,22 @@ export default function Auth({ onBack }) {
 
         <button 
           onClick={async () => {
+            const redirectUrl = window.location.origin.includes('localhost') 
+              ? 'http://localhost:5173' 
+              : window.location.origin;
+
             await supabase.auth.signInWithOAuth({
               provider: 'google',
-              options: { redirectTo: window.location.origin }
+              options: { 
+                redirectTo: redirectUrl,
+                queryParams: {
+                  access_type: 'offline',
+                  prompt: 'consent',
+                }
+              }
             });
           }}
-          className="w-full h-16 rounded-[20px] font-black text-lg bg-white/5 text-white hover:bg-white/10 border border-white/10 flex items-center justify-center gap-3 transition-all"
+          className="w-full h-16 rounded-[20px] font-black text-lg bg-white/5 text-white hover:bg-white/10 border border-white/10 flex items-center justify-center gap-3 transition-all active:scale-95 shadow-md"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -171,7 +181,7 @@ export default function Auth({ onBack }) {
 
         <button 
           onClick={() => setIsRegister(!isRegister)}
-          className="w-full mt-8 text-center font-bold text-sm text-[#8E8E93] hover:text-white"
+          className="w-full mt-8 text-center font-bold text-sm text-[#8E8E93] hover:text-white transition-colors"
         >
           {isRegister ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
         </button>

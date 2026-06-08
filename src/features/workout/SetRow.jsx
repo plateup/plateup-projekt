@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check, Trash2 } from 'lucide-react';
+import { motion, useAnimation } from 'framer-motion';
 
 export default function SetRow({ 
   exerciseId, 
@@ -9,9 +10,11 @@ export default function SetRow({
   toggleSetComplete, 
   toggleSetType,
   removeSetFromExercise,
+  duplicateSetInExercise,
   isDisabled 
 }) {
   const [showTypeSelector, setShowTypeSelector] = useState(false);
+  const controls = useAnimation();
 
   const types = [
     { id: 'normal', label: 'Regular', short: index || 1 },
@@ -24,19 +27,61 @@ export default function SetRow({
   const currentType = types.find(t => t.id === set.type) || types[0];
 
   const handleTypeSelect = (typeId) => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(20);
     toggleSetType(exerciseId, set.id, typeId);
     setShowTypeSelector(false);
   };
 
   const handleRemove = () => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
     removeSetFromExercise(exerciseId, set.id);
     setShowTypeSelector(false);
   };
 
+  const handleDragEnd = (event, info) => {
+    const threshold = 60;
+    if (info.offset.x < -threshold) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
+      removeSetFromExercise(exerciseId, set.id);
+    } else if (info.offset.x > threshold) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(30);
+      if (duplicateSetInExercise) duplicateSetInExercise(exerciseId, set.id);
+      controls.start({ x: 0 }); // snap back
+    } else {
+      controls.start({ x: 0 }); // snap back
+    }
+  };
+
+  const handleInputClick = (field) => {
+    if (isDisabled || set.isCompleted) return;
+    if (!set[field]) {
+      const prevFieldMap = { kg: 'prevKg', reps: 'prevReps', rpe: 'prevRpe' };
+      const prevValue = set[prevFieldMap[field]];
+      if (prevValue) {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(20);
+        updateSet(exerciseId, set.id, field, prevValue);
+      }
+    }
+  };
+
+  const onCheck = () => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(!set.isCompleted ? 50 : 20);
+    }
+    toggleSetComplete(exerciseId, set.id);
+  };
+
   return (
-    <div className={`relative grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 items-center p-2 rounded-2xl transition-all ${
-      set.isCompleted ? 'bg-white/5' : ''
-    }`}>
+    <motion.div 
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.4}
+      onDragEnd={handleDragEnd}
+      animate={controls}
+      className={`relative grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 items-center p-2 rounded-2xl transition-all ${
+        set.isCompleted ? 'bg-white/5' : ''
+      }`}
+    >
       
       {/* Set Number / Type Trigger */}
       <div className="relative">
@@ -81,6 +126,7 @@ export default function SetRow({
           placeholder={set.prevKg || "0"}
           className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
           value={set.kg}
+          onClick={() => handleInputClick('kg')}
           onChange={(e) => updateSet(exerciseId, set.id, 'kg', e.target.value)}
           disabled={isDisabled || set.isCompleted}
         />
@@ -94,6 +140,7 @@ export default function SetRow({
           placeholder={set.prevReps || "0"}
           className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
           value={set.reps}
+          onClick={() => handleInputClick('reps')}
           onChange={(e) => updateSet(exerciseId, set.id, 'reps', e.target.value)}
           disabled={isDisabled || set.isCompleted}
         />
@@ -107,6 +154,7 @@ export default function SetRow({
           placeholder={set.prevRpe || "-"}
           className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
           value={set.rpe}
+          onClick={() => handleInputClick('rpe')}
           onChange={(e) => updateSet(exerciseId, set.id, 'rpe', e.target.value)}
           disabled={isDisabled || set.isCompleted}
         />
@@ -115,7 +163,7 @@ export default function SetRow({
       {/* Checkbox */}
       <div className="flex justify-center">
         <button
-          onClick={() => toggleSetComplete(exerciseId, set.id)}
+          onClick={onCheck}
           disabled={isDisabled}
           className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
             set.isCompleted 
@@ -126,6 +174,6 @@ export default function SetRow({
           <Check size={24} strokeWidth={4} className={set.isCompleted ? 'scale-100' : 'scale-0'} />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

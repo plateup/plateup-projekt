@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ModalPortal } from '../../components/ui';
 
 export default function RestTimerModal({ currentDuration, exerciseName, onSave, onClose }) {
   const [customSeconds, setCustomSeconds] = useState(currentDuration);
@@ -24,25 +25,26 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-      <div className="bg-neutral-900 border border-neutral-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-white space-y-5 text-center">
+    <ModalPortal>
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[500] p-4 animate-in fade-in duration-200">
+        <div className="bg-[#1C1C1E] border border-white/10 w-full max-w-sm rounded-[32px] p-6 shadow-2xl text-white space-y-6 text-center">
         
         {/* Header */}
         <div className="flex justify-between items-center text-left">
           <div className="space-y-0.5">
-            <h4 className="text-lg font-bold tracking-tight">Czas odpoczynku</h4>
-            <p className="text-xs text-neutral-400 truncate max-w-[240px]">{exerciseName}</p>
+            <h4 className="text-xl font-black tracking-tight text-white">Rest Time</h4>
+            <p className="text-xs font-bold text-[#8E8E93] truncate max-w-[240px] uppercase tracking-wider">{exerciseName}</p>
           </div>
           <button 
             onClick={onClose} 
-            className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-sm font-bold text-neutral-400 hover:text-white transition-all active:scale-95"
+            className="w-10 h-10 rounded-full bg-black border border-white/10 flex items-center justify-center text-sm font-bold text-[#8E8E93] hover:text-white hover:bg-white/5 transition-all active:scale-95"
           >
             ✕
           </button>
         </div>
 
-        {/* Ręczny wpis (Minuty : Sekundy) */}
-        <div className="bg-neutral-950 rounded-2xl p-4 flex items-center justify-center space-x-3 border border-neutral-800/60">
+        {/* Manual Input */}
+        <div className="bg-black rounded-3xl p-6 flex items-center justify-center space-x-4 border border-[#2C2C2E]">
           <div className="flex flex-col items-center">
             <input 
               type="number" 
@@ -50,11 +52,11 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
               max="60"
               value={Math.floor(customSeconds / 60)}
               onChange={(e) => handleMinutesChange(e.target.value)}
-              className="w-16 bg-neutral-800 rounded-xl text-center py-2 text-xl font-bold font-mono focus:outline-none focus:ring-1 focus:ring-neutral-600"
+              className="w-20 bg-transparent text-center text-5xl font-black focus:outline-none placeholder:text-white/20"
             />
-            <span className="text-[10px] text-neutral-500 font-bold uppercase mt-1">Min</span>
+            <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mt-2">Min</span>
           </div>
-          <span className="text-xl font-bold text-neutral-600">:</span>
+          <span className="text-4xl font-black text-[#2C2C2E] mb-6">:</span>
           <div className="flex flex-col items-center">
             <input 
               type="number" 
@@ -62,24 +64,24 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
               max="59"
               value={customSeconds % 60}
               onChange={(e) => handleSecondsChange(e.target.value)}
-              className="w-16 bg-neutral-800 rounded-xl text-center py-2 text-xl font-bold font-mono focus:outline-none focus:ring-1 focus:ring-neutral-600"
+              className="w-20 bg-transparent text-center text-5xl font-black focus:outline-none placeholder:text-white/20"
             />
-            <span className="text-[10px] text-neutral-500 font-bold uppercase mt-1">Sec</span>
+            <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mt-2">Sec</span>
           </div>
         </div>
 
-        {/* Szybki wybór (5 najpopularniejszych czasów) */}
-        <div className="space-y-2 text-left">
-          <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider block px-1">Szybki wybór:</span>
-          <div className="flex flex-wrap gap-2 justify-start">
+        {/* Quick Select */}
+        <div className="space-y-3 text-left">
+          <span className="text-[10px] font-black text-[#8E8E93] uppercase tracking-widest block ml-2">Quick Select</span>
+          <div className="flex flex-wrap gap-2">
             {quickTimes.map((t) => (
               <button
                 key={t.value}
                 onClick={() => setCustomSeconds(t.value)}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border active:scale-95 ${
+                className={`flex-1 py-3 px-2 rounded-2xl text-xs font-black transition-all active:scale-95 border ${
                   customSeconds === t.value 
-                    ? 'bg-white text-black border-white' 
-                    : 'bg-neutral-800 text-neutral-300 border-neutral-700 hover:border-neutral-500'
+                    ? 'bg-white text-black border-white shadow-lg shadow-white/10' 
+                    : 'bg-black text-[#8E8E93] border-[#2C2C2E] hover:border-white/20 hover:text-white'
                 }`}
               >
                 {t.label}
@@ -88,14 +90,15 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
           </div>
         </div>
 
-        {/* Zapisz */}
+        {/* Save */}
         <button 
           onClick={() => onSave(customSeconds)}
-          className="w-full bg-white text-black font-bold py-3 rounded-2xl text-sm transition-all active:scale-95 shadow-lg"
+          className="w-full bg-white text-black font-black py-5 rounded-[24px] text-sm transition-all hover:bg-neutral-200 active:scale-95 shadow-xl shadow-white/10"
         >
-          Zapisz i ustaw
+          Save & Set
         </button>
       </div>
     </div>
+    </ModalPortal>
   );
 }

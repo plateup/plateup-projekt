@@ -8,6 +8,7 @@ import Profile from './features/profile/Profile';
 import Landing from './features/auth/Landing';
 import Auth from './features/auth/Auth';
 import LiveWorkout from './features/workout/LiveWorkout';
+import AIChat from './features/ai/AIChat';
 
 function App() {
   const [session, setSession] = useState(null);
@@ -29,6 +30,23 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    let title = 'PlateUp';
+    if (view === 'landing') title = 'PlateUp - Start';
+    else if (view === 'auth') title = 'PlateUp - Login';
+    else if (view === 'app') {
+      const tabNames = {
+        feed: 'Dashboard',
+        social: 'Social',
+        workout: 'Workout',
+        chat: 'AI Coach',
+        profile: 'Profile'
+      };
+      title = `PlateUp - ${tabNames[activeTab] || 'App'}`;
+    }
+    document.title = title;
+  }, [activeTab, view]);
+
   if (view === 'landing') return <Landing onGetStarted={() => setView('auth')} />;
   if (view === 'auth' && !session) return <Auth onBack={() => setView('landing')} />;
 
@@ -37,7 +55,7 @@ function App() {
       {activeTab === 'feed' && <Dashboard setActiveTab={setActiveTab} />}
       {activeTab === 'social' && <SocialFeed />}
       <LiveWorkout isVisible={activeTab === 'workout'} onRestore={() => setActiveTab('workout')} />
-      {activeTab === 'stats' && <Stats />}
+      {activeTab === 'chat' && <AIChat onStartRoutine={() => setActiveTab('workout')} />}
       {activeTab === 'profile' && <Profile />}
     </AppShell>
   );

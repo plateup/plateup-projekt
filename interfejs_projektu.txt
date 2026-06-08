@@ -1,0 +1,463 @@
+Projekt Interfejsu Użytkownika (UI/UX)
+1. Mapa Ekranów (Nawigacja)
+
+Aplikacja oparta jest na nawigacji typu AppShell z dolnym paskiem zakładek (Tab Bar), co zapewnia szybki dostęp do kluczowych funkcji.
+
+    Tab 1: Feed (Strona Główna) – Aktywność znajomych.
+
+    Tab 2: Trening (Centrum Akcji) – Rozpoczynanie treningu, rutyny.
+
+    Tab 3: Profil – Statystyki, gamifikacja, ustawienia.
+
+2. Szczegółowy opis kluczowych ekranów
+
+Poniżej przedstawiamy projekt najważniejszych widoków aplikacji wraz z logiką interakcji.
+
+A. Tab 1: "Social Feed" (Tablica Aktywności)
+
+Ekran wzorowany bezpośrednio na rozwiązaniach "Best-in-class" (Hevy), służący do przeglądania osiągnięć znajomych. Kluczowym elementem jest Karta Treningu (Workout Post Card).
+
+Struktura Karty Treningu (od góry do dołu):
+
+    Nagłówek Użytkownika (User Header):
+
+        Lewa strona: Okrągły Avatar + Nickname (pogrubiony) + Czas relatywny (np. "2h ago").
+
+        Prawa strona: Menu opcji (...) – Zgłoś, Ukryj, Kopiuj Rutynę.
+
+    Tytuł i Dashboard (Workout Summary):
+
+        Duży tytuł treningu (np. "Chest Destruction").
+
+        Pod spodem poziomy pasek statystyk z ikonami:
+
+            🕒 Czas (np. 1h 20m)
+
+            ⚖️ Objętość (np. 12,450 kg)
+
+            🔢 Liczba serii (np. 24 Sets)
+
+            🏆 Liczba PR (np. 3 PRs) – ten element świeci się na złoto/żółto.
+
+    Lista Ćwiczeń (Compact List View):
+
+        To najważniejsza różnica względem innych aplikacji. Nie wyświetlamy tu każdej serii. Wyświetlamy zestawienie skonsolidowane:
+
+        Format wiersza:
+
+            Obrazek: Miniaturka ćwiczenia (lub pierwsza litera nazwy na kolorowym tle).
+
+            Nazwa: "Bench Press (Barbell)".
+
+            Szczegóły: Np. "4 Sets • Best: 100kg x 5".
+
+        Highlight PR: Jeśli w tym ćwiczeniu padł rekord, obok nazwy pojawia się złota ikona pucharu, a tekst "Best: ..." jest pogrubiony i pokolorowany na kolor akcentu (złoty/pomarańczowy).
+
+    Media (Opcjonalnie):
+
+        Jeśli użytkownik dodał zdjęcia sylwetki, wyświetlają się one tutaj jako karuzela (poziome przewijanie).
+
+    Stopka Społecznościowa (Social Footer):
+
+        Lewa strona: Ikona ❤️ (Like) z licznikiem + Ikona 💬 (Comment) z licznikiem.
+
+        Prawa strona: Przycisk "Save Routine" (Zapisz rutynę) – kluczowa funkcja kopiowania treningu znajomego.
+
+B. Ekran Główny: "Workout Hub" (Zakładka Trening)
+
+To serce aplikacji. Użytkownik ma tutaj dwie główne sekcje:
+
+    Szybki Start: Wielki przycisk "Rozpocznij pusty trening".
+
+    Moje Rutyny: Lista zdefiniowanych planów treningowych.
+
+        Element listy: Tytuł rutyny, lista ćwiczeń (skrócona), przycisk "Start".
+
+        Interakcja: Kliknięcie w "..." pozwala edytować, usunąć lub udostępnić rutynę.
+
+C. Ekran: "Live Workout" (W trakcie treningu)
+
+Najbardziej złożony ekran. Musi być czytelny i obsługiwać dużo danych.
+
+    Nagłówek (Sticky Header):
+
+        Zegar czasu trwania (Timer).
+
+        Przycisk "Zakończ Trening".
+
+        Ikona stopera (do ręcznego mierzenia czasu).
+
+    Lista Ćwiczeń (CollectionView):
+
+        Każde ćwiczenie to osobna karta (Card View).
+
+        Pod tytułem ćwiczenia: Pole na notatki oraz Rest Timer (odliczanie przerwy).
+
+    Tabela Serii (Grid):
+
+        Nagłówki: Set | Prev | KG | Reps | RPE | ✅
+
+        Wiersze:
+
+            Set: Numer serii (kliknięcie zmienia typ: Warmup/Drop/Failure).
+
+            Prev: Wynik z poprzedniego treningu (szary tekst, opacity 50%). Kliknięcie przepisuje wartość do pól KG/Reps.
+
+            KG / Reps: Pola edycyjne (Input). Klawiatura numeryczna.
+
+            RPE: Przycisk otwierający Modal (Popup) z suwakiem 6-10.
+
+            Checkmark: Zaznaczenie wykonania -> Uruchamia automatyczny timer przerwy na dole ekranu, wiersz zmienia kolor na zielony.
+
+    Stopka (Footer):
+
+        Przycisk "Dodaj ćwiczenie" (Otwiera bazę ćwiczeń).
+
+        Przycisk "Anuluj trening".
+
+Shutterstock
+
+    Explore
+
+D. Ekran: "Baza i Wybór Ćwiczeń"
+
+Ekran pojawia się po kliknięciu "Dodaj ćwiczenie".
+
+    Pasek wyszukiwania na górze.
+
+    Filtry (Partie mięśniowe: Klatka, Plecy, Nogi...).
+
+    Lista ćwiczeń z miniaturkami.
+
+    Przycisk "Stwórz własne ćwiczenie" (przenosi do formularza z nazwą i typem).
+
+    Multi-select: Możliwość zaznaczenia kilku ćwiczeń i dodania ich naraz (lub stworzenia superserii przyciskiem "Połącz w Superset").
+
+E. Ekran: "Podsumowanie Treningu"
+
+Pojawia się po zakończeniu sesji.
+
+    Top: Tytuł treningu (edytowalny), Data.
+
+    Statystyki: Czas całkowity, Volume (kg), Liczba serii, Rekordy (PR) oznaczone ikoną pucharu.
+
+    Muscle Split: Wykres kołowy lub paski pokazujące % użycia mięśni.
+
+    Sekcja Społecznościowa: Suwak "Publiczny/Prywatny", pole na opis/refleksje.
+
+    Akcja: Przycisk "Zapisz i Opublikuj".
+
+F. Ekran: "Profil Użytkownika" (Gamifikacja)
+
+Wizualizacja postępów gracza.
+
+    Header: Zdjęcie (Avatar), Nick, Bio.
+
+    Pasek Postępu (Level Bar):
+
+        Obecny Level i Ranga (np. "Gym Rat", "Iron Lifter").
+
+        Pasek EXP pokazujący ile brakuje do awansu.
+
+    Kalendarz Treningów: Widok miesiąca z kropkami oznaczającymi dni treningowe.
+
+    Statystyki ciała: Wykres wagi (możliwość dodania nowego pomiaru).
+
+G. Elementy Micro-UX i Narzędzia (Inspirowane standardami rynkowymi)
+
+Aby zapewnić profesjonalny "User Experience" (UX), system będzie zawierał następujące moduły interfejsu:
+
+    Interfejs Oparty na Gestach (Swipe Actions):
+
+        W widoku treningu rezygnujemy z nadmiaru przycisków "Usuń/Edytuj". Zastosowanie gestu przesunięcia w lewo (SwipeView) na wierszu serii pozwoli na jej szybkie usunięcie, a przesunięcie w prawo na jej duplikację. Przyspiesza to wprowadzanie danych o 40%.
+
+    Moduł "Plate Calculator" (Wizualizacja Obciążenia):
+
+        Dedykowany widok typu Popup, dostępny z poziomu klawiatury numerycznej. Automatycznie oblicza konfigurację talerzy na sztandze (np. 20kg, 10kg, 2.5kg) dla zadanego ciężaru całkowitego, co jest kluczowe dla użytkowników trenujących z wolnymi ciężarami.
+
+    Wskaźniki Trendu (Mini-Charts):
+
+        Przy każdym ćwiczeniu w historii wyświetlany będzie "Sparkline" – minimalistyczny wykres liniowy pokazujący progres ciężaru z ostatnich 5 sesji. Pozwala to ocenić postęp bez konieczności otwierania osobnego ekranu statystyk.
+
+    Kontekstowa Historia Ćwiczenia:
+
+        Podczas wykonywania ćwiczenia, pod tabelą serii dostępna będzie rozwijana sekcja "Ostatnie wyniki", pokazująca dokładnie co użytkownik zrobił na poprzednim treningu (nie tylko "ghost values", ale pełna lista serii z datą).
+
+    Kopiowanie Rutyn Społecznościowych:
+
+        Na ekranie głównym (Feed), przy treningach innych użytkowników, znajdzie się przycisk "Save as Routine". Pozwoli to na natychmiastowe zaimportowanie planu treningowego innej osoby do własnej biblioteki.
+
+H. Ekran Statystyk (Nowa zakładka lub sekcja w Profilu)
+
+    Górna sekcja: Przełącznik okresu (Tydzień / Miesiąc / Rok / Wszystko).
+
+    Sekcja Heatmap: Interaktywny obrazek ciała. Kliknięcie w mięsień (np. klatkę) filtruje historię treningów tylko do tych, gdzie była trenowana klatka.
+
+    Sekcja Wykresów: Kontrolka z wykresem (użyjcie biblioteki LiveCharts2 w MAUI). Pod wykresem lista "Rekordy Życiowe" z datami ich bicia.
+
+I. Ustawienia Ćwiczenia (W edycji rutyny)
+
+    Obok nazwy ćwiczenia mała ikonka "Zębatki".
+
+    Po kliknięciu wyskakuje okienko "Zaawansowane":
+
+        Pole: "Domyślny czas przerwy".
+
+        Pole: "Typ progresji" (np. Liniowa, Falowa).
+
+3. Aspekty Techniczne UI
+
+Aby zrealizować powyższe interfejsy w .NET MAUI, wykorzystamy następujące kontrolki:
+Element Interfejsu	Kontrolka MAUI (XAML)	Uwagi
+Lista ćwiczeń/serii	CollectionView	Pozwala na wydajne renderowanie list w listach.
+Tabela serii	Grid	Precyzyjne ułożenie kolumn (Set, Prev, KG, Reps).
+Suwak RPE	Slider	Zakres 6-10, skok co 0.5 (Wymaga ValueChanged event).
+Cienie i Karty	Frame lub Border	Do oddzielenia ćwiczeń od tła.
+Ikony	FontImageSource	Wykorzystanie czcionki (np. FontAwesome) dla lekkości.
+Modal RPE/Timer	CommunityToolkit.Maui.Popup	Wyskakujące okienka nad treścią.
+4. Narzędzia do wizualizacji
+
+Do prezentacji interfejsów na zajęciach wykorzystamy:
+
+    Makiety Low-Fidelity: Szkice na kartce (wstępna faza).
+
+    Makiety High-Fidelity: Projekt w Figma (do pokazania kolorystyki Dark Mode, inspirowanej Hevy).
+
+
+5. System Designu i Estetyka (Adaptive UI)
+
+Aplikacja zostanie zaprojektowana zgodnie z zasadami System Theme Awareness. Oznacza to, że interfejs automatycznie dostosowuje się do ustawień systemowych telefonu (Android/iOS). Jeśli użytkownik używa trybu ciemnego w systemie – aplikacja uruchomi się w trybie ciemnym. Użytkownik ma również możliwość ręcznego wymuszenia motywu w ustawieniach.
+
+A. Paleta Kolorów (Dual Theme Strategy)
+
+Definiujemy kolory semantyczne, które zmieniają swoje wartości w zależności od aktywnego motywu.
+Element Interfejsu	Tryb Jasny (Light Mode) ☀️	Tryb Ciemny (Dark Mode) 🌙	Opis
+Tło Aplikacji	White (#FFFFFF)	Almost Black (#121212)	Podstawa interfejsu.
+Powierzchnia (Karty)	Light Grey (#F5F5F5)	Dark Grey (#1E1E1E)	Tło dla kafelków ćwiczeń i list, aby oddzielić je od tła głównego.
+Tekst Główny	Black (#000000)	White (#FFFFFF)	Maksymalny kontrast dla czytelności.
+Tekst Drugorzędny	Dark Grey (#666666)	Light Grey (#B0B0B0)	Dla etykiet takich jak "KG", "Reps", daty.
+Kolor Akcentu	Electric Blue (#2979FF)	Electric Blue (#448AFF)	Główny kolor marki (przyciski, aktywne elementy). W trybie ciemnym jest lekko rozjaśniony dla lepszej widoczności.
+Sukces (Zaliczenie)	Green (#2E7D32)	Green (#4CAF50)	Kolor checkmarka po wykonaniu serii.
+B. Typografia i Hierarchia
+
+Czytelność jest priorytetem w obu trybach.
+
+    Krój pisma: Bezszeryfowy (np. Montserrat lub systemowy).
+
+    Liczby (Kluczowe): W tabeli serii używamy Monospaced Fonts (czcionki o stałej szerokości znaków), co zapewnia idealne wyrównanie kolumn niezależnie od tego, czy tło jest białe czy czarne.
+
+C. Kształty i Przestrzeń (Layout)
+
+Stylistyka "Clean & Modern".
+
+    Corner Radius (Zaokrąglenia): Konsekwentne zaokrąglenia (12px) dla kart i przycisków. W trybie jasnym karty będą posiadały subtelny cień (Shadow), aby odróżnić się od białego tła. W trybie ciemnym głębię budujemy różnicą odcieni szarości (jaśniejsza karta na ciemniejszym tle), bez mocnych cieni.
+
+    White Space (Oddech): Zachowanie dużych marginesów (Padding 16px), aby interfejs nie był przytłaczający.
+
+D. Interakcje i Feedback (Micro-interactions)
+
+Elementy interaktywne muszą być wyraźne.
+
+    Dotyk: Każdy przycisk posiada stan "Pressed" (wciśnięty). W trybie jasnym przycisk lekko ciemnieje, w trybie ciemnym – jaśnieje.
+
+    Zaliczanie serii:
+
+        Light Mode: Wiersz zmienia kolor na jasnoszary/zielonkawy.
+
+        Dark Mode: Wiersz zmienia kolor na ciemnoszary/ciemnozielony.
+
+        Zawsze towarzyszy temu wibracja (Haptic Feedback).
+
+E. Obsługa Błędów i Stany
+
+    Walidacja: Błędnie wypełnione pola (np. brak ciężaru) otrzymują czerwoną obwódkę (BorderColor), która jest czytelna na obu tłach.
+
+6. Architektura Danych (Schema & Data Logic)
+
+Aplikacja opiera się na lokalnej bazie danych SQLite z wykorzystaniem SQLite-net-pcl (ORM). Aby obsłużyć zaawansowane funkcje (Superserie, Heatmapy, RPE), struktura danych musi wyglądać następująco:
+A. Schemat Tabel (Encje)
+
+    Table: Exercises (Katalog Ćwiczeń)
+
+        Id (Primary Key)
+
+        Name (String) - np. "Bench Press"
+
+        TargetMuscleGroup (Enum) - np. Chest, Back, Legs (Kluczowe dla Heatmapy)
+
+        Type (Enum) - Weight, Bodyweight, Duration
+
+        IsCustom (Bool) - Rozróżnienie między wbudowanymi a własnymi.
+
+    Table: Workouts (Sesje Treningowe)
+
+        Id (PK)
+
+        StartTime, EndTime (DateTime)
+
+        Title (String)
+
+        TotalVolume (Double) - Cache'owana wartość dla szybkich wykresów.
+
+        IsTemplate (Bool) - Jeśli True, to jest to Rutyna (szablon), jeśli False, to wykonany trening.
+
+    Table: WorkoutExercises (Łącznik)
+
+        Opis: Tabela łącząca Trening z Ćwiczeniem. Pozwala na Superserie.
+
+        Id (PK)
+
+        WorkoutId (FK)
+
+        ExerciseId (FK)
+
+        OrderIndex (Int) - Kolejność ćwiczenia w treningu.
+
+        SupersetGroupId (Nullable Int) - Jeśli dwa ćwiczenia mają to samo ID grupy, są wyświetlane jako Superset.
+
+    Table: WorkoutSets (Konkretne Serie)
+
+        Id (PK)
+
+        WorkoutExerciseId (FK)
+
+        SetType (Enum) - Normal, Warmup, Drop, Failure.
+
+        Weight (Double)
+
+        Reps (Int)
+
+        RPE (Double)
+
+        IsCompleted (Bool)
+
+B. Relacje i Integralność
+
+    Relacja Jeden-do-Wielu między Workouts a WorkoutExercises.
+
+    Relacja Jeden-do-Wielu między WorkoutExercises a WorkoutSets.
+
+    Kaskadowe usuwanie: Usunięcie treningu usuwa wszystkie powiązane z nim serie.
+
+7. Logika Biznesowa i Algorytmy (Business Logic)
+
+Tutaj definiujemy matematykę aplikacji, aby AI wiedziało, jak obliczać statystyki wyświetlane w UI.
+A. Algorytm "Ghost Values" (Dane z poprzedniego treningu)
+
+Aby wyświetlić "szare" wartości w tabeli serii:
+
+    System pobiera ExerciseId aktualnego ćwiczenia.
+
+    Wykonuje zapytanie SQL: SELECT * FROM WorkoutSets WHERE ExerciseId = X ORDER BY Date DESC LIMIT 1.
+
+    Mapuje wyniki (Waga/Powtórzenia) do UI z przezroczystością 0.5.
+
+B. Algorytm 1RM (One Rep Max)
+
+Szacowany rekord (wyświetlany na wykresach) obliczany jest ze wzoru Epleya:
+
+    1RM=Weight×(1+30Reps​)
+
+    Warunek: Wzór stosowany tylko dla serii typu "Normal" i "Failure" (ignorujemy "Warmup").
+
+C. Logika Heatmapy Mięśniowej
+
+Aby pokolorować ciało na profilu:
+
+    Pobierz wszystkie serie z ostatnich 7 dni.
+
+    Zgrupuj je po TargetMuscleGroup.
+
+    Dla każdej grupy oblicz wynik zmęczenia (np. 1 seria = 1 pkt).
+
+    Przypisz kolor:
+
+        0 pkt -> Szary (Wypoczęty)
+
+        1-5 pkt -> Pomarańczowy (Regeneracja)
+
+        >5 pkt -> Czerwony (Mocno przetrenowany)
+
+D. System EXP (Gamifikacja)
+
+Wzór na przyznawanie punktów po treningu:
+
+    EXP=(TotalVolume×0.01)+(TotalDurationMinutes×2)+(NewPrBonus)
+
+    Jeśli w treningu wystąpiło ćwiczenie z grupy Legs, wynik mnożymy x 1.2 (Bonus "Don't Skip Leg Day").
+
+8. Wzorzec Architektury Aplikacji (Code Structure)
+
+Aby kod był czysty i łatwy w utrzymaniu (wymóg na zaliczenie), aplikacja zostanie zbudowana w oparciu o wzorzec MVVM (Model-View-ViewModel) z wstrzykiwaniem zależności (Dependency Injection).
+A. Warstwy Aplikacji
+
+    Models: "Czyste" klasy danych (odzwierciedlenie tabel bazy danych).
+
+    Services (Repositories):
+
+        IWorkoutRepository: Odpowiada za operacje CRUD (Create, Read, Update, Delete) na bazie danych SQLite. Odseparowuje logikę bazy od UI.
+
+        ISettingsService: Obsługa motywów (Dark/Light) i ustawień użytkownika.
+
+    ViewModels:
+
+        Zawierają logikę prezentacji (np. LiveWorkoutViewModel).
+
+        Obsługują komendy (np. AddSetCommand, SaveWorkoutCommand).
+
+        Implementują interfejs INotifyPropertyChanged (dla odświeżania UI na żywo).
+
+    Views (Pages):
+
+        Tylko kod XAML. Brak logiki biznesowej w plikach .xaml.cs (Code Behind). Widok łączy się z ViewModel przez DataBinding.
+
+B. Użyte Biblioteki (Tech Stack)
+
+    CommunityToolkit.Mvvm: Do generowania kodu boilerplate (ObservableProperty, RelayCommand).
+
+    Microcharts / LiveCharts2: Do generowania wykresów.
+
+    SQLite-net-pcl: Do bazy danych.
+
+
+9. Infrastruktura i Dystrybucja (Deployment Strategy)
+
+Projekt realizowany jest w modelu "Closed Beta" (Zamknięte testy), co pozwala na natychmiastowe wdrażanie poprawek (Hot-fix) bez oczekiwania na certyfikację sklepów (Store Review Process).
+A. Środowisko Uruchomieniowe (Platform Specifics)
+Platforma	Metoda Dystrybucji	Opis Techniczny
+Android	Direct APK Distribution	Aplikacja dystrybuowana jest jako pakiet .apk (Android Package Kit). Instalacja odbywa się w trybie "Sideload" z wyłączeniem restrykcji dla nieznanych źródeł. Umożliwia to testowanie na szerokiej gamie urządzeń bez udziału Google Play.
+iOS	Self-Signed / Sideloading	Wykorzystanie mechanizmu podpisywania kodu certyfikatem deweloperskim (Development Certificate) przy użyciu narzędzi typu SideStore/AltServer. Pozwala to na instalację pliku .ipa bezpośrednio na urządzeniu fizycznym w trybie "Developer Mode", symulując środowisko produkcyjne bez kosztów Apple Developer Program.
+B. Architektura Hybrydowa (Local + Cloud Sync)
+
+Ponieważ aplikacja ma działać u kilku użytkowników i wymieniać dane (Feed znajomych), stosujemy architekturę "Offline-First":
+
+    Lokalnie (SQLite): Cała historia treningów, ustawienia i rutyny są zapisywane na telefonie. Aplikacja działa w 100% sprawnie bez internetu.
+
+    Chmura (Sync): Do funkcji społecznościowych wykorzystujemy darmową warstwę chmurową (Free Tier) – np. Firebase Firestore lub Supabase.
+
+        Synchronizacja: Gdy użytkownik kończy trening i ma internet -> wysyłamy JSON z podsumowaniem (tylko wynik, bez szczegółowych logów każdej serii) do chmury.
+
+        Pobieranie: Feed znajomych pobiera te małe pliki JSON z chmury.
+
+        Koszt: 0 PLN (darmowe limity Firebase wystarczą na tysiące takich zapytań miesięcznie).
+
+10. Bezpieczeństwo i Prywatność Danych
+
+Mimo że aplikacja jest wewnętrzna, dbamy o standardy bezpieczeństwa danych osobowych (RODO/GDPR).
+
+    Brak Wrażliwych Danych: Nie przechowujemy haseł w formie tekstu (używamy Hashowania lub logowania tokenem).
+
+    Lokalność Danych: Szczegółowe dane biometryczne (waga, wymiary) są domyślnie przechowywane tylko lokalnie na urządzeniu użytkownika (Local Storage). Do chmury trafiają jedynie dane publiczne (Nick, Avatar, Ogólny wynik treningu), na co użytkownik wyraża zgodę przy "Opublikowaniu treningu".
+
+    Izolacja Środowiska: Dzięki dystrybucji poza sklepami, mamy pełną kontrolę nad tym, kto ma dostęp do pliku instalacyjnego (dystrybucja bezpośrednia w zespole).
+
+Podsumowanie dokumentacji
+
+Z takim zestawem (UI + UX + DB + Logika + Architektura) masz kompletny projekt inżynierski ("Blueprint"). Gdy będziesz chciał wygenerować kod przez AI, możesz wklejać mu poszczególne sekcje.
+
+Przykład promptu dla AI w przyszłości: "Jesteś ekspertem .NET MAUI. Na podstawie sekcji 6 (Architektura Danych) i sekcji 8 (MVVM), stwórz dla mnie klasę modelu WorkoutSet oraz odpowiadający jej ViewModel, który obsługuje logikę walidacji opisaną w sekcji 5E."
+
+To gwarantuje, że dostaniesz kod idealnie pasujący do Twojej wizji. Powodzenia!
+
+
+//podsumowanie roczne i meiscznee (gymWrapped)

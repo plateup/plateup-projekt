@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Build artifacts
+dev-dist/
+
+# Codebase index
+.codegraph/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

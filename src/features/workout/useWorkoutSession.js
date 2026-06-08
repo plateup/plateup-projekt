@@ -67,18 +67,47 @@ export function useWorkoutSession() {
 
   const startWorkout = (routine = null) => {
     if (routine) {
+      const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
       setWorkoutTitle(routine.name || 'Workout Session');
-      const routineExercises = routine.exercises.map((ex, idx) => ({
-        id: `ex-${Date.now()}-${idx}`,
-        name: ex.name,
-        muscle_group: ex.muscle_group || 'Full Body',
-        restDuration: 90,
-        sets: [
-          { id: `s-${Date.now()}-1`, type: 'normal', kg: '', reps: '', rpe: '', isCompleted: false, prevKg: '', prevReps: '', prevRpe: '' },
-          { id: `s-${Date.now()}-2`, type: 'normal', kg: '', reps: '', rpe: '', isCompleted: false, prevKg: '', prevReps: '', prevRpe: '' },
-          { id: `s-${Date.now()}-3`, type: 'normal', kg: '', reps: '', rpe: '', isCompleted: false, prevKg: '', prevReps: '', prevRpe: '' },
-        ]
-      }));
+      
+      const routineExercises = routine.exercises.map((ex, idx) => {
+        const pastSets = history[ex.name] || [];
+        
+        // Determine sets array
+        let initialSets = [];
+        if (Array.isArray(ex.sets) && ex.sets.length > 0 && typeof ex.sets[0] === 'object') {
+          // If routine already provides full set objects (like from AI Chat)
+          initialSets = ex.sets.map((s, j) => ({
+            ...s,
+            prevKg: pastSets[j]?.kg || pastSets[0]?.kg || '',
+            prevReps: pastSets[j]?.reps || pastSets[0]?.reps || '',
+            prevRpe: pastSets[j]?.rpe || pastSets[0]?.rpe || ''
+          }));
+        } else {
+          // Determine how many sets to generate
+          const setCount = typeof ex.sets === 'number' ? ex.sets : 3;
+          initialSets = Array.from({ length: setCount }).map((_, j) => ({
+            id: `s-${Date.now()}-${idx}-${j}`,
+            type: 'normal',
+            kg: '',
+            reps: '',
+            rpe: '',
+            isCompleted: false,
+            prevKg: pastSets[j]?.kg || pastSets[0]?.kg || '',
+            prevReps: pastSets[j]?.reps || pastSets[0]?.reps || '',
+            prevRpe: pastSets[j]?.rpe || pastSets[0]?.rpe || ''
+          }));
+        }
+
+        return {
+          id: `ex-${Date.now()}-${idx}`,
+          name: ex.name,
+          muscle_group: ex.muscle_group || 'Full Body',
+          restDuration: ex.restDuration || 90,
+          pastSets: pastSets,
+          sets: initialSets
+        };
+      });
       setExercises(routineExercises);
     } else {
       setExercises([]); 
@@ -189,10 +218,36 @@ export function useWorkoutSession() {
   };
 
   const removeSetFromExercise = (exerciseId, setId) => {
+    if (setId === 'all') {
+      setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
+      return;
+    }
     setExercises((prev) =>
       prev.map((ex) => {
         if (ex.id !== exerciseId) return ex;
         return { ...ex, sets: ex.sets.filter((s) => s.id !== setId) };
+      })
+    );
+  };
+
+  const duplicateSetInExercise = (exerciseId, setId) => {
+    setExercises((prev) =>
+      prev.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
+        const setIndex = ex.sets.findIndex((s) => s.id === setId);
+        if (setIndex === -1) return ex;
+        
+        const sourceSet = ex.sets[setIndex];
+        const newSet = {
+          ...sourceSet,
+          id: `s-${Date.now()}`,
+          isCompleted: false,
+        };
+        
+        const newSets = [...ex.sets];
+        newSets.splice(setIndex + 1, 0, newSet);
+        
+        return { ...ex, sets: newSets };
       })
     );
   };
@@ -267,6 +322,7 @@ export function useWorkoutSession() {
       name: exercise.name,
       muscle_group: exercise.muscle_group || 'Full Body',
       restDuration: 90,
+      pastSets: pastSets,
       sets: [
         { 
           id: `s-${Date.now()}-1`, 
@@ -285,8 +341,8 @@ export function useWorkoutSession() {
   };
 
   return {
-    exercises, sessionStatus, workoutTimeFormatted: Math.floor(workoutTime / 60).toString().padStart(2, '0') + ":" + (workoutTime % 60).toString().padStart(2, '0'),
+    exercises, sessionStatus, workoutTime, workoutTimeFormatted: Math.floor(workoutTime / 60).toString().padStart(2, '0') + ":" + (workoutTime % 60).toString().padStart(2, '0'),
     workoutTitle, setWorkoutTitle, restTime, initialRestTime, setRestTime, isResting, activeRestSetId, startWorkout, stopRest, pauseWorkout, executeReset, completeAndSaveWorkout, updateSet, toggleSetComplete, toggleSetType, moveSet,
-    addExerciseToSession, addSetToExercise, removeSetFromExercise, updateExerciseRestDuration
+    addExerciseToSession, addSetToExercise, removeSetFromExercise, duplicateSetInExercise, updateExerciseRestDuration
   };
 }

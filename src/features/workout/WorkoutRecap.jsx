@@ -1,11 +1,47 @@
-import React, { useState } from 'react';
-import { Award, Clock, Activity, Share2, Check, Globe } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Clock, Activity, Award, Check, Share2, Globe } from 'lucide-react';
 import MuscleHeatmap from '../feed/MuscleHeatmap';
 import { supabase } from '../../services/supabaseClient';
+import confetti from 'canvas-confetti';
+import { ModalPortal } from '../../components/ui';
 
 export default function WorkoutRecap({ workout, onClose }) {
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
+  const [routineSaved, setRoutineSaved] = useState(false);
+
+  useEffect(() => {
+    // Fire confetti on mount
+    const duration = 3000;
+    const end = Date.now() + duration;
+
+    const frame = () => {
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: ['#ffffff', '#8E8E93', '#2C2C2E']
+      });
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: ['#ffffff', '#8E8E93', '#2C2C2E']
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    };
+    frame();
+    
+    // Haptic feedback
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate([100, 50, 100, 50, 200]);
+    }
+  }, []);
 
   const summary = workout || {
     name: 'Workout',
@@ -29,7 +65,7 @@ export default function WorkoutRecap({ workout, onClose }) {
     let avatarUrl = localStorage.getItem('plateup_avatar') || null;
     
     if (user) {
-      const { data } = await supabase.from('profiles').select('username, display_name, avatar_url').eq('id', user.id).single();
+      const { data } = await supabase.from('profiles').select('username, display_name, avatar_url').eq('id', user.id).maybeSingle();
       if (data) {
         if (data.username || data.display_name) username = data.username || data.display_name;
         if (data.avatar_url) avatarUrl = data.avatar_url;
@@ -94,12 +130,14 @@ export default function WorkoutRecap({ workout, onClose }) {
         exercises: newRoutine.exercises
       }]);
     }
-    alert('Routine saved successfully!');
+    setRoutineSaved(true);
+    setTimeout(() => setRoutineSaved(false), 3000);
   };
 
   return (
-    <div className="fixed inset-0 z-[300] bg-black flex flex-col items-center p-6 animate-in slide-in-from-bottom duration-500 overflow-y-auto">
-      <div className="w-full max-w-5xl flex flex-col items-center pb-24">
+    <ModalPortal>
+      <div className="fixed inset-0 z-[500] bg-black flex flex-col items-center p-6 animate-in slide-in-from-bottom duration-500 overflow-y-auto">
+        <div className="w-full max-w-5xl flex flex-col items-center pb-24">
         
         {/* Celebration Header */}
         <div className="mt-12 mb-10 text-center">
@@ -192,7 +230,7 @@ export default function WorkoutRecap({ workout, onClose }) {
                   onClick={handleSaveRoutine}
                   className="flex-1 bg-[#1C1C1E] text-white py-5 rounded-[24px] font-black flex items-center justify-center gap-3 hover:bg-white/5 active:scale-95 transition-all border border-white/5"
                 >
-                  Save as Routine
+                  {routineSaved ? <span className="text-green-400">Saved!</span> : 'Save as Routine'}
                 </button>
                 <button className="flex-1 bg-[#1C1C1E] text-white py-5 rounded-[24px] font-black flex items-center justify-center gap-3 hover:bg-white/5 active:scale-95 transition-all border border-white/5">
                   <Share2 size={20} />
@@ -210,6 +248,7 @@ export default function WorkoutRecap({ workout, onClose }) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }
