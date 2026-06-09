@@ -28,3 +28,10 @@ dev-dist/
 *.njsproj
 *.sln
 *.sw?
+
+# Internal / Documentation files
+AI_CONTEXT.md
+LANDZI.md
+LIFT_ROADMAP.md
+interfejs_projektu.txt
+praktyczna_karta_wymagan.txt
