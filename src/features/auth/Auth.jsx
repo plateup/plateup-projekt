@@ -11,12 +11,25 @@ export default function Auth({ onBack }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
-  const [isEmailSent, setIsEmailSent] = useState(false);
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window) {
+      try {
+        if (Notification.permission === 'default') {
+          await Notification.requestPermission();
+        }
+      } catch (error) {
+        console.error("Failed to request notification permission:", error);
+      }
+    }
+  };
 
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Ask for permission for rest timers/workout alerts
+    await requestNotificationPermission();
 
     try {
       if (isRegister) {
@@ -42,8 +55,6 @@ export default function Auth({ onBack }) {
              console.error("Profile creation error:", profileError);
           }
         }
-        
-        setIsEmailSent(true);
       } else {
         // Handle Login
         let loginEmail = email;
@@ -57,7 +68,7 @@ export default function Auth({ onBack }) {
             .maybeSingle();
           
           if (profileError || !profile || !profile.email) {
-            throw new Error('Username not found. Note: If this is your first time using a username, Supabase RLS might be blocking the search unless "profiles" table is public for reads.');
+            throw new Error('Username not found.');
           }
           loginEmail = profile.email;
         }
@@ -71,21 +82,6 @@ export default function Auth({ onBack }) {
       setLoading(false);
     }
   };
-
-  if (isEmailSent) {
-    return (
-      <div className="min-h-screen bg-[#F2F2F7] dark:bg-black px-4 py-12 flex flex-col items-center justify-center text-center">
-        <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6">
-          <Mail className="text-white" size={32} />
-        </div>
-        <h1 className="text-3xl font-black mb-4">Check your email</h1>
-        <p className="text-[#8E8E93] max-w-xs mb-8 font-medium">
-          We've sent a verification link to <span className="text-black dark:text-white font-bold">{email}</span>. Please click it to activate your account.
-        </p>
-        <button onClick={onBack} className="bg-white/10 text-white font-bold py-3 px-6 rounded-xl hover:bg-white/20 transition-all">Back to Landing</button>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#F2F2F7] dark:bg-black px-4 py-12 flex flex-col">
@@ -153,6 +149,8 @@ export default function Auth({ onBack }) {
 
         <button 
           onClick={async () => {
+            await requestNotificationPermission();
+            
             const redirectUrl = window.location.origin.includes('localhost') 
               ? 'http://localhost:5173' 
               : window.location.origin;

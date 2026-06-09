@@ -1,56 +1,32 @@
-import React, { useRef } from 'react';
-import { Dumbbell, ArrowRight, Activity, Users, BarChart2 } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React from 'react';
+import { Dumbbell, ArrowRight, Activity, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Landing({ onGetStarted }) {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
-
-  // Hero animations
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.1], [1, 0.8]);
-
-  // Section 1 (Tracking)
-  const sec1Y = useTransform(scrollYProgress, [0.1, 0.2, 0.3, 0.4], [100, 0, 0, -100]);
-  const sec1Opacity = useTransform(scrollYProgress, [0.1, 0.2, 0.3, 0.4], [0, 1, 1, 0]);
-  const mockup1Scale = useTransform(scrollYProgress, [0.15, 0.25], [0.8, 1]);
-
-  // Section 2 (Social)
-  const sec2Y = useTransform(scrollYProgress, [0.4, 0.5, 0.6, 0.7], [100, 0, 0, -100]);
-  const sec2Opacity = useTransform(scrollYProgress, [0.4, 0.5, 0.6, 0.7], [0, 1, 1, 0]);
-  const mockup2Rotate = useTransform(scrollYProgress, [0.45, 0.55], [10, 0]);
-
-  // CTA Section
-  const ctaOpacity = useTransform(scrollYProgress, [0.7, 0.8], [0, 1]);
-  const ctaY = useTransform(scrollYProgress, [0.7, 0.8], [50, 0]);
-
   return (
-    <div ref={containerRef} className="bg-black text-white selection:bg-white/30 relative" style={{ height: "400vh" }}>
+    <div className="bg-black text-white selection:bg-white/30 h-[100dvh] overflow-y-auto snap-y snap-proximity scroll-smooth no-scrollbar relative">
       
       {/* Navbar - Fixed */}
-      <nav className="fixed top-0 w-full p-6 flex justify-between items-center z-50 mix-blend-difference">
+      <nav className="fixed top-0 w-full p-6 flex justify-between items-center z-50 mix-blend-difference pointer-events-none">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <Dumbbell className="text-black" size={16} strokeWidth={3} />
           </div>
-          <span className="font-black tracking-tight text-xl text-white">GymBlox</span>
+          <span className="font-black tracking-tight text-xl text-white">PlateUp</span>
         </div>
-        <button onClick={onGetStarted} className="text-sm font-bold text-white hover:opacity-70 transition-opacity">
+        <button onClick={onGetStarted} className="pointer-events-auto text-sm font-bold text-white hover:opacity-70 transition-opacity">
           Sign In
         </button>
       </nav>
 
-      {/* Hero Sticky Section */}
-      <div className="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden">
-        
-        {/* Animated Background */}
+      {/* Hero Section */}
+      <div className="snap-start snap-always w-full h-[100dvh] flex flex-col items-center justify-center relative overflow-hidden shrink-0">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] bg-white/[0.03] rounded-full blur-[100px] -z-10 pointer-events-none" />
-
         <motion.div 
-          style={{ opacity: heroOpacity, scale: heroScale }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: false, amount: 0.5 }}
           className="text-center px-4"
         >
           <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-black tracking-tighter leading-[0.9] mb-6">
@@ -65,10 +41,13 @@ export default function Landing({ onGetStarted }) {
         </motion.div>
       </div>
 
-      {/* Feature 1 Sticky Section */}
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center pointer-events-none">
+      {/* Feature 1 Section */}
+      <div className="snap-start snap-always w-full h-[100dvh] flex items-center justify-center relative shrink-0">
         <motion.div 
-          style={{ opacity: sec1Opacity, y: sec1Y }}
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: false, amount: 0.5 }}
           className="w-full max-w-6xl px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
         >
           <div>
@@ -80,7 +59,13 @@ export default function Landing({ onGetStarted }) {
               Instant auto-fill. Smart rest timers. RPE tracking. Everything you need to focus purely on the lift, not the app.
             </p>
           </div>
-          <motion.div style={{ scale: mockup1Scale }} className="relative h-[600px] w-full max-w-sm mx-auto bg-[#1C1C1E] border-[8px] border-black rounded-[50px] shadow-[0_0_100px_rgba(255,255,255,0.1)] overflow-hidden">
+          <motion.div 
+            initial={{ scale: 0.8 }}
+            whileInView={{ scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: false, amount: 0.5 }}
+            className="relative h-[600px] w-full max-w-sm mx-auto bg-[#1C1C1E] border-[8px] border-black rounded-[50px] shadow-[0_0_100px_rgba(255,255,255,0.1)] overflow-hidden"
+          >
             {/* Fake App UI */}
             <div className="absolute top-12 left-6 right-6 space-y-4">
               <div className="h-10 w-3/4 bg-white/10 rounded-xl" />
@@ -99,13 +84,22 @@ export default function Landing({ onGetStarted }) {
         </motion.div>
       </div>
 
-      {/* Feature 2 Sticky Section */}
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center pointer-events-none">
+      {/* Feature 2 Section */}
+      <div className="snap-start snap-always w-full h-[100dvh] flex items-center justify-center relative shrink-0">
         <motion.div 
-          style={{ opacity: sec2Opacity, y: sec2Y }}
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: false, amount: 0.5 }}
           className="w-full max-w-6xl px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
         >
-          <motion.div style={{ rotate: mockup2Rotate }} className="order-2 md:order-1 relative h-[600px] w-full max-w-sm mx-auto bg-white border-[8px] border-[#2C2C2E] rounded-[50px] shadow-[0_0_100px_rgba(255,255,255,0.2)] overflow-hidden text-black">
+          <motion.div 
+            initial={{ rotate: 10, scale: 0.9 }}
+            whileInView={{ rotate: 0, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: false, amount: 0.5 }}
+            className="order-2 md:order-1 relative h-[600px] w-full max-w-sm mx-auto bg-white border-[8px] border-[#2C2C2E] rounded-[50px] shadow-[0_0_100px_rgba(255,255,255,0.2)] overflow-hidden text-black"
+          >
             {/* Fake App UI - Social */}
             <div className="absolute top-12 left-6 right-6 space-y-6">
               <div className="h-8 w-1/2 bg-black/10 rounded-lg mb-8" />
@@ -139,11 +133,14 @@ export default function Landing({ onGetStarted }) {
         </motion.div>
       </div>
 
-      {/* CTA Sticky Section */}
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center pointer-events-none">
+      {/* CTA Section */}
+      <div className="snap-start snap-always w-full h-[100dvh] flex items-center justify-center relative shrink-0">
         <motion.div 
-          style={{ opacity: ctaOpacity, y: ctaY }}
-          className="text-center px-4 pointer-events-auto"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: false, amount: 0.5 }}
+          className="text-center px-4"
         >
           <div className="w-24 h-24 mx-auto bg-white rounded-[32px] flex items-center justify-center mb-8 shadow-[0_0_80px_rgba(255,255,255,0.4)]">
             <Dumbbell className="text-black" size={48} strokeWidth={3} />

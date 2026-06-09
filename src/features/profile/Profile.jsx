@@ -134,30 +134,61 @@ export default function Profile() {
 
   if (activeView === 'prs') {
     const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
-    const prs = [];
-    Object.keys(history).forEach(exName => {
+    
+    // Main lifts we want to track
+    const mainLifts = [
+      { id: 'bench', names: ['Bench Press', 'Wyciskanie na klatkę', 'Wyciskanie sztangi leżąc'], label: 'Bench Press' },
+      { id: 'squat', names: ['Squat', 'Przysiady', 'Barbell Squat'], label: 'Squat' },
+      { id: 'deadlift', names: ['Deadlift', 'Martwy ciąg'], label: 'Deadlift' },
+      { id: 'pullups', names: ['Pull-ups', 'Pull ups', 'Podciąganie'], label: 'Pull-ups' },
+      { id: 'dips', names: ['Dips', 'Pompki na poręczach'], label: 'Dips' },
+    ];
+
+    const prs = mainLifts.map(lift => {
       let bestWeight = 0;
       let bestReps = 0;
-      history[exName].forEach(set => {
-        const weight = parseFloat(set.kg) || 0;
-        const reps = parseInt(set.reps, 10) || 0;
-        if (weight > bestWeight || (weight === bestWeight && reps > bestReps)) {
-          bestWeight = weight;
-          bestReps = reps;
+      
+      // Look through all history keys to find a match for the main lift names
+      Object.keys(history).forEach(exName => {
+        if (lift.names.some(name => exName.toLowerCase().includes(name.toLowerCase()))) {
+          history[exName].forEach(set => {
+            const weight = parseFloat(set.kg) || 0;
+            const reps = parseInt(set.reps, 10) || 0;
+            if (weight > bestWeight || (weight === bestWeight && reps > bestReps)) {
+              bestWeight = weight;
+              bestReps = reps;
+            }
+          });
         }
       });
-      if (bestWeight > 0) {
-        prs.push({ exercise: exName, weight: bestWeight + ' kg', reps: bestReps, date: 'Recent' });
-      }
+
+      return {
+        exercise: lift.label,
+        weight: bestWeight > 0 ? `${bestWeight} kg` : '---',
+        reps: bestReps > 0 ? bestReps : 0,
+      };
     });
 
-    return <SettingsView title="Personal Records" onBack={() => setActiveView('main')}>
+    return <SettingsView title="Main Lifts PRs" onBack={() => setActiveView('main')}>
       <div className="space-y-4">
-        {prs.length > 0 ? prs.map((pr, i) => (
-          <PRRow key={i} exercise={pr.exercise} weight={pr.weight} reps={pr.reps} date={pr.date} />
-        )) : (
-          <div className="text-[#8E8E93] text-center mt-10">No personal records yet. Finish a workout first!</div>
-        )}
+        <p className="text-sm text-[#8E8E93] font-bold mb-6 text-center">Your top records for the main compound movements.</p>
+        {prs.map((pr, i) => (
+          <div key={i} className="flex items-center justify-between p-5 bg-[#1C1C1E] border border-white/5 rounded-[24px] hover:border-white/20 transition-colors">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/5 rounded-[16px] flex items-center justify-center text-white/50 border border-white/5 shadow-inner">
+                <Award size={20} className={pr.reps > 0 ? 'text-amber-400' : ''} />
+              </div>
+              <div>
+                <h4 className="font-black text-lg text-white">{pr.exercise}</h4>
+                {pr.reps > 0 && <p className="text-xs font-bold text-[#8E8E93] uppercase tracking-widest mt-1">Best performance</p>}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-black text-2xl text-white">{pr.weight}</div>
+              {pr.reps > 0 && <div className="text-sm font-bold text-[#8E8E93] mt-0.5">{pr.reps} reps</div>}
+            </div>
+          </div>
+        ))}
       </div>
     </SettingsView>;
   }

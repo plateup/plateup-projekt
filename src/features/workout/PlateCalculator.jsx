@@ -3,13 +3,14 @@ import { ModalPortal } from '../../components/ui';
 
 export default function PlateCalculator({ initialWeight, onClose }) {
   const [targetWeight, setTargetWeight] = useState(initialWeight || '');
+  const [use25kg, setUse25kg] = useState(false);
   const barbellWeight = 20;
   
   const calculatePlates = () => {
     const weightPerSide = (parseFloat(targetWeight || 0) - barbellWeight) / 2;
     if (isNaN(weightPerSide) || weightPerSide <= 0) return [];
     
-    const availablePlates = [25, 20, 15, 10, 5, 2.5, 1.25];
+    const availablePlates = use25kg ? [25, 20, 15, 10, 5, 2.5, 1.25] : [20, 15, 10, 5, 2.5, 1.25];
     let remaining = weightPerSide;
     const platesUsed = [];
 
@@ -25,6 +26,16 @@ export default function PlateCalculator({ initialWeight, onClose }) {
   };
 
   const plates = calculatePlates();
+
+  const getPlateColor = (plate) => {
+    if (plate === 25) return 'bg-red-500 text-white shadow-red-500/20';
+    if (plate === 20) return 'bg-blue-500 text-white shadow-blue-500/20';
+    if (plate === 15) return 'bg-yellow-500 text-black shadow-yellow-500/20';
+    if (plate === 10) return 'bg-green-500 text-white shadow-green-500/20';
+    if (plate === 5) return 'bg-white text-black shadow-white/10';
+    if (plate === 2.5) return 'bg-neutral-800 text-white shadow-black/20 border border-white/10';
+    return 'bg-neutral-400 text-black shadow-black/10'; // 1.25
+  };
 
   return (
     <ModalPortal>
@@ -46,7 +57,7 @@ export default function PlateCalculator({ initialWeight, onClose }) {
         </div>
         
         {/* Weight Input */}
-        <div className="bg-black rounded-3xl p-6 flex flex-col items-center justify-center border border-[#2C2C2E]">
+        <div className="bg-black rounded-3xl p-6 flex flex-col items-center justify-center border border-[#2C2C2E] relative">
           <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mb-2">Target Weight</span>
           <div className="flex items-baseline gap-2">
             <input 
@@ -61,20 +72,27 @@ export default function PlateCalculator({ initialWeight, onClose }) {
           </div>
         </div>
 
+        {/* Settings Toggle */}
+        <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5">
+          <span className="text-xs font-bold text-white uppercase tracking-wider">Include 25kg Plates</span>
+          <button 
+            onClick={() => setUse25kg(!use25kg)}
+            className={`w-12 h-6 rounded-full transition-colors flex items-center px-1 ${use25kg ? 'bg-red-500' : 'bg-white/10'}`}
+          >
+            <div className={`w-4 h-4 bg-white rounded-full transition-transform ${use25kg ? 'translate-x-6' : 'translate-x-0'}`} />
+          </button>
+        </div>
+
         {/* Plates Result */}
         <div className="space-y-3 pt-2">
           {plates.length > 0 ? (
             <>
               <span className="text-[10px] font-black text-[#8E8E93] uppercase tracking-widest block ml-2 text-left">Plates Per Side</span>
-              <div className="flex flex-wrap gap-2 justify-center py-2 bg-white/5 rounded-2xl p-4 border border-white/5">
+              <div className="flex flex-wrap gap-2 justify-center py-4 bg-black/40 rounded-2xl p-4 border border-white/5 shadow-inner">
                 {plates.map((plate, index) => (
                   <div 
                     key={index} 
-                    className={`flex items-center justify-center w-14 h-14 rounded-full font-black text-sm shadow-xl ${
-                      plate >= 20 ? 'bg-red-500 text-white shadow-red-500/20' : 
-                      plate >= 10 ? 'bg-blue-500 text-white shadow-blue-500/20' : 
-                      'bg-white text-black shadow-white/10'
-                    }`}
+                    className={`flex items-center justify-center w-14 h-14 rounded-full font-black text-sm shadow-xl ${getPlateColor(plate)}`}
                   >
                     {plate}
                   </div>

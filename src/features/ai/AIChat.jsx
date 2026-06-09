@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight } from 'lucide-react';
+import { Send, Bot, User as UserIcon, ArrowRight, Save, Check } from 'lucide-react';
 import { generateWorkoutRoutine } from '../../services/aiWorkoutService';
+import { supabase } from '../../services/supabaseClient';
 
 export default function AIChat({ onStartRoutine }) {
   const [messages, setMessages] = useState(() => {
@@ -9,6 +10,7 @@ export default function AIChat({ onStartRoutine }) {
   });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [userAvatar, setUserAvatar] = useState(() => localStorage.getItem('plateup_avatar') || null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -19,7 +21,15 @@ export default function AIChat({ onStartRoutine }) {
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
-    const userMessage = { role: 'user', text: input.trim() };
+    const userInput = input.trim();
+    
+    if (userInput.toLowerCase() === '/clear') {
+      setMessages([{ role: 'assistant', text: 'Chat history cleared. How can I help you train today?' }]);
+      setInput('');
+      return;
+    }
+
+    const userMessage = { role: 'user', text: userInput };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
@@ -41,6 +51,33 @@ export default function AIChat({ onStartRoutine }) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const [savedRoutines, setSavedRoutines] = useState({});
+
+  const handleSaveRoutine = async (routineData, index) => {
+    const exercisesList = Array.isArray(routineData.exercises) ? routineData.exercises : [];
+    
+    const newRoutine = {
+      name: routineData.name || "AI Generated Workout",
+      exercises: exercisesList.map((ex, i) => ({
+        id: `ai-ex-${Date.now()}-${i}`,
+        name: ex.name || 'Unknown Exercise',
+        muscle_group: ex.muscle_group || 'Full Body',
+        sets: ex.sets || 3,
+        restDuration: 90
+      }))
+    };
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('routines').insert([{
+        user_id: user.id,
+        name: newRoutine.name,
+        exercises: newRoutine.exercises
+      }]);
+    }
+    setSavedRoutines(prev => ({ ...prev, [index]: true }));
   };
 
   const handleStartRoutine = (routineData) => {
@@ -85,8 +122,12 @@ export default function AIChat({ onStartRoutine }) {
       <div className="flex-1 overflow-y-auto mb-4 space-y-6 pr-2 no-scrollbar">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/10 ${msg.role === 'user' ? 'bg-white text-black' : 'bg-[#1C1C1E] text-white'}`}>
-              {msg.role === 'user' ? <UserIcon size={20} /> : <Bot size={20} />}
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/10 overflow-hidden ${msg.role === 'user' ? 'bg-white text-black' : 'bg-[#1C1C1E] text-white'}`}>
+              {msg.role === 'user' ? (
+                userAvatar ? <img src={userAvatar} alt="User" className="w-full h-full object-cover" /> : <UserIcon size={20} />
+              ) : (
+                <Bot size={20} />
+              )}
             </div>
             <div className={`flex flex-col gap-2 max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
               <div className={`p-4 rounded-[24px] text-sm font-medium leading-relaxed whitespace-pre-wrap ${msg.role === 'user' ? 'bg-white text-black rounded-tr-sm shadow-sm' : 'bg-[#1C1C1E] border border-white/5 text-white rounded-tl-sm shadow-sm'}`}>
@@ -106,13 +147,23 @@ export default function AIChat({ onStartRoutine }) {
                       <div className="text-[#8E8E93] text-sm">Failed to parse exercises.</div>
                     )}
                   </div>
-                  <button 
-                    onClick={() => handleStartRoutine(msg.routine)}
-                    disabled={!Array.isArray(msg.routine.exercises)}
-                    className="w-full bg-white text-black py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-neutral-200 active:scale-95 transition-all shadow-lg disabled:opacity-50"
-                  >
-                    Start This Workout <ArrowRight size={16} strokeWidth={3} />
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleStartRoutine(msg.routine)}
+                      disabled={!Array.isArray(msg.routine.exercises)}
+                      className="flex-1 bg-white text-black py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-neutral-200 active:scale-95 transition-all shadow-lg"
+                    >
+                      Start <ArrowRight size={16} strokeWidth={3} />
+                    </button>
+                    <button 
+                      onClick={() => handleSaveRoutine(msg.routine, idx)}
+                      disabled={!Array.isArray(msg.routine.exercises) || savedRoutines[idx]}
+                      className="flex-1 bg-[#1C1C1E] text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-white/5 active:scale-95 transition-all border border-white/10"
+                    >
+                      {savedRoutines[idx] ? <Check size={16} className="text-green-500" /> : <Save size={16} />}
+                      {savedRoutines[idx] ? 'Saved' : 'Save Routine'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

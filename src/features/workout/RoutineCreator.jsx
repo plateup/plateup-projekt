@@ -14,16 +14,34 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
 
   const addExercise = (exercisesToAdd) => {
     if (Array.isArray(exercisesToAdd)) {
-      const newExs = exercisesToAdd.map(ex => ({ ...ex, tempId: Date.now() + Math.random() }));
+      const newExs = exercisesToAdd.map(ex => ({ ...ex, tempId: Date.now() + Math.random(), targetSets: 3, restDuration: 90 }));
       setSelectedExercises([...selectedExercises, ...newExs]);
     } else {
-      setSelectedExercises([...selectedExercises, { ...exercisesToAdd, tempId: Date.now() + Math.random() }]);
+      setSelectedExercises([...selectedExercises, { ...exercisesToAdd, tempId: Date.now() + Math.random(), targetSets: 3, restDuration: 90 }]);
     }
     setShowLibrary(false);
   };
 
   const removeExercise = (tempId) => {
     setSelectedExercises(selectedExercises.filter(ex => ex.tempId !== tempId));
+  };
+
+  const updateExerciseSets = (tempId, sets) => {
+    setSelectedExercises(selectedExercises.map(ex => 
+      ex.tempId === tempId ? { ...ex, targetSets: parseInt(sets, 10) || 1 } : ex
+    ));
+  };
+
+  const updateExerciseRest = (tempId, duration) => {
+    setSelectedExercises(selectedExercises.map(ex => 
+      ex.tempId === tempId ? { ...ex, restDuration: Math.max(30, duration) } : ex
+    ));
+  };
+
+  const formatRest = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   const handleSave = async () => {
@@ -37,7 +55,13 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
         .from('routines')
         .update({
           name,
-          exercises: selectedExercises.map(ex => ({ id: ex.id, name: ex.name, muscle_group: ex.muscle_group }))
+          exercises: selectedExercises.map(ex => ({ 
+            id: ex.id, 
+            name: ex.name, 
+            muscle_group: ex.muscle_group,
+            sets: ex.targetSets || 3,
+            restDuration: ex.restDuration || 90
+          }))
         })
         .eq('id', initialRoutine.id);
         
@@ -51,7 +75,13 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
         .insert([{
           user_id: user.id,
           name,
-          exercises: selectedExercises.map(ex => ({ id: ex.id, name: ex.name, muscle_group: ex.muscle_group }))
+          exercises: selectedExercises.map(ex => ({ 
+            id: ex.id, 
+            name: ex.name, 
+            muscle_group: ex.muscle_group,
+            sets: ex.targetSets || 3,
+            restDuration: ex.restDuration || 90
+          }))
         }]);
 
       if (!error) {
@@ -89,14 +119,47 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
 
         <div className="space-y-4">
           {selectedExercises.map((ex) => (
-            <div key={ex.tempId} className="flex items-center justify-between p-5 bg-[#1C1C1E] rounded-3xl border border-[#2C2C2E]">
-              <div>
-                <h4 className="font-black text-white text-lg">{ex.name}</h4>
-                <p className="text-sm text-[#8E8E93] font-bold uppercase">{ex.muscle_group}</p>
+            <div key={ex.tempId} className="flex flex-col p-5 bg-[#1C1C1E] rounded-3xl border border-[#2C2C2E] gap-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-black text-white text-lg leading-tight">{ex.name}</h4>
+                  <p className="text-xs text-[#8E8E93] font-bold uppercase mt-1">{ex.muscle_group}</p>
+                </div>
+                <button onClick={() => removeExercise(ex.tempId)} className="text-[#8E8E93] hover:text-red-500 transition-colors p-2 -mr-2 bg-white/5 rounded-full">
+                  <Trash2 size={16} />
+                </button>
               </div>
-              <button onClick={() => removeExercise(ex.tempId)} className="text-[#8E8E93] hover:text-white transition-colors p-2">
-                <Trash2 size={20} />
-              </button>
+              <div className="flex items-center gap-6 pt-4 border-t border-white/5 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-[#8E8E93]">Sets:</span>
+                  <div className="flex items-center gap-2 bg-black border border-white/10 rounded-xl overflow-hidden p-1">
+                    <button 
+                      onClick={() => updateExerciseSets(ex.tempId, Math.max(1, (ex.targetSets || 3) - 1))}
+                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-black transition-colors"
+                    >-</button>
+                    <span className="w-8 text-center font-black text-white">{ex.targetSets || 3}</span>
+                    <button 
+                      onClick={() => updateExerciseSets(ex.tempId, (ex.targetSets || 3) + 1)}
+                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-black transition-colors"
+                    >+</button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-[#8E8E93]">Rest:</span>
+                  <div className="flex items-center gap-2 bg-black border border-white/10 rounded-xl overflow-hidden p-1">
+                    <button 
+                      onClick={() => updateExerciseRest(ex.tempId, (ex.restDuration || 90) - 30)}
+                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-black transition-colors"
+                    >-</button>
+                    <span className="w-12 text-center font-black text-white">{formatRest(ex.restDuration || 90)}</span>
+                    <button 
+                      onClick={() => updateExerciseRest(ex.tempId, (ex.restDuration || 90) + 30)}
+                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-black transition-colors"
+                    >+</button>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
 

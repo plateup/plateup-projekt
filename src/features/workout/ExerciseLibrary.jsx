@@ -52,7 +52,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-[400] flex flex-col justify-end">
+      <div className="fixed inset-0 z-[600] flex flex-col justify-end">
         {/* Backdrop */}
         <div 
           className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
@@ -171,7 +171,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
       </div>
 
       {showAddCustom && (
-        <div className="absolute inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-6 z-[210] animate-in fade-in duration-200">
+        <div className="absolute inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-6 z-[700] animate-in fade-in duration-200">
           <div className="bg-[#1C1C1E] w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl">
             <h3 className="text-xl font-black text-white mb-6">Create Exercise</h3>
             <div className="space-y-5">

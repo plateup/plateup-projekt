@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Home, Dumbbell, User, BarChart2, Users, Bot } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export default function AppShell({ children, activeTab, setActiveTab }) {
+export default function AppShell({ children, activeTab, setActiveTab, persistentComponent }) {
   const tabs = [
     { id: 'feed', icon: Home, label: 'Feed' },
     { id: 'social', icon: Users, label: 'Social' },
@@ -15,14 +15,15 @@ export default function AppShell({ children, activeTab, setActiveTab }) {
     <div className="min-h-screen bg-black text-white selection:bg-white/30">
       {/* Main Content Area */}
       <main className="min-h-screen transition-all duration-300 pb-32">
-        <div className="max-w-4xl mx-auto px-6 py-12 lg:py-16">
+        <div className="max-w-4xl mx-auto px-6 py-12 lg:py-16 relative">
+          {persistentComponent}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.15 }}
             >
               {children}
             </motion.div>

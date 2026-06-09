@@ -101,7 +101,13 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
           name: ex.name,
           sets: validSets,
           best: bestSet || '-',
-          isPR: isPr
+          isPR: isPr,
+          setsList: ex.sets.filter(s => s.isCompleted).map(s => ({
+            type: s.type,
+            kg: s.kg,
+            reps: s.reps,
+            isPR: (parseFloat(s.kg) > pastBest) && (pastBest > 0)
+          }))
         });
         
         // Aggregate volume per muscle group

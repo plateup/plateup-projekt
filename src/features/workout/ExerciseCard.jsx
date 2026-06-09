@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SetRow from './SetRow';
-import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell } from 'lucide-react';
+import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X } from 'lucide-react';
+import { ModalPortal } from '../../components/ui';
 import RestTimerModal from './RestTimerModal';
 import PlateCalculator from './PlateCalculator';
 
@@ -21,6 +22,7 @@ export default function ExerciseCard({
   const [showOptions, setShowOptions] = useState(false);
   const [showPlateCalc, setShowPlateCalc] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showRpeInfo, setShowRpeInfo] = useState(false);
 
   const formatRest = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -98,7 +100,9 @@ export default function ExerciseCard({
             <span>Set</span>
             <span>KG</span>
             <span>Reps</span>
-            <span>RPE</span>
+            <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowRpeInfo(true)}>
+              RPE <Info size={10} className="text-white/60" />
+            </span>
             <span>Done</span>
           </div>
 
@@ -151,6 +155,50 @@ export default function ExerciseCard({
           initialWeight={Math.max(...exercise.sets.map(s => parseFloat(s.kg) || 0))}
           onClose={() => setShowPlateCalc(false)}
         />
+      )}
+
+      {showRpeInfo && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowRpeInfo(false)} />
+            <div className="relative w-full max-w-sm bg-[#1C1C1E] rounded-[36px] shadow-2xl border border-white/10 overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300">
+              <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5">
+                <h3 className="font-black text-xl text-white">RPE Scale</h3>
+                <button onClick={() => setShowRpeInfo(false)} className="text-[#8E8E93] hover:text-white transition-colors bg-white/5 p-2 rounded-full">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                <p className="text-sm text-[#8E8E93] mb-6 font-medium leading-relaxed">
+                  RPE (Rate of Perceived Exertion) helps you measure the intensity of your sets based on how many reps you had left in the tank.
+                </p>
+                <div className="space-y-3">
+                  {[
+                    { rpe: '10', reps: '0', desc: 'Absolute maximum effort. Could not do another rep or add any weight.', color: 'bg-red-500' },
+                    { rpe: '9.5', reps: '0', desc: 'Could not do another rep, but could maybe add a tiny bit of weight.', color: 'bg-red-500/80' },
+                    { rpe: '9', reps: '1', desc: '1 rep left in the tank. Very hard.', color: 'bg-orange-500' },
+                    { rpe: '8.5', reps: '1-2', desc: 'Maybe 2 reps left in the tank.', color: 'bg-orange-500/80' },
+                    { rpe: '8', reps: '2', desc: '2 reps left in the tank. Hard but manageable.', color: 'bg-yellow-500' },
+                    { rpe: '7.5', reps: '2-3', desc: 'Maybe 3 reps left.', color: 'bg-yellow-500/80' },
+                    { rpe: '7', reps: '3', desc: '3 reps left in the tank. Fast bar speed.', color: 'bg-green-500' },
+                    { rpe: '<7', reps: '4+', desc: 'Light effort. Warmups and technique work.', color: 'bg-green-500/50' }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-4 p-3 rounded-2xl bg-black/40 border border-white/5">
+                      <div className="flex flex-col items-center justify-center shrink-0 w-12 gap-1">
+                        <span className="font-black text-white text-lg">{item.rpe}</span>
+                        <div className={`w-8 h-1 rounded-full ${item.color}`} />
+                      </div>
+                      <div>
+                        <div className="text-xs font-black text-[#8E8E93] uppercase tracking-widest mb-1">Reps left: {item.reps}</div>
+                        <div className="text-sm text-white/90 leading-tight">{item.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </div>
   );

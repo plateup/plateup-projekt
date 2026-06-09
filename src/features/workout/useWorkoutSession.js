@@ -19,11 +19,37 @@ export function useWorkoutSession() {
   useEffect(() => { localStorage.setItem('plateup_time', workoutTime.toString()); }, [workoutTime]);
   useEffect(() => { localStorage.setItem('plateup_exercises', JSON.stringify(exercises)); }, [exercises]);
 
-  // Timer logic for workout duration
+  // Timer logic for workout duration with background catch-up
   useEffect(() => {
     let interval = null;
     if (sessionStatus === 'active') {
-      interval = setInterval(() => setWorkoutTime((prev) => prev + 1), 1000);
+      // 1. Initial catch up when component mounts/tab focuses
+      const savedLastTick = parseInt(localStorage.getItem('plateup_last_tick') || '0', 10);
+      const nowOnStart = Date.now();
+      
+      if (savedLastTick > 0) {
+        const diffSeconds = Math.floor((nowOnStart - savedLastTick) / 1000);
+        if (diffSeconds > 0 && diffSeconds < 86400) { // arbitrary 24h limit to prevent crazy numbers
+          setWorkoutTime(prev => prev + diffSeconds);
+        }
+      }
+      
+      localStorage.setItem('plateup_last_tick', nowOnStart.toString());
+      let lastTick = nowOnStart;
+
+      // 2. Interval loop
+      interval = setInterval(() => {
+        const now = Date.now();
+        const diffSeconds = Math.floor((now - lastTick) / 1000);
+        
+        if (diffSeconds > 0) {
+          setWorkoutTime(prev => prev + diffSeconds);
+          lastTick = lastTick + (diffSeconds * 1000); // precise tick updating
+          localStorage.setItem('plateup_last_tick', lastTick.toString());
+        }
+      }, 1000);
+    } else {
+      localStorage.removeItem('plateup_last_tick');
     }
     return () => clearInterval(interval);
   }, [sessionStatus]);
@@ -42,6 +68,15 @@ export function useWorkoutSession() {
           setActiveRestSetId(null);
           setRestEndTime(null);
           playTimerSound();
+          
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Rest time is over!', {
+              body: 'Time to get back to lifting. Let\'s go!',
+              icon: '/icons/icon-192x192.png',
+              silent: false // Sound is handled by playTimerSound but notification can also ring
+            });
+          }
+          
           clearInterval(interval);
         }
       }, 1000);

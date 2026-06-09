@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../services/supabaseClient';
-import { Dumbbell, Plus, MoreHorizontal, User } from 'lucide-react';
+import { Dumbbell, Plus, MoreHorizontal, User, Trash2, LogOut } from 'lucide-react';
 import { format, addDays, subDays, isSameDay, startOfToday } from 'date-fns';
 import WorkoutRecap from '../workout/WorkoutRecap';
+import { ConfirmModal } from '../../components/ui';
 
 export default function Dashboard({ setActiveTab }) {
   const [username, setUsername] = useState(() => localStorage.getItem('plateup_username') || 'Athlete');
@@ -11,6 +12,8 @@ export default function Dashboard({ setActiveTab }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [localWorkouts, setLocalWorkouts] = useState([]);
   const [selectedWorkoutRecap, setSelectedWorkoutRecap] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const scrollRef = useRef(null);
 
   const generateDates = () => {
@@ -81,6 +84,34 @@ export default function Dashboard({ setActiveTab }) {
 
   const dayWorkouts = getWorkoutsForDate(selectedDate);
 
+  const handleDeleteClick = (id, e) => {
+    e.stopPropagation();
+    setOpenMenuId(null);
+    setConfirmModal({ isOpen: true, id });
+  };
+
+  const executeDeleteWorkout = () => {
+    if (confirmModal.id) {
+      const updatedWorkouts = localWorkouts.filter(w => w.id !== confirmModal.id);
+      setLocalWorkouts(updatedWorkouts);
+      localStorage.setItem('plateup_posts', JSON.stringify(updatedWorkouts));
+    }
+    setConfirmModal({ isOpen: false, id: null });
+  };
+
+  const handleLogOut = async () => {
+    // Archiving is now handled by App.jsx on auth state change
+    await supabase.auth.signOut();
+    window.location.reload(); 
+  };
+
+  // Close menus if clicked outside
+  useEffect(() => {
+    const handleClickOutside = () => setOpenMenuId(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
     <div className="animate-in fade-in duration-700">
       {/* Header */}
@@ -108,9 +139,16 @@ export default function Dashboard({ setActiveTab }) {
             <div className="absolute right-0 top-full mt-2 w-48 bg-[#1C1C1E] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
               <button 
                 onClick={() => { setShowProfileMenu(false); setActiveTab('profile'); }}
-                className="w-full flex items-center justify-between p-4 hover:bg-white/5 text-left transition-colors"
+                className="w-full flex items-center justify-between p-4 hover:bg-white/5 text-left transition-colors border-b border-white/5"
               >
                 <span className="text-sm font-bold text-white">My Profile</span>
+              </button>
+              <button 
+                onClick={handleLogOut}
+                className="w-full flex items-center gap-2 p-4 hover:bg-white/5 text-left transition-colors text-red-500"
+              >
+                <LogOut size={16} />
+                <span className="text-sm font-bold">Log Out</span>
               </button>
             </div>
           )}
@@ -171,30 +209,104 @@ export default function Dashboard({ setActiveTab }) {
               <div 
                 key={workout.id} 
                 onClick={() => setSelectedWorkoutRecap(workout)}
-                className="bg-[#1C1C1E] border border-white/5 p-8 rounded-[48px] shadow-sm hover:border-white/10 transition-all group w-full cursor-pointer"
+                className="bg-gradient-to-br from-[#1C1C1E] to-[#121212] border border-white/10 p-6 rounded-[36px] shadow-2xl hover:scale-[1.02] hover:border-white/20 transition-all duration-300 group w-full cursor-pointer relative overflow-hidden flex flex-col gap-4"
               >
-                <div className="flex items-center justify-between mb-10">
-                  <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 rounded-[24px] bg-white/5 flex items-center justify-center text-white border border-white/5">
-                      <Dumbbell size={32} />
+                {/* Decorative background glow */}
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors pointer-events-none" />
+
+                {/* Header Section */}
+                <div className="flex items-start justify-between relative z-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-[18px] bg-white text-black flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0">
+                      <Dumbbell size={24} strokeWidth={2.5} />
                     </div>
                     <div>
-                      <h3 className="font-black text-2xl tracking-tight mb-1">{workout.title}</h3>
-                      <p className="text-sm text-[#8E8E93] font-bold">{workout.stats?.sets || workout.exercises?.length || 0} Sets • {workout.stats?.time || workout.timeAgo}</p>
+                      <h3 className="font-black text-xl tracking-tight text-white mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/60 transition-all">{workout.title}</h3>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-[#8E8E93] font-bold">
+                        <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.volume || '0 kg'}</span>
+                        <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.time || workout.timeAgo}</span>
+                        <span>•</span>
+                        <span>{workout.stats?.sets || workout.exercises?.length || 0} Sets</span>
+                      </div>
                     </div>
+                  </div>
+                  <div className="relative">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMenuId(openMenuId === workout.id ? null : workout.id);
+                      }}
+                      className="p-2 -mr-2 -mt-2 text-white/20 hover:text-white hover:bg-white/10 rounded-full transition-all shrink-0 relative z-20"
+                    >
+                      <MoreHorizontal size={24} />
+                    </button>
+
+                    {openMenuId === workout.id && (
+                      <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute right-0 top-full mt-1 w-40 bg-[#0A0A0A] border border-[#2C2C2E] rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                      >
+                        <button 
+                          onClick={(e) => handleDeleteClick(workout.id, e)}
+                          className="w-full flex items-center gap-3 p-3 hover:bg-white/5 text-left transition-colors text-sm font-bold text-red-500"
+                        >
+                          <Trash2 size={16} /> Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-black/60 p-6 rounded-[32px] border border-white/5">
-                    <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mb-2 block">Total Volume</span>
-                    <span className="font-black text-2xl tabular-nums">{workout.stats?.volume || '0 kg'}</span>
-                  </div>
-                  <div className="bg-black/60 p-6 rounded-[32px] border border-white/5">
-                    <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mb-2 block">Duration</span>
-                    <span className="font-black text-2xl tabular-nums">{workout.stats?.time || '0m'}</span>
-                  </div>
-                </div>
+                {/* Exercise List Preview Section */}
+                {(() => {
+                  const hasHiddenContent = workout.exercises?.length > 3 || workout.exercises?.slice(0, 3).some(ex => ex.setsList?.length > 3);
+                  return (
+                    <div className="bg-black/40 backdrop-blur-md rounded-[24px] border border-white/5 p-4 relative z-10 mt-2">
+                      <div className={`relative ${hasHiddenContent ? 'max-h-[160px] overflow-hidden' : ''}`}>
+                        <div className="space-y-4">
+                          {workout.exercises && workout.exercises.length > 0 ? (
+                            workout.exercises.slice(0, 3).map((ex, idx) => (
+                              <div key={idx} className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-black text-white">{ex.name}</span>
+                                </div>
+                                <div className="pl-2 border-l-2 border-white/10 ml-1 space-y-1">
+                                  {ex.setsList && ex.setsList.length > 0 ? (
+                                    ex.setsList.slice(0, 3).map((set, sIdx) => (
+                                      <div key={sIdx} className="flex items-center gap-3 text-xs font-bold text-[#8E8E93]">
+                                        <span className="w-4 text-center">S{sIdx + 1}</span>
+                                        <div className="flex gap-1 text-white/90">
+                                          <span>{set.kg} kg</span>
+                                          <span>×</span>
+                                          <span>{set.reps}</span>
+                                        </div>
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <div className="text-xs font-bold text-[#8E8E93]">
+                                      {ex.sets} {ex.sets === 1 ? 'Set' : 'Sets'} completed
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm font-bold text-[#8E8E93] italic py-2 text-center">No exercises logged.</div>
+                          )}
+                        </div>
+                        
+                        {/* Fade overlay for long lists */}
+                        {hasHiddenContent && (
+                          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1A1A1C] to-transparent pointer-events-none flex items-end justify-center pb-2">
+                            <span className="text-[10px] font-black text-white bg-black/80 px-4 py-1.5 rounded-full backdrop-blur-md border border-white/10 uppercase tracking-widest">
+                              Click to see more
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             ))}
           </div>
@@ -227,9 +339,21 @@ export default function Dashboard({ setActiveTab }) {
             exercises: selectedWorkoutRecap.exercises || [],
             muscleStats: selectedWorkoutRecap.muscleStats || {}
           }} 
+          isHistory={true}
           onClose={() => setSelectedWorkoutRecap(null)} 
         />
       )}
+
+      <ConfirmModal 
+        isOpen={confirmModal.isOpen}
+        title="Delete Session?"
+        message="Are you sure you want to delete this workout session? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger={true}
+        onConfirm={executeDeleteWorkout}
+        onCancel={() => setConfirmModal({ isOpen: false, id: null })}
+      />
     </div>
   );
 }
