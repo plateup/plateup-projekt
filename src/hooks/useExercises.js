@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../services/supabaseClient';
+import { EXTENDED_EXERCISES } from '../constants/exercises';
 
 export function useExercises() {
   const [exercises, setExercises] = useState([]);
@@ -19,7 +20,16 @@ export function useExercises() {
     // 2. Fetch custom exercises from LocalStorage
     const localExercises = JSON.parse(localStorage.getItem('custom_exercises') || '[]');
 
-    setExercises([...(dbExercises || []), ...localExercises]);
+    // Combine DB, Extended static list, and Local custom exercises
+    const allExercises = [...(dbExercises || []), ...EXTENDED_EXERCISES, ...localExercises];
+    
+    // Deduplicate by name just in case some extended were added to DB
+    const uniqueExercises = Array.from(new Map(allExercises.map(item => [item.name, item])).values());
+    
+    // Sort alphabetically
+    uniqueExercises.sort((a, b) => a.name.localeCompare(b.name));
+
+    setExercises(uniqueExercises);
     setLoading(false);
   };
 

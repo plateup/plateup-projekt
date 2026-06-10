@@ -11,7 +11,8 @@ export default function SetRow({
   toggleSetType,
   removeSetFromExercise,
   duplicateSetInExercise,
-  isDisabled 
+  isDisabled,
+  isBodyweight
 }) {
   const [showTypeSelector, setShowTypeSelector] = useState(false);
   const controls = useAnimation();
@@ -119,15 +120,21 @@ export default function SetRow({
       </div>
 
       {/* Weight KG */}
-      <div className="relative">
+      <div className="relative flex items-center justify-center">
+        {isBodyweight && (
+          <span className="absolute left-3 text-[#8E8E93] font-black text-sm pointer-events-none">+</span>
+        )}
         <input
           type="text"
           inputMode="decimal"
           placeholder={set.prevKg || "0"}
-          className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
+          className={`w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E] ${isBodyweight ? 'pl-6 pr-2' : ''}`}
           value={set.kg}
           onClick={() => handleInputClick('kg')}
-          onChange={(e) => updateSet(exerciseId, set.id, 'kg', e.target.value)}
+          onChange={(e) => {
+            let val = e.target.value.replace('+', '');
+            updateSet(exerciseId, set.id, 'kg', val);
+          }}
           disabled={isDisabled || set.isCompleted}
         />
       </div>

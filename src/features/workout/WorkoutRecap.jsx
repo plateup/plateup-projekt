@@ -9,9 +9,54 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
   const [routineSaved, setRoutineSaved] = useState(false);
+  const [localWorkoutId, setLocalWorkoutId] = useState(null);
+
+  const summary = workout || {
+    name: 'Workout',
+    duration: '0:00',
+    volume: '0 kg',
+    prs: 0,
+    exercises: [],
+    muscleStats: {},
+    rawStats: { time: '0:00', volume: '0 kg', sets: 0, prs: 0 }
+  };
 
   useEffect(() => {
     if (isHistory) return;
+
+    // --- AUTO-SAVE LOGIC ---
+    const posts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
+    let username = localStorage.getItem('plateup_username') || 'Athlete';
+    let avatarUrl = localStorage.getItem('plateup_avatar') || null;
+
+    const newId = Date.now();
+    setLocalWorkoutId(newId);
+
+    const newPost = {
+      id: newId,
+      user: { name: username, avatar: avatarUrl },
+      title: summary.name,
+      timeAgo: 'Just now',
+      likes: 0,
+      comments: 0,
+      stats: summary.rawStats || { time: summary.duration, volume: summary.volume, sets: summary.exercises.length, prs: summary.prs },
+      exercises: summary.exercises.map(ex => ({
+        name: ex.name,
+        sets: ex.sets,
+        best: ex.best,
+        isPR: ex.isPR || false,
+        setsList: ex.setsList || []
+      })),
+      muscleStats: summary.muscleStats || {},
+      created_at: new Date().toISOString()
+    };
+    
+    // Only auto-save once
+    const alreadySaved = posts.some(p => p.title === newPost.title && Math.abs(new Date(p.created_at).getTime() - new Date(newPost.created_at).getTime()) < 5000);
+    if (!alreadySaved) {
+      posts.unshift(newPost);
+      localStorage.setItem('plateup_posts', JSON.stringify(posts));
+    }
 
     // Fire confetti with a slight delay and high z-index
     const timer = setTimeout(() => {
@@ -51,21 +96,8 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
     return () => clearTimeout(timer);
   }, [isHistory]);
 
-  const summary = workout || {
-    name: 'Workout',
-    duration: '0:00',
-    volume: '0 kg',
-    prs: 0,
-    exercises: [],
-    muscleStats: {},
-    rawStats: { time: '0:00', volume: '0 kg', sets: 0, prs: 0 }
-  };
-
   const handlePublish = async () => {
     setPublishing(true);
-    
-    // Save to local storage for now
-    const posts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
     
     // Fetch current user from Supabase
     const { data: { user } } = await supabase.auth.getUser();
@@ -80,34 +112,48 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
       }
     }
 
-    const newPost = {
-      id: Date.now(),
-      user: { name: username, avatar: avatarUrl },
-      title: summary.name,
-      timeAgo: 'Just now',
-      likes: 0,
-      comments: 0,
-      stats: summary.rawStats || { time: summary.duration, volume: summary.volume, sets: summary.exercises.length, prs: summary.prs },
-      exercises: summary.exercises.map(ex => ({
-        name: ex.name,
-        sets: ex.sets,
-        best: ex.best,
-        isPR: ex.isPR || false,
-        setsList: ex.setsList || []
-      })),
-      muscleStats: summary.muscleStats || {},
-      created_at: new Date().toISOString()
-    };
-    
-    posts.unshift(newPost);
-    localStorage.setItem('plateup_posts', JSON.stringify(posts));
+    // Get the locally saved post
+    const posts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
+    let postToPublish = posts.find(p => p.id === localWorkoutId);
 
-    // Also attempt to save to Supabase if the table exists (ignore error if not)
+    // If for some reason it wasn't found, reconstruct it
+    if (!postToPublish) {
+      postToPublish = {
+        id: localWorkoutId || Date.now(),
+        user: { name: username, avatar: avatarUrl },
+        title: summary.name,
+        timeAgo: 'Just now',
+        likes: 0,
+        comments: 0,
+        stats: summary.rawStats || { time: summary.duration, volume: summary.volume, sets: summary.exercises.length, prs: summary.prs },
+        exercises: summary.exercises.map(ex => ({
+          name: ex.name,
+          sets: ex.sets,
+          best: ex.best,
+          isPR: ex.isPR || false,
+          setsList: ex.setsList || []
+        })),
+        muscleStats: summary.muscleStats || {},
+        created_at: new Date().toISOString()
+      };
+      posts.unshift(postToPublish);
+      localStorage.setItem('plateup_posts', JSON.stringify(posts));
+    } else {
+      // Update local post with fresh Supabase profile data if it changed
+      postToPublish.user = { name: username, avatar: avatarUrl };
+      const index = posts.findIndex(p => p.id === localWorkoutId);
+      if (index !== -1) {
+        posts[index] = postToPublish;
+        localStorage.setItem('plateup_posts', JSON.stringify(posts));
+      }
+    }
+
+    // Attempt to save to Supabase
     if (user) {
       try {
         await supabase.from('posts').insert([{
           user_id: user.id,
-          workout_data: newPost
+          workout_data: postToPublish
         }]);
       } catch (e) {
         // Ignore if table doesn't exist yet

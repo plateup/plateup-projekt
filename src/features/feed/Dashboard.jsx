@@ -297,8 +297,8 @@ export default function Dashboard({ setActiveTab }) {
                         
                         {/* Fade overlay for long lists */}
                         {hasHiddenContent && (
-                          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1A1A1C] to-transparent pointer-events-none flex items-end justify-center pb-2">
-                            <span className="text-[10px] font-black text-white bg-black/80 px-4 py-1.5 rounded-full backdrop-blur-md border border-white/10 uppercase tracking-widest">
+                          <div className="absolute bottom-0 left-0 right-0 h-24 backdrop-blur-md bg-gradient-to-t from-[#121212]/90 via-[#121212]/50 to-transparent [mask-image:radial-gradient(ellipse_at_bottom,black_10%,transparent_80%)] pointer-events-none flex items-end justify-center pb-3">
+                            <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest mb-1">
                               Click to see more
                             </span>
                           </div>

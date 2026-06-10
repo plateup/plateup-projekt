@@ -23,6 +23,7 @@ export default function ExerciseCard({
   const [showPlateCalc, setShowPlateCalc] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showRpeInfo, setShowRpeInfo] = useState(false);
+  const [showAddedWeightInfo, setShowAddedWeightInfo] = useState(false);
 
   const formatRest = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -30,12 +31,20 @@ export default function ExerciseCard({
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  const isBarbellExercise = exercise.name.toLowerCase().includes('barbell') || 
-                            exercise.name.toLowerCase().includes('sztang') ||
-                            exercise.name.toLowerCase().includes('bench press') ||
-                            exercise.name.toLowerCase().includes('squat') ||
-                            exercise.name.toLowerCase().includes('deadlift') ||
-                            exercise.name.toLowerCase().includes('overhead press');
+  const isBarbellExercise = exercise.equipment === 'Barbell' ||
+                            exercise.name.toLowerCase().includes('barbell') || 
+                            exercise.name.toLowerCase().includes('sztang');
+
+  const isBodyweightExercise = exercise.equipment === 'Bodyweight' ||
+                               exercise.name.toLowerCase().includes('dip') || 
+                               exercise.name.toLowerCase().includes('pull-up') ||
+                               exercise.name.toLowerCase().includes('pull up') ||
+                               exercise.name.toLowerCase().includes('chin-up') ||
+                               exercise.name.toLowerCase().includes('chin up') ||
+                               exercise.name.toLowerCase().includes('muscle-up') ||
+                               exercise.name.toLowerCase().includes('muscle up') ||
+                               exercise.name.toLowerCase().includes('push-up') ||
+                               exercise.name.toLowerCase().includes('push up');
 
   return (
     <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] transition-all hover:border-white/10 shadow-lg relative">
@@ -98,7 +107,13 @@ export default function ExerciseCard({
           {/* Labels */}
           <div className="grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-2">
             <span>Set</span>
-            <span>KG</span>
+            {isBodyweightExercise ? (
+              <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowAddedWeightInfo(true)}>
+                + KG <Info size={10} className="text-white/60" />
+              </span>
+            ) : (
+              <span>KG</span>
+            )}
             <span>Reps</span>
             <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowRpeInfo(true)}>
               RPE <Info size={10} className="text-white/60" />
@@ -122,6 +137,7 @@ export default function ExerciseCard({
                   removeSetFromExercise={removeSetFromExercise}
                   duplicateSetInExercise={duplicateSetInExercise}
                   isDisabled={isDisabled}
+                  isBodyweight={isBodyweightExercise}
                 />
               );
             })}
@@ -155,6 +171,41 @@ export default function ExerciseCard({
           initialWeight={Math.max(...exercise.sets.map(s => parseFloat(s.kg) || 0))}
           onClose={() => setShowPlateCalc(false)}
         />
+      )}
+
+      {showAddedWeightInfo && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddedWeightInfo(false)} />
+            <div className="relative w-full max-w-sm bg-[#1C1C1E] rounded-[36px] shadow-2xl border border-white/10 overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300">
+              <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5">
+                <h3 className="font-black text-xl text-white">Added Weight</h3>
+                <button onClick={() => setShowAddedWeightInfo(false)} className="text-[#8E8E93] hover:text-white transition-colors bg-white/5 p-2 rounded-full">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6">
+                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 mx-auto">
+                  <Dumbbell size={32} className="text-white" />
+                </div>
+                <p className="text-sm text-[#8E8E93] mb-4 font-medium text-center leading-relaxed">
+                  For bodyweight exercises like pull-ups or dips, <strong className="text-white">only log the extra weight</strong> you are adding (e.g. from a weight belt).
+                </p>
+                <div className="bg-black/40 border border-white/5 p-4 rounded-2xl mb-2">
+                  <p className="text-xs text-[#8E8E93] font-bold uppercase tracking-widest mb-2">Example</p>
+                  <p className="text-sm text-white/90">
+                    If you weigh 80kg and use a 20kg belt, you should log <strong className="text-white">20 kg</strong>, not 100 kg.
+                  </p>
+                </div>
+                <div className="bg-black/40 border border-white/5 p-4 rounded-2xl">
+                  <p className="text-sm text-white/90">
+                    If you are doing it with just your body weight, leave it at <strong className="text-white">0 kg</strong> or empty.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
       )}
 
       {showRpeInfo && (

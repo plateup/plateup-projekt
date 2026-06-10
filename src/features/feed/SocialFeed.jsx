@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { MoreHorizontal, Heart, MessageCircle, Award, UserPlus, Search, Users, MessageSquare, Copy, Trash2, Send, X } from 'lucide-react';
+import { MoreHorizontal, Heart, MessageCircle, Award, UserPlus, Search, Users, MessageSquare, Copy, Trash2, Send, X, Trophy } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { ConfirmModal, ModalPortal } from '../../components/ui';
 import WorkoutRecap from '../workout/WorkoutRecap';
+import { format, isToday, isYesterday, parseISO } from 'date-fns';
+
+const formatPostTime = (dateString) => {
+  if (!dateString) return 'Just now';
+  try {
+    const date = parseISO(dateString);
+    if (isToday(date)) {
+      return `Today, ${format(date, 'HH:mm')}`;
+    } else if (isYesterday(date)) {
+      return `Yesterday, ${format(date, 'HH:mm')}`;
+    } else {
+      return format(date, 'MMM d, HH:mm');
+    }
+  } catch (e) {
+    return 'Recently';
+  }
+};
 
 const CommentsModal = ({ onClose, comments, onAddComment, currentUsername }) => {
   const [text, setText] = useState('');
@@ -109,7 +126,7 @@ const CommentsModal = ({ onClose, comments, onAddComment, currentUsername }) => 
   );
 };
 
-const WorkoutPost = ({ post, onCopy, onDelete, currentUsername, onViewSummary }) => {
+const WorkoutPost = ({ post, onCopy, onDelete, currentUsername, currentUserAvatar, onViewSummary }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes || 0);
@@ -127,6 +144,7 @@ const WorkoutPost = ({ post, onCopy, onDelete, currentUsername, onViewSummary })
   const handleAddComment = (text, replyTarget) => {
     setCommentsList([...commentsList, { 
       user: currentUsername, 
+      avatar: currentUserAvatar,
       text: text,
       replyTarget: replyTarget,
       isReply: !!replyTarget,
@@ -227,8 +245,8 @@ const WorkoutPost = ({ post, onCopy, onDelete, currentUsername, onViewSummary })
               </div>
               
               {hasHiddenContent && (
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0A0A0A] to-transparent pointer-events-none flex items-end justify-center pb-2">
-                  <span className="text-[10px] font-black text-white bg-black/80 px-4 py-1.5 rounded-full backdrop-blur-md border border-white/10 uppercase tracking-widest">
+                <div className="absolute bottom-0 left-0 right-0 h-24 backdrop-blur-md bg-gradient-to-t from-black/90 via-black/50 to-transparent [mask-image:radial-gradient(ellipse_at_bottom,black_10%,transparent_80%)] pointer-events-none flex items-end justify-center pb-3">
+                  <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest mb-1">
                     Click to see more
                   </span>
                 </div>
@@ -278,6 +296,7 @@ export default function SocialFeed() {
   const [activeSubTab, setActiveSubTab] = useState('feed');
   const [posts, setPosts] = useState([]);
   const [currentUsername, setCurrentUsername] = useState('Athlete');
+  const [currentUserAvatar, setCurrentUserAvatar] = useState(null);
 
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const [copyNotice, setCopyNotice] = useState(false);
@@ -287,6 +306,9 @@ export default function SocialFeed() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [selectedProfile, setSelectedProfile] = useState(null);
 
   const handleAddFriend = async (receiverId) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -308,6 +330,33 @@ export default function SocialFeed() {
         delete newReqs[receiverId];
         return newReqs;
       });
+    }
+  };
+
+  const handleAcceptRequest = async (requestId, senderId) => {
+    setIncomingRequests(prev => prev.filter(req => req.id !== requestId));
+    setSentRequests(prev => ({ ...prev, [senderId]: 'accepted' }));
+    
+    const { error } = await supabase
+      .from('friend_requests')
+      .update({ status: 'accepted' })
+      .eq('id', requestId);
+      
+    if (error) {
+      console.error("Error accepting request:", error);
+    }
+  };
+
+  const handleRejectRequest = async (requestId) => {
+    setIncomingRequests(prev => prev.filter(req => req.id !== requestId));
+    
+    const { error } = await supabase
+      .from('friend_requests')
+      .delete()
+      .eq('id', requestId);
+      
+    if (error) {
+      console.error("Error rejecting request:", error);
     }
   };
 
@@ -338,21 +387,43 @@ export default function SocialFeed() {
       const localName = localStorage.getItem('plateup_username');
       setCurrentUsername(localName || user?.email?.split('@')[0] || 'Athlete');
 
+      let friendIds = [];
+      
       if (user) {
-        // Fetch sent requests
+        friendIds.push(user.id);
+        const relationships = {};
+        const incoming = [];
+
+        // Fetch current user profile to get avatar
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('username, avatar_url')
+          .eq('id', user.id)
+          .single();
+
+        if (profileData) {
+          if (profileData.username) setCurrentUsername(profileData.username);
+          if (profileData.avatar_url) setCurrentUserAvatar(profileData.avatar_url);
+        }
+
+        // 1. Fetch where user is sender
         const { data: sentData } = await supabase
           .from('friend_requests')
           .select('receiver_id, status')
           .eq('sender_id', user.id);
         
         if (sentData) {
-          const sentMap = {};
-          sentData.forEach(req => { sentMap[req.receiver_id] = req.status; });
-          setSentRequests(sentMap);
+          sentData.forEach(req => { 
+            if (req.status === 'accepted') {
+              relationships[req.receiver_id] = 'accepted';
+              friendIds.push(req.receiver_id);
+            } else if (req.status === 'pending') {
+              relationships[req.receiver_id] = 'pending';
+            }
+          });
         }
 
-        // Fetch valid incoming requests (pending and < 24h old)
-        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        // 2. Fetch where user is receiver
         const { data: incData } = await supabase
           .from('friend_requests')
           .select(`
@@ -362,32 +433,78 @@ export default function SocialFeed() {
             created_at, 
             profiles!friend_requests_sender_id_fkey(username, avatar_url)
           `)
-          .eq('receiver_id', user.id)
-          .eq('status', 'pending')
-          .gte('created_at', yesterday);
+          .eq('receiver_id', user.id);
         
-        if (incData) setIncomingRequests(incData);
+        if (incData) {
+          incData.forEach(req => {
+            if (req.status === 'accepted') {
+              relationships[req.sender_id] = 'accepted';
+              friendIds.push(req.sender_id);
+            } else if (req.status === 'pending') {
+              relationships[req.sender_id] = 'pending_received';
+              incoming.push(req);
+            }
+          });
+        }
+        
+        setSentRequests(relationships);
+        setIncomingRequests(incoming);
+
+        if (friendIds.length > 0) {
+          const { data: friendsProfiles } = await supabase
+            .from('profiles')
+            .select('id, username, display_name, avatar_url, exp')
+            .in('id', friendIds);
+            
+          if (friendsProfiles) {
+            const lb = friendsProfiles.map(p => {
+              let e = p.exp || 0;
+              // For prototyping: give friends random exp if they have none, so the leaderboard isn't just 0s.
+              if (e === 0 && p.id !== user.id) {
+                // simple deterministic fake exp based on id length/chars
+                e = 100 + (p.id.charCodeAt(0) * 15) + (p.id.charCodeAt(p.id.length-1) * 22);
+              }
+              if (p.id === user.id) {
+                const localExp = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
+                e = Math.max(e, localExp);
+              }
+              return { ...p, exp: e, level: Math.floor(Math.sqrt(e / 100)) + 1 };
+            });
+            lb.sort((a, b) => b.exp - a.exp);
+            setLeaderboardData(lb);
+          }
+        }
       }
 
       // Fetch global posts from Supabase
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(20);
+      let query = supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(20);
+      
+      if (user && friendIds.length > 0) {
+        query = query.in('user_id', friendIds);
+      }
+
+      const { data, error } = await query;
 
       if (data && data.length > 0) {
         // Map backend data to post format
-        const globalPosts = data.map(p => ({
-          ...p.workout_data,
-          id: p.id,
-          db_id: p.id // to differentiate if needed
-        }));
+        const globalPosts = data.map(p => {
+          const workoutData = p.workout_data || {};
+          return {
+            ...workoutData,
+            id: p.id,
+            db_id: p.id,
+            timeAgo: formatPostTime(p.created_at || workoutData.created_at)
+          };
+        });
         setPosts(globalPosts);
       } else {
         // Fallback to local
         const localPosts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
-        setPosts(localPosts);
+        const updatedLocal = localPosts.map(p => ({
+          ...p,
+          timeAgo: formatPostTime(p.created_at)
+        }));
+        setPosts(updatedLocal);
       }
     };
     
@@ -460,6 +577,12 @@ export default function SocialFeed() {
             <Users size={16} /> Friends
           </button>
           <button 
+            onClick={() => setActiveSubTab('leaderboard')}
+            className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 ${activeSubTab === 'leaderboard' ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-[#8E8E93] hover:text-white'}`}
+          >
+            <Trophy size={16} /> Ranks
+          </button>
+          <button 
             onClick={() => setActiveSubTab('chats')}
             className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 ${activeSubTab === 'chats' ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-[#8E8E93] hover:text-white'}`}
           >
@@ -475,6 +598,7 @@ export default function SocialFeed() {
               key={post.id} 
               post={post} 
               currentUsername={currentUsername}
+              currentUserAvatar={currentUserAvatar}
               onCopy={handleCopyRoutine}
               onDelete={handleDeletePost}
               onViewSummary={setSelectedWorkoutRecap}
@@ -522,7 +646,10 @@ export default function SocialFeed() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button className="bg-white text-black px-4 py-2 rounded-xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-lg">
+                        <button onClick={() => handleRejectRequest(req.id)} className="bg-white/10 text-white px-4 py-2 rounded-xl font-black text-sm hover:bg-white/20 transition-all">
+                          Decline
+                        </button>
+                        <button onClick={() => handleAcceptRequest(req.id, req.sender_id)} className="bg-white text-black px-4 py-2 rounded-xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-lg">
                           Accept
                         </button>
                       </div>
@@ -551,25 +678,42 @@ export default function SocialFeed() {
                       <h4 className="font-black text-white">{user.username || user.display_name}</h4>
                     </div>
                   </div>
-                  {sentRequests[user.id] === 'pending' ? (
-                    <button disabled className="bg-white/10 text-[#8E8E93] px-4 py-2 rounded-xl font-black text-sm flex items-center gap-2">
-                      Pending
-                    </button>
-                  ) : sentRequests[user.id] === 'accepted' ? (
-                    <button disabled className="bg-white/10 text-white px-4 py-2 rounded-xl font-black text-sm flex items-center gap-2">
-                      Friends
-                    </button>
-                  ) : (
-                    <button onClick={() => handleAddFriend(user.id)} className="bg-white text-black px-4 py-2 rounded-xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-2">
-                      <UserPlus size={16} /> Add
-                    </button>
-                  )}
+                  {(() => {
+                    const status = sentRequests[user.id];
+                    if (status === 'accepted') {
+                      return (
+                        <button disabled className="bg-white/10 text-white px-4 py-2 rounded-xl font-black text-sm flex items-center gap-2">
+                          Friends
+                        </button>
+                      );
+                    }
+                    if (status === 'pending') {
+                      return (
+                        <button disabled className="bg-white/10 text-[#8E8E93] px-4 py-2 rounded-xl font-black text-sm flex items-center gap-2">
+                          Pending
+                        </button>
+                      );
+                    }
+                    if (status === 'pending_received') {
+                      const incReq = incomingRequests.find(r => r.sender_id === user.id);
+                      return incReq ? (
+                        <button onClick={() => handleAcceptRequest(incReq.id, user.id)} className="bg-white text-black px-4 py-2 rounded-xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-lg">
+                          Accept
+                        </button>
+                      ) : null;
+                    }
+                    return (
+                      <button onClick={() => handleAddFriend(user.id)} className="bg-white text-black px-4 py-2 rounded-xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-2">
+                        <UserPlus size={16} /> Add
+                      </button>
+                    );
+                  })()}
                 </div>
               ))}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center border-t border-white/5 mt-8">
-              <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-white/5 rounded-[20px] flex items-center justify-center mb-4">
                  <Users size={32} className="text-[#8E8E93]" />
               </div>
               <h3 className="font-black text-xl text-white mb-2">Build Your Crew</h3>
@@ -579,9 +723,83 @@ export default function SocialFeed() {
         </div>
       )}
 
+      {activeSubTab === 'leaderboard' && (
+        <div className="animate-in fade-in duration-300">
+          <div className="flex flex-col items-center justify-center py-6 text-center border-b border-white/5 mb-6">
+            <div className="w-16 h-16 bg-white/5 rounded-[20px] flex items-center justify-center mb-4 border border-white/10 shadow-[0_0_30px_rgba(251,191,36,0.1)]">
+               <Trophy size={32} className="text-amber-400" />
+            </div>
+            <h3 className="font-black text-xl text-white mb-2">Global Rankings</h3>
+            <p className="text-sm text-[#8E8E93] max-w-xs">Compete with your friends. Level up by completing workouts and hitting PRs.</p>
+          </div>
+          
+          <div className="space-y-3">
+            {leaderboardData.map((user, index) => {
+              let medalClass = "text-[#8E8E93]";
+              let borderClass = "border-white/5";
+              let bgClass = "bg-[#1C1C1E]";
+              
+              if (index === 0) {
+                medalClass = "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]";
+                borderClass = "border-yellow-400/30";
+                bgClass = "bg-gradient-to-r from-yellow-400/10 to-[#1C1C1E]";
+              } else if (index === 1) {
+                medalClass = "text-slate-300 drop-shadow-[0_0_10px_rgba(203,213,225,0.5)]";
+                borderClass = "border-slate-300/30";
+                bgClass = "bg-gradient-to-r from-slate-300/10 to-[#1C1C1E]";
+              } else if (index === 2) {
+                medalClass = "text-amber-700 drop-shadow-[0_0_10px_rgba(180,83,9,0.5)]";
+                borderClass = "border-amber-700/30";
+                bgClass = "bg-gradient-to-r from-amber-700/10 to-[#1C1C1E]";
+              }
+
+              const isCurrentUser = user.username === currentUsername;
+
+              return (
+                <div 
+                  key={user.id} 
+                  onClick={() => setSelectedProfile(user)}
+                  className={`flex items-center justify-between p-4 rounded-[24px] border ${borderClass} ${bgClass} cursor-pointer hover:scale-[1.02] transition-all`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-8 font-black text-lg text-center ${medalClass}`}>
+                      #{index + 1}
+                    </div>
+                    <div className="w-12 h-12 rounded-[16px] bg-black/50 flex items-center justify-center font-black text-lg overflow-hidden border border-white/5 shadow-inner relative">
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        (user.username || user.display_name || 'U')[0].toUpperCase()
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-black text-white flex items-center gap-2">
+                        {user.username || user.display_name}
+                        {isCurrentUser && <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-lg text-white/90">You</span>}
+                      </h4>
+                      <p className="text-[11px] font-bold text-[#8E8E93]">Level {user.level}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-black text-white">{user.exp.toLocaleString()}</div>
+                    <div className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-widest">EXP</div>
+                  </div>
+                </div>
+              );
+            })}
+            
+            {leaderboardData.length === 0 && (
+              <div className="text-center py-10 text-[#8E8E93] font-bold">
+                Add friends to see them on the leaderboard!
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {activeSubTab === 'chats' && (
         <div className="animate-in fade-in duration-300 flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+          <div className="w-16 h-16 bg-white/5 rounded-[20px] flex items-center justify-center mb-4">
              <MessageSquare size={32} className="text-[#8E8E93]" />
           </div>
           <h3 className="font-black text-xl text-white mb-2">No Messages Yet</h3>
@@ -621,6 +839,68 @@ export default function SocialFeed() {
           isHistory={true}
           onClose={() => setSelectedWorkoutRecap(null)} 
         />
+      )}
+
+      {selectedProfile && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[600] flex items-end sm:items-center justify-center sm:p-6 animate-in fade-in duration-300">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedProfile(null)} />
+            <div className="relative w-full sm:max-w-md h-[90vh] sm:h-[700px] bg-[#1C1C1E] sm:rounded-[36px] rounded-t-[36px] shadow-2xl border border-white/10 overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300">
+              <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5 relative z-10 bg-[#1C1C1E]">
+                <h3 className="font-black text-xl text-white">Profile</h3>
+                <button onClick={() => setSelectedProfile(null)} className="text-[#8E8E93] hover:text-white transition-colors bg-white/5 p-2 rounded-full">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
+                <div className="p-8 flex flex-col items-center text-center border-b border-white/5 bg-black/20">
+                  <div className="w-24 h-24 rounded-[32px] bg-white/10 flex items-center justify-center font-black text-4xl overflow-hidden border border-white/5 shadow-2xl mb-4 relative">
+                    {selectedProfile.avatar_url ? (
+                      <img src={selectedProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      (selectedProfile.username || selectedProfile.display_name || 'U')[0].toUpperCase()
+                    )}
+                  </div>
+                  <h2 className="text-2xl font-black text-white">{selectedProfile.username || selectedProfile.display_name}</h2>
+                  <div className="flex items-center gap-2 mt-1 mb-6">
+                    <span className="text-[11px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-xl font-black tracking-widest uppercase">Level {selectedProfile.level}</span>
+                    <span className="text-[#8E8E93] font-bold text-sm">{selectedProfile.exp.toLocaleString()} EXP</span>
+                  </div>
+                  
+                  {selectedProfile.username !== currentUsername && (
+                    <div className="flex gap-2">
+                      <button className="bg-white text-black px-6 py-2.5 rounded-xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-2">
+                        <MessageSquare size={16} /> Message
+                      </button>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="p-4 mt-2">
+                  <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-widest mb-4 ml-2">Recent Activity</h3>
+                  <div className="space-y-4">
+                    {posts.filter(p => p.user.name === selectedProfile.username).length > 0 ? (
+                      posts.filter(p => p.user.name === selectedProfile.username).map(post => (
+                        <div key={post.id} className="bg-black/40 border border-white/5 p-4 rounded-[24px] cursor-pointer hover:border-white/10 transition-colors" onClick={() => setSelectedWorkoutRecap(post)}>
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-black text-white">{post.title}</h4>
+                            <span className="text-[10px] text-[#8E8E93] font-bold">{post.timeAgo}</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <span className="text-xs bg-white/5 px-2 py-1 rounded-lg text-[#8E8E93] font-bold">{post.stats?.volume || '0 kg'}</span>
+                            <span className="text-xs bg-white/5 px-2 py-1 rounded-lg text-[#8E8E93] font-bold">{post.stats?.time || '0m'}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-10 text-[#8E8E93] font-bold text-sm">No recent workouts</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </div>
   );

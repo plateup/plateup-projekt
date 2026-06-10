@@ -134,7 +134,15 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
     // Save EXP globally
     const currentExp = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
-    localStorage.setItem('plateup_exp', (currentExp + totalExpEarned).toString());
+    const newExp = currentExp + totalExpEarned;
+    localStorage.setItem('plateup_exp', newExp.toString());
+
+    // Sync EXP to Supabase profiles (fire and forget)
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase.from('profiles').update({ exp: newExp }).eq('id', user.id).then();
+      }
+    });
 
     const summary = {
       name: workoutTitle,

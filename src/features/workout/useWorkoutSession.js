@@ -353,9 +353,10 @@ export function useWorkoutSession() {
     const pastSets = history[exercise.name] || [];
 
     const newExercise = {
-      id: `ex-${Date.now()}`,
+      id: `ex-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       name: exercise.name,
       muscle_group: exercise.muscle_group || 'Full Body',
+      equipment: exercise.equipment || 'Unknown',
       restDuration: 90,
       pastSets: pastSets,
       sets: [
