@@ -15,6 +15,7 @@ import RestTimerOverlay from './RestTimerOverlay';
 import WorkoutRecap from './WorkoutRecap';
 import { Plus, ChevronUp } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
+import { supabase } from '../../services/supabaseClient';
 
 export default function LiveWorkout({ isVisible = true, onRestore }) {
   // Stan przechowujący zmienną: activeTab
