@@ -1,3 +1,10 @@
+/**
+ * Plik: Dashboard.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Panel główny użytkownika. Wyświetla historię treningów pobraną z bazy Supabase oraz kalendarz aktywności.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { Dumbbell, Plus, MoreHorizontal, User, Trash2, LogOut } from 'lucide-react';

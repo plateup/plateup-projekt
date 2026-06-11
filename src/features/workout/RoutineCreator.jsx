@@ -1,3 +1,10 @@
+/**
+ * Plik: RoutineCreator.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/RoutineCreator.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { Plus, X, Save, Trash2 } from 'lucide-react';

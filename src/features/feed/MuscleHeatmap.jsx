@@ -1,3 +1,10 @@
+/**
+ * Plik: MuscleHeatmap.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z feed/MuscleHeatmap.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React from 'react';
 
 export default function MuscleHeatmap({ stats }) {

@@ -1,3 +1,10 @@
+/**
+ * Plik: index.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z ui/index.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React from 'react';
 import { createPortal } from 'react-dom';
 

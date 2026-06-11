@@ -1,3 +1,10 @@
+/**
+ * Plik: useWorkoutSession.js
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/useWorkoutSession.js.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import { useState, useEffect } from 'react';
 
 export function useWorkoutSession() {

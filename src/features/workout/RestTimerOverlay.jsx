@@ -1,3 +1,10 @@
+/**
+ * Plik: RestTimerOverlay.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/RestTimerOverlay.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useEffect, useState } from 'react';
 import { FastForward, ChevronUp } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';

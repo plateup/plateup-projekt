@@ -1,3 +1,10 @@
+/**
+ * Plik: SocialFeed.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Główny komponent społecznościowy. Odpowiada za tablicę postów, system znajomych, rankingi (leaderboard) oraz czat na żywo (WebSockets).
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MoreHorizontal, Heart, MessageCircle, Award, UserPlus, Search, Users, MessageSquare, Copy, Trash2, Send, X, Trophy } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';

@@ -1,3 +1,10 @@
+/**
+ * Plik: Profile.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Zarządzanie profilem użytkownika. Oblicza poziom (Level) na podstawie EXP, pozwala na zmianę avatara i nazwy.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { User, Mail, Settings, LogOut, Shield, Bell, ChevronRight, ChevronLeft, Award, Zap, Flame, Target, Edit3, Check, BarChart2 } from 'lucide-react';

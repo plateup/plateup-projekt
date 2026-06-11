@@ -1,3 +1,10 @@
+/**
+ * Plik: AIChat.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z ai/AIChat.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User as UserIcon, ArrowRight, Save, Check } from 'lucide-react';
 import { generateWorkoutRoutine } from '../../services/aiWorkoutService';

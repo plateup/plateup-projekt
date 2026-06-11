@@ -1,3 +1,10 @@
+/**
+ * Plik: Auth.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Odpowiada za logowanie, autoryzację i zarządzanie sesją użytkownika.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import { Button, Card } from '../../components/ui';
 import { supabase } from '../../services/supabaseClient';

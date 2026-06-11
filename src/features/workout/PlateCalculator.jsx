@@ -1,3 +1,10 @@
+/**
+ * Plik: PlateCalculator.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/PlateCalculator.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect } from 'react';
 import { ModalPortal } from '../../components/ui';
 

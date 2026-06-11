@@ -1,3 +1,10 @@
+/**
+ * Plik: exercises.js
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z constants/exercises.js.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 export const EXTENDED_EXERCISES = [
   { id: "ext-1", name: "Dips", muscle_group: "Chest", equipment: "Bodyweight" },
   { id: "ext-2", name: "Push-up", muscle_group: "Chest", equipment: "Bodyweight" },

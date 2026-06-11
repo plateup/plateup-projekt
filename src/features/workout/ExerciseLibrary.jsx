@@ -1,3 +1,10 @@
+/**
+ * Plik: ExerciseLibrary.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/ExerciseLibrary.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import { useExercises } from '../../hooks/useExercises';
 import { Search, Plus, X, ChevronRight, Dumbbell, CheckSquare, Square } from 'lucide-react';

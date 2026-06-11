@@ -1,3 +1,10 @@
+/**
+ * Plik: Navigation.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/Navigation.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React from 'react';
 
 export default function Navigation({ activeTab, setActiveTab }) {

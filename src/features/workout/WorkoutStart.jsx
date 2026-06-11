@@ -1,3 +1,10 @@
+/**
+ * Plik: WorkoutStart.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/WorkoutStart.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { Plus, Play, MoreVertical, Dumbbell, Copy, Edit3, Trash2, X, Loader2 } from 'lucide-react';

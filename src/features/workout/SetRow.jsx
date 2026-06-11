@@ -1,3 +1,10 @@
+/**
+ * Plik: SetRow.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/SetRow.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import { Check, Trash2 } from 'lucide-react';
 import { motion, useAnimation } from 'framer-motion';

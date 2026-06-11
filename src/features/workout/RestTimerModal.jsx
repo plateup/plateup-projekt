@@ -1,3 +1,10 @@
+/**
+ * Plik: RestTimerModal.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/RestTimerModal.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import { ModalPortal } from '../../components/ui';
 

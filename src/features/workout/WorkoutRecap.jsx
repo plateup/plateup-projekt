@@ -1,3 +1,10 @@
+/**
+ * Plik: WorkoutRecap.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/WorkoutRecap.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Clock, Activity, Award, Check, Share2, Globe } from 'lucide-react';
 import MuscleHeatmap from '../feed/MuscleHeatmap';

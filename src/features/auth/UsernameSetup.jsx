@@ -1,3 +1,10 @@
+/**
+ * Plik: UsernameSetup.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z auth/UsernameSetup.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { User, Loader2, ArrowRight } from 'lucide-react';

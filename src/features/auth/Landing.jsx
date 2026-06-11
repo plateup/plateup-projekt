@@ -1,3 +1,10 @@
+/**
+ * Plik: Landing.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z auth/Landing.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React from 'react';
 import { Dumbbell, ArrowRight, Activity, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
