@@ -1,46 +1,46 @@
-# 🏋️ PlateUp - Project Workflow
-
-Witamy w projekcie! Aby wszystko działało sprawnie i bez konfliktów, trzymajcie się poniższych zasad.
-
-## 🚀 Pierwsze kroki (Po Git Pull)
-
-1. **Zainstaluj zależności:**
-   ```bash
-   npm install
-   ```
-2. **Uruchom projekt lokalnie:**
-   ```bash
-   npm run dev
-   ```
-
-## 🛠 Workflow "No-Conflict"
-
-Pracujemy w architekturze **Feature-Based**. Każdy z Was ma przypisany swój folder.
-
-### Gdzie pisać kod?
-- **Wojtow:** `src/features/workout/`
-- **Jadwisczok:** `src/features/exercises/` oraz `src/features/stats/`
-- **Olgierd:** `src/features/profile/` oraz `src/features/social/`
-- **Landzi (Lider):** `src/features/feed/` oraz `src/components/ui/` (wspólne komponenty)
-
-### Zasady GITA:
-1. **Zawsze robisz pull przed pracą:** `git pull origin main`.
-2. **Nowa funkcja = nowa gałąź (branch):** `git checkout -b feature/twoja-nazwa`.
-3. **Commituj często:** Małe zmiany są łatwiejsze do naprawienia.
-4. **Push:** `git push origin feature/twoja-nazwa`, a potem robimy Pull Request do `main`.
-
-## 🎨 Stylistyka (Tailwind)
-Używamy wyłącznie Tailwind CSS. Nie twórzcie nowych plików `.css`.
-- Korzystajcie z kolorów semantycznych (Dark/Light mode wspierany przez `dark:` prefix w Tailwind).
-- Marginesy i paddingi: starajcie się używać wielokrotności 4 (np. `p-4`, `m-2`, `gap-8`).
-
-## 🤖 Korzystanie z AI
-W plikach dokumentacji (które dostaliście wcześniej) macie gotowe prompty. Pamiętajcie, żeby po wygenerowaniu kodu przez AI:
-1. Sprawdzić czy typy TypeScript się zgadzają.
-2. Dostosować importy do naszej struktury folderów.
-
-## 🤖 Współpraca z AI
-W projekcie znajduje się plik `AI_CONTEXT.md`. Jeśli używasz ChatGPT, Claude lub innego modelu AI do pisania kodu, **zawsze wklejaj mu zawartość tego pliku**. Dzięki temu AI będzie wiedziało, na jakim etapie jest projekt i jakich standardów wizualnych (styl Apple/Lift) musi przestrzegać.
+<div align="center">
+  <h1>🏋️‍♂️ PlateUp</h1>
+  <p><strong>Minimalistyczny asystent treningowy z wbudowanym systemem społecznościowym.</strong></p>
+</div>
 
 ---
-*W razie problemów uderzajcie do Landziego (Main Dev).*
+
+## O projekcie
+
+PlateUp to nowoczesna aplikacja internetowa stworzona dla osób trenujących siłowo. Naszym celem było zaprojektowanie czegoś, co po prostu działa na siłowni – bez zbędnego szumu i skomplikowanych wykresów, z naciskiem na szybkość, wygodę i elegancki interfejs inspirowany estetyką Apple.
+
+Od zapisywania ciężarów w ułamku sekundy, przez inteligentne timery przerw, aż po dzielenie się wynikami ze znajomymi. Wszystko zsynchronizowane w czasie rzeczywistym, dostępne na każdym urządzeniu.
+
+## Najważniejsze funkcje
+
+- ⚡️ **Live Workout:** Śledzenie serii i powtórzeń na żywo bez lagów.
+- 💬 **Społeczność & Live DM:** Wbudowany czat na żywo z powiadomieniami oraz tablica (Feed) z osiągnięciami znajomych.
+- 🏆 **Globalny Ranking:** Za każdy udany trening otrzymujesz EXP. Zdobywaj kolejne levele i rywalizuj o czołówkę na Leaderboardzie.
+- 🌓 **Design System:** Płynne animacje i wysoki kontrast idealnie sprawdzające się na hali treningowej.
+
+## Stack Technologiczny
+
+Projekt został zbudowany z myślą o maksymalnej wydajności w przeglądarce:
+- **Frontend:** React + Vite + Tailwind CSS
+- **Backend & Auth:** Supabase (PostgreSQL)
+- **Komunikacja Live:** Supabase WebSockets (Realtime)
+
+## Jak uruchomić?
+
+Aplikacja jest bardzo prosta w konfiguracji lokalnej:
+
+```bash
+# 1. Zainstaluj zależności
+npm install
+
+# 2. Uruchom serwer deweloperski
+npm run dev
+```
+
+> **Ważne:** Pełne działanie funkcji społecznościowych, autentykacji i bazy danych wymaga podpięcia własnego projektu Supabase. Zmienne `VITE_SUPABASE_URL` oraz `VITE_SUPABASE_ANON_KEY` należy umieścić w pliku `.env.local`.
+
+---
+
+<div align="center">
+  <p><i>Budowane z pasją do czystego kodu i ciężarów.</i></p>
+</div>
