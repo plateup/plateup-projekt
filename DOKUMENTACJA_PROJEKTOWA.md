@@ -20,6 +20,7 @@ Nasz projekt został stworzony w oparciu o najnowsze standardy branżowe, co zap
 *   **Lucide React:** Zbiór pięknych i skalowalnych ikon wektorowych.
 *   **Date-fns:** Niezwykle lekka biblioteka do operacji na datach, krytyczna przy formatowaniu historii treningów i powiadomień w czasie rzeczywistym.
 *   **Canvas Confetti:** Biblioteka do efektów wizualnych (konfetti), uaktywniająca się w momencie pomyślnego zakończenia treningu (mechanizm gamifikacji i nagradzania użytkownika).
+*   **localStorage (Web Storage API):** Natywny mechanizm przeglądarki wykorzystywany jako podręczna baza danych do implementacji trybu "Offline-First". Służy do cache'owania historii treningów, stanów formularzy i danych sesji, umożliwiając częściowe korzystanie z aplikacji w miejscach bez zasięgu sieci (np. na siłowni).
 
 ### 2.2. Warstwa Logiki i Danych (Backend & Database)
 Zdecydowaliśmy się na rozwiązanie typu BaaS (Backend-as-a-Service), aby skupić się na logice i szybkości dostarczenia aplikacji.
