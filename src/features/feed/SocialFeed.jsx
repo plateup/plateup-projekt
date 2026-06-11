@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MoreHorizontal, Heart, MessageCircle, Award, UserPlus, Search, Users, MessageSquare, Copy, Trash2, Send, X, Trophy } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { ConfirmModal, ModalPortal } from '../../components/ui';
@@ -297,6 +297,148 @@ export default function SocialFeed() {
   const [posts, setPosts] = useState([]);
   const [currentUsername, setCurrentUsername] = useState('Athlete');
   const [currentUserAvatar, setCurrentUserAvatar] = useState(null);
+  const [activeChatUser, setActiveChatUser] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [allMessages, setAllMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [sentRequests, setSentRequests] = useState({});
+  const [incomingRequests, setIncomingRequests] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  const getChatLocalKey = (id1, id2) => {
+    const sorted = [id1, id2].sort();
+    return `chat_${sorted[0]}_${sorted[1]}`;
+  };
+
+  const loadChatMessages = async (friendId) => {
+    if (!currentUserId || !friendId) return;
+    
+    // Quick load from local cache (allMessages) to make it instant
+    const cachedMsgs = allMessages.filter(m => 
+      (m.sender_id === currentUserId && m.receiver_id === friendId) || 
+      (m.sender_id === friendId && m.receiver_id === currentUserId)
+    ).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    
+    if (cachedMsgs.length > 0) {
+      setChatMessages(cachedMsgs);
+    }
+    
+    const localKey = getChatLocalKey(currentUserId, friendId);
+    
+    // Use .in() which is much more reliable than nested .or() strings in Supabase JS
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .in('sender_id', [currentUserId, friendId])
+      .in('receiver_id', [currentUserId, friendId])
+      .order('created_at', { ascending: true });
+      
+    if (!error && data) {
+      // Filter out any self-messages just in case
+      const validData = data.filter(m => m.sender_id !== m.receiver_id);
+      setChatMessages(validData);
+    } else if (error) {
+      console.error("Error loading messages from Supabase (maybe table doesn't exist?):", error);
+      // Fallback to local storage if messages table doesn't exist
+      const localMsgs = JSON.parse(localStorage.getItem(localKey) || '[]');
+      setChatMessages(localMsgs);
+    }
+  };
+
+  useEffect(() => {
+    let subscription;
+    if (currentUserId) {
+      // Global subscription for all chats for this user to update the list preview
+      subscription = supabase.channel('global_chat_messages')
+        .on('postgres_changes', { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'messages' 
+        }, payload => {
+          const newMsg = payload.new;
+          
+          if (newMsg.sender_id === currentUserId || newMsg.receiver_id === currentUserId) {
+            setAllMessages(prev => {
+              // Prevent duplicates (including optimistic updates with temp IDs)
+              const isDuplicate = prev.find(m => 
+                m.id === newMsg.id || 
+                (m.sender_id === newMsg.sender_id && m.receiver_id === newMsg.receiver_id && m.text === newMsg.text && Math.abs(new Date(newMsg.created_at).getTime() - new Date(m.created_at).getTime()) < 5000)
+              );
+              if (isDuplicate) {
+                // If it's a duplicate and the existing one was a temp, we should really replace it, but we handle replacement in handleSendMessage.
+                return prev;
+              }
+              return [newMsg, ...prev];
+            });
+            
+            // Also update the active chat if it belongs there
+            if (activeChatUser) {
+              const isRelevant = 
+                (newMsg.sender_id === currentUserId && newMsg.receiver_id === activeChatUser.id) ||
+                (newMsg.sender_id === activeChatUser.id && newMsg.receiver_id === currentUserId);
+                
+              if (isRelevant) {
+                setChatMessages(prev => {
+                  if (prev.find(m => m.id === newMsg.id || (m.sender_id === newMsg.sender_id && m.text === newMsg.text && Math.abs(new Date(newMsg.created_at).getTime() - new Date(m.created_at).getTime()) < 5000))) {
+                    return prev;
+                  }
+                  return [...prev, newMsg];
+                });
+              }
+            }
+          }
+        })
+        .subscribe();
+    }
+    
+    return () => {
+      if (subscription) {
+        supabase.removeChannel(subscription);
+      }
+    };
+  }, [currentUserId, activeChatUser]);
+
+  useEffect(() => {
+    if (activeChatUser) {
+      loadChatMessages(activeChatUser.id);
+    }
+  }, [activeChatUser]);
+
+  const handleSendMessage = async () => {
+    if (!chatInput.trim() || !activeChatUser || !currentUserId) return;
+    
+    const tempId = `temp-${Date.now()}`;
+    const newMsg = {
+      id: tempId,
+      sender_id: currentUserId,
+      receiver_id: activeChatUser.id,
+      text: chatInput.trim(),
+      created_at: new Date().toISOString()
+    };
+    
+    setChatInput('');
+    setChatMessages(prev => [...prev, newMsg]); // Optimistic update
+    setAllMessages(prev => [newMsg, ...prev]);
+    
+    const { data, error } = await supabase.from('messages').insert([{
+      sender_id: newMsg.sender_id,
+      receiver_id: newMsg.receiver_id,
+      text: newMsg.text
+    }]).select().single();
+    
+    if (error) {
+      console.error("Error sending message to Supabase:", error);
+      // Fallback to local storage
+      const localKey = getChatLocalKey(currentUserId, activeChatUser.id);
+      const localMsgs = JSON.parse(localStorage.getItem(localKey) || '[]');
+      localMsgs.push(newMsg);
+      localStorage.setItem(localKey, JSON.stringify(localMsgs));
+    } else if (data) {
+      // Replace optimistic temp message with real DB message (to get proper ID)
+      setChatMessages(prev => prev.map(m => m.id === tempId ? data : m));
+      setAllMessages(prev => prev.map(m => m.id === tempId ? data : m));
+    }
+  };
 
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const [copyNotice, setCopyNotice] = useState(false);
@@ -310,9 +452,27 @@ export default function SocialFeed() {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [selectedProfile, setSelectedProfile] = useState(null);
 
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    if (activeSubTab === 'chats' && activeChatUser) {
+      scrollToBottom();
+    }
+  }, [chatMessages, activeSubTab, activeChatUser]);
+
   const handleAddFriend = async (receiverId) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    // Check if there is already an incoming request from this user
+    const existingInc = incomingRequests.find(r => r.sender_id === receiverId);
+    if (existingInc) {
+      return handleAcceptRequest(existingInc.id, receiverId);
+    }
 
     setSentRequests(prev => ({ ...prev, [receiverId]: 'pending' }));
 
@@ -345,6 +505,9 @@ export default function SocialFeed() {
     if (error) {
       console.error("Error accepting request:", error);
     }
+    
+    // Always re-fetch to ensure sync with DB, even if update failed (so it reappears if it failed)
+    await fetchUserAndPosts();
   };
 
   const handleRejectRequest = async (requestId) => {
@@ -378,136 +541,206 @@ export default function SocialFeed() {
     }
   };
 
-  const [sentRequests, setSentRequests] = useState({}); // { receiver_id: status }
-  const [incomingRequests, setIncomingRequests] = useState([]);
 
-  useEffect(() => {
-    const fetchUserAndPosts = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      const localName = localStorage.getItem('plateup_username');
-      setCurrentUsername(localName || user?.email?.split('@')[0] || 'Athlete');
 
-      let friendIds = [];
+  const fetchUserAndPosts = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const localName = localStorage.getItem('plateup_username');
+    setCurrentUsername(localName || user?.email?.split('@')[0] || 'Athlete');
+
+    let friendIds = [];
+    
+    if (user) {
+      setCurrentUserId(user.id);
+      friendIds.push(user.id);
+      const relationships = {};
+      const incoming = [];
+
+      // Fetch current user profile to get avatar
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('username, avatar_url')
+        .eq('id', user.id)
+        .single();
+
+      if (profileData) {
+        if (profileData.username) setCurrentUsername(profileData.username);
+        if (profileData.avatar_url) setCurrentUserAvatar(profileData.avatar_url);
+      }
+
+      // 1. Fetch where user is sender
+      const { data: sentData } = await supabase
+        .from('friend_requests')
+        .select('receiver_id, status')
+        .eq('sender_id', user.id);
       
-      if (user) {
-        friendIds.push(user.id);
-        const relationships = {};
-        const incoming = [];
+      if (sentData) {
+        sentData.forEach(req => { 
+          if (req.status === 'accepted') {
+            relationships[req.receiver_id] = 'accepted';
+            if (!friendIds.includes(req.receiver_id)) friendIds.push(req.receiver_id);
+          } else if (req.status === 'pending') {
+            relationships[req.receiver_id] = 'pending';
+          }
+        });
+      }
 
-        // Fetch current user profile to get avatar
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('username, avatar_url')
-          .eq('id', user.id)
-          .single();
-
-        if (profileData) {
-          if (profileData.username) setCurrentUsername(profileData.username);
-          if (profileData.avatar_url) setCurrentUserAvatar(profileData.avatar_url);
-        }
-
-        // 1. Fetch where user is sender
-        const { data: sentData } = await supabase
-          .from('friend_requests')
-          .select('receiver_id, status')
-          .eq('sender_id', user.id);
+      // 2. Fetch where user is receiver
+      const { data: incData, error: incError } = await supabase
+        .from('friend_requests')
+        .select(`
+          id, 
+          sender_id, 
+          status, 
+          created_at, 
+          profiles!sender_id(username, avatar_url)
+        `)
+        .eq('receiver_id', user.id);
         
-        if (sentData) {
-          sentData.forEach(req => { 
-            if (req.status === 'accepted') {
-              relationships[req.receiver_id] = 'accepted';
-              friendIds.push(req.receiver_id);
-            } else if (req.status === 'pending') {
-              relationships[req.receiver_id] = 'pending';
-            }
-          });
-        }
-
-        // 2. Fetch where user is receiver
-        const { data: incData } = await supabase
+      if (incError) {
+        console.error("Error fetching incoming requests:", incError);
+        // Fallback query if the foreign key syntax fails
+        const { data: incDataFallback } = await supabase
           .from('friend_requests')
-          .select(`
-            id, 
-            sender_id, 
-            status, 
-            created_at, 
-            profiles!friend_requests_sender_id_fkey(username, avatar_url)
-          `)
+          .select('*')
           .eq('receiver_id', user.id);
-        
-        if (incData) {
-          incData.forEach(req => {
+          
+        if (incDataFallback && incDataFallback.length > 0) {
+          // Manually fetch profiles
+          const senderIds = incDataFallback.map(r => r.sender_id);
+          const { data: profilesData } = await supabase.from('profiles').select('id, username, avatar_url').in('id', senderIds);
+          
+          const enrichedData = incDataFallback.map(req => ({
+            ...req,
+            profiles: profilesData?.find(p => p.id === req.sender_id) || null
+          }));
+          
+          enrichedData.forEach(req => {
             if (req.status === 'accepted') {
               relationships[req.sender_id] = 'accepted';
-              friendIds.push(req.sender_id);
+              if (!friendIds.includes(req.sender_id)) friendIds.push(req.sender_id);
             } else if (req.status === 'pending') {
+              if (relationships[req.sender_id] !== 'accepted') {
+                relationships[req.sender_id] = 'pending_received';
+                incoming.push(req);
+              }
+            }
+          });
+          setIncomingRequests(incoming);
+        }
+      } else if (incData) {
+        incData.forEach(req => {
+          if (req.status === 'accepted') {
+            relationships[req.sender_id] = 'accepted';
+            if (!friendIds.includes(req.sender_id)) friendIds.push(req.sender_id);
+          } else if (req.status === 'pending') {
+            if (relationships[req.sender_id] !== 'accepted') {
               relationships[req.sender_id] = 'pending_received';
               incoming.push(req);
             }
-          });
-        }
-        
-        setSentRequests(relationships);
-        setIncomingRequests(incoming);
+          }
+        });
+      }
+      
+      setSentRequests(relationships);
+      setIncomingRequests(incoming);
 
-        if (friendIds.length > 0) {
-          const { data: friendsProfiles } = await supabase
+      if (friendIds.length > 0) {
+        const { data: friendsProfiles, error: friendsError } = await supabase
+          .from('profiles')
+          .select('id, username, display_name, avatar_url, exp')
+          .in('id', friendIds);
+          
+        if (friendsError) {
+          console.error("Error fetching friends profiles:", friendsError);
+          // Try fetching without display_name and exp if they don't exist in DB
+          const { data: fallbackProfiles } = await supabase
             .from('profiles')
-            .select('id, username, display_name, avatar_url, exp')
+            .select('id, username, avatar_url')
             .in('id', friendIds);
             
-          if (friendsProfiles) {
-            const lb = friendsProfiles.map(p => {
-              let e = p.exp || 0;
-              // For prototyping: give friends random exp if they have none, so the leaderboard isn't just 0s.
-              if (e === 0 && p.id !== user.id) {
-                // simple deterministic fake exp based on id length/chars
-                e = 100 + (p.id.charCodeAt(0) * 15) + (p.id.charCodeAt(p.id.length-1) * 22);
-              }
+          if (fallbackProfiles) {
+             const lb = fallbackProfiles.map(p => {
+              let e = 0;
               if (p.id === user.id) {
-                const localExp = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
-                e = Math.max(e, localExp);
+                e = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
               }
               return { ...p, exp: e, level: Math.floor(Math.sqrt(e / 100)) + 1 };
             });
             lb.sort((a, b) => b.exp - a.exp);
             setLeaderboardData(lb);
           }
+        } else if (friendsProfiles) {
+          const lb = friendsProfiles.map(p => {
+            let e = p.exp || 0;
+            if (p.id === user.id) {
+              const localExp = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
+              e = Math.max(e, localExp);
+            }
+            return { ...p, exp: e, level: Math.floor(Math.sqrt(e / 100)) + 1 };
+          });
+          lb.sort((a, b) => b.exp - a.exp);
+          setLeaderboardData(lb);
         }
       }
+    }
 
-      // Fetch global posts from Supabase
-      let query = supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(20);
-      
-      if (user && friendIds.length > 0) {
-        query = query.in('user_id', friendIds);
-      }
-
-      const { data, error } = await query;
-
-      if (data && data.length > 0) {
-        // Map backend data to post format
-        const globalPosts = data.map(p => {
-          const workoutData = p.workout_data || {};
-          return {
-            ...workoutData,
-            id: p.id,
-            db_id: p.id,
-            timeAgo: formatPostTime(p.created_at || workoutData.created_at)
-          };
-        });
-        setPosts(globalPosts);
-      } else {
-        // Fallback to local
-        const localPosts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
-        const updatedLocal = localPosts.map(p => ({
-          ...p,
-          timeAgo: formatPostTime(p.created_at)
-        }));
-        setPosts(updatedLocal);
-      }
-    };
+    // Fetch global posts from Supabase
+    let query = supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(20);
     
+    if (user && friendIds.length > 0) {
+      query = query.in('user_id', friendIds);
+      
+      // Also fetch all messages for current user to show latest in chats list
+      const { data: msgsData } = await supabase
+        .from('messages')
+        .select('*')
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .order('created_at', { ascending: false });
+        
+      if (msgsData) {
+        setAllMessages(msgsData);
+      } else {
+        // Fallback: collect all messages from local storage
+        let allLocal = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('chat_') && key.includes(user.id)) {
+            try {
+              const msgs = JSON.parse(localStorage.getItem(key) || '[]');
+              allLocal = [...allLocal, ...msgs];
+            } catch(e) {}
+          }
+        }
+        allLocal.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setAllMessages(allLocal);
+      }
+    }
+
+    const { data, error } = await query;
+
+    if (data && data.length > 0) {
+      const globalPosts = data.map(p => {
+        const workoutData = p.workout_data || {};
+        return {
+          ...workoutData,
+          id: p.id,
+          db_id: p.id,
+          timeAgo: formatPostTime(p.created_at || workoutData.created_at)
+        };
+      });
+      setPosts(globalPosts);
+    } else {
+      const localPosts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
+      const updatedLocal = localPosts.map(p => ({
+        ...p,
+        timeAgo: formatPostTime(p.created_at)
+      }));
+      setPosts(updatedLocal);
+    }
+  };
+
+  useEffect(() => {
     fetchUserAndPosts();
   }, []);
 
@@ -712,13 +945,43 @@ export default function SocialFeed() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center border-t border-white/5 mt-8">
-              <div className="w-16 h-16 bg-white/5 rounded-[20px] flex items-center justify-center mb-4">
-                 <Users size={32} className="text-[#8E8E93]" />
-              </div>
-              <h3 className="font-black text-xl text-white mb-2">Build Your Crew</h3>
-              <p className="text-sm text-[#8E8E93] max-w-xs">Search for your friends' usernames above (Press Enter) to add them and see their workouts here.</p>
-            </div>
+            <>
+              {leaderboardData.filter(u => u.id !== currentUserId).length > 0 ? (
+                <div className="mt-8">
+                  <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-widest mb-4 ml-2">My Friends</h3>
+                  <div className="space-y-4">
+                    {leaderboardData.filter(u => u.id !== currentUserId).map(friend => (
+                      <div key={friend.id} className="flex items-center justify-between bg-[#1C1C1E] p-4 rounded-[24px] border border-white/5">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-[16px] bg-white/10 flex items-center justify-center font-black text-lg overflow-hidden border border-white/5">
+                            {friend.avatar_url ? (
+                              <img src={friend.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                              (friend.username || friend.display_name || 'U')[0].toUpperCase()
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-black text-white">{friend.username || friend.display_name}</h4>
+                            <p className="text-[11px] font-bold text-[#8E8E93]">Level {friend.level}</p>
+                          </div>
+                        </div>
+                        <button onClick={() => { setActiveSubTab('chats'); setActiveChatUser(friend); }} className="bg-white/10 text-white px-4 py-2 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-white/20 transition-all">
+                          <MessageSquare size={16} /> Chat
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-center border-t border-white/5 mt-8">
+                  <div className="w-16 h-16 bg-white/5 rounded-[20px] flex items-center justify-center mb-4">
+                    <Users size={32} className="text-[#8E8E93]" />
+                  </div>
+                  <h3 className="font-black text-xl text-white mb-2">Build Your Crew</h3>
+                  <p className="text-sm text-[#8E8E93] max-w-xs">Search for your friends' usernames above (Press Enter) to add them and see their workouts here.</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
@@ -798,12 +1061,125 @@ export default function SocialFeed() {
       )}
 
       {activeSubTab === 'chats' && (
-        <div className="animate-in fade-in duration-300 flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 bg-white/5 rounded-[20px] flex items-center justify-center mb-4">
-             <MessageSquare size={32} className="text-[#8E8E93]" />
-          </div>
-          <h3 className="font-black text-xl text-white mb-2">No Messages Yet</h3>
-          <p className="text-sm text-[#8E8E93] max-w-xs">Connect with friends to start chatting about your progress and routines.</p>
+        <div className="animate-in fade-in duration-300">
+          {!activeChatUser ? (
+            <>
+              {leaderboardData.filter(u => u.id !== currentUserId).length > 0 ? (
+                <div className="space-y-3">
+                  {leaderboardData.filter(u => u.id !== currentUserId).map(friend => {
+                    const friendMessages = allMessages.filter(m => m.sender_id === friend.id || m.receiver_id === friend.id);
+                    const lastMsg = friendMessages.length > 0 ? friendMessages[0] : null; // Already sorted desc
+
+                    return (
+                      <div key={friend.id} onClick={() => setActiveChatUser(friend)} className="flex items-center gap-4 bg-[#1C1C1E] p-4 rounded-[24px] border border-white/5 cursor-pointer hover:border-white/20 transition-all">
+                        <div className="w-14 h-14 rounded-[18px] bg-white/10 flex items-center justify-center font-black text-xl overflow-hidden border border-white/5 shrink-0">
+                          {friend.avatar_url ? (
+                            <img src={friend.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            (friend.username || friend.display_name || 'U')[0].toUpperCase()
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-black text-white text-lg truncate">{friend.username || friend.display_name}</h4>
+                          {lastMsg ? (
+                            <p className="text-sm font-medium text-[#8E8E93] truncate">
+                              {lastMsg.sender_id === currentUserId ? 'You: ' : ''}{lastMsg.text}
+                            </p>
+                          ) : (
+                            <p className="text-sm font-bold text-[#8E8E93]">Tap to start chatting</p>
+                          )}
+                        </div>
+                        <div className="shrink-0 flex flex-col items-end">
+                           {lastMsg ? (
+                             <>
+                               <span className="text-[10px] font-bold text-[#8E8E93] mb-1">
+                                 {format(new Date(lastMsg.created_at), 'HH:mm')}
+                               </span>
+                               {lastMsg.sender_id !== currentUserId && (
+                                 <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded-full">Reply</span>
+                               )}
+                             </>
+                           ) : (
+                             <MessageSquare className="text-[#8E8E93]" size={20} />
+                           )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="w-16 h-16 bg-white/5 rounded-[20px] flex items-center justify-center mb-4">
+                     <MessageSquare size={32} className="text-[#8E8E93]" />
+                  </div>
+                  <h3 className="font-black text-xl text-white mb-2">No Friends Yet</h3>
+                  <p className="text-sm text-[#8E8E93] max-w-xs">Connect with friends to start chatting about your progress and routines.</p>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col h-[60vh] bg-[#1C1C1E] border border-white/5 rounded-[36px] overflow-hidden">
+              {/* Chat Header */}
+              <div className="flex items-center gap-4 p-4 border-b border-white/5 bg-black/20">
+                <button onClick={() => setActiveChatUser(null)} className="p-2 text-[#8E8E93] hover:text-white transition-colors bg-white/5 rounded-full">
+                  <X size={20} />
+                </button>
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-black overflow-hidden">
+                  {activeChatUser.avatar_url ? (
+                    <img src={activeChatUser.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    (activeChatUser.username || activeChatUser.display_name || 'U')[0].toUpperCase()
+                  )}
+                </div>
+                <h3 className="font-black text-lg text-white">{activeChatUser.username || activeChatUser.display_name}</h3>
+              </div>
+              
+              {/* Messages Area */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {chatMessages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-[#8E8E93]">
+                    <p className="text-sm font-bold">No messages yet. Say hi!</p>
+                  </div>
+                ) : (
+                  chatMessages.map((msg, idx) => {
+                    const isMe = msg.sender_id === currentUserId;
+                    return (
+                      <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[75%] px-4 py-3 rounded-2xl ${isMe ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-[#2C2C2E] text-white rounded-bl-sm'} shadow-md`}>
+                          <p className="text-sm font-medium break-words">{msg.text}</p>
+                          <span className="text-[10px] font-bold opacity-60 mt-1 block text-right">
+                            {format(new Date(msg.created_at), 'HH:mm')}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+              
+              {/* Input Area */}
+              <div className="p-4 bg-black/40 border-t border-white/5">
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder="Message..."
+                    className="w-full bg-black border border-white/10 rounded-full h-12 pl-4 pr-12 text-sm font-medium text-white outline-none focus:border-white/30 transition-colors"
+                    value={chatInput}
+                    onChange={e => setChatInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+                  />
+                  <button 
+                    onClick={handleSendMessage}
+                    disabled={!chatInput.trim()}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white disabled:opacity-30 disabled:bg-white/10 transition-colors"
+                  >
+                    <Send size={14} className="-ml-0.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

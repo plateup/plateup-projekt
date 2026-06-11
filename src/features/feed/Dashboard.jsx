@@ -37,33 +37,57 @@ export default function Dashboard({ setActiveTab }) {
   };
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfileAndWorkouts = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data } = await supabase
+        // 1. Fetch Profile
+        const { data: profileData } = await supabase
           .from('profiles')
           .select('username, display_name, avatar_url')
           .eq('id', user.id)
           .maybeSingle();
-        if (data) {
-          const fetchedName = data.username || data.display_name || 'Athlete';
+          
+        if (profileData) {
+          const fetchedName = profileData.username || profileData.display_name || 'Athlete';
           setUsername(fetchedName);
           localStorage.setItem('plateup_username', fetchedName);
           
-          if (data.avatar_url) {
-             setAvatarUrl(data.avatar_url);
-             localStorage.setItem('plateup_avatar', data.avatar_url);
+          if (profileData.avatar_url) {
+             setAvatarUrl(profileData.avatar_url);
+             localStorage.setItem('plateup_avatar', profileData.avatar_url);
           }
         }
+        
+        // 2. Fetch User's Workouts (Posts)
+        const { data: postsData } = await supabase
+          .from('posts')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+          
+        if (postsData && postsData.length > 0) {
+          const mappedWorkouts = postsData.map(p => {
+            const workoutData = p.workout_data || {};
+            return {
+              ...workoutData,
+              id: p.id,
+              db_id: p.id
+            };
+          });
+          setLocalWorkouts(mappedWorkouts);
+          // Also sync to local storage for offline support
+          localStorage.setItem('plateup_posts', JSON.stringify(mappedWorkouts));
+        } else {
+          // If no posts in DB, maybe they are only local? Load local.
+          const stored = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
+          setLocalWorkouts(stored);
+        }
+      } else {
+        const stored = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
+        setLocalWorkouts(stored);
       }
     };
-    fetchProfile();
-
-    const history = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
-    setLocalWorkouts(history);
-
-    window.addEventListener('profileUpdated', loadProfileFromStorage);
-    return () => window.removeEventListener('profileUpdated', loadProfileFromStorage);
+    fetchProfileAndWorkouts();
   }, []);
 
   useEffect(() => {
@@ -90,11 +114,18 @@ export default function Dashboard({ setActiveTab }) {
     setConfirmModal({ isOpen: true, id });
   };
 
-  const executeDeleteWorkout = () => {
+  const executeDeleteWorkout = async () => {
     if (confirmModal.id) {
       const updatedWorkouts = localWorkouts.filter(w => w.id !== confirmModal.id);
       setLocalWorkouts(updatedWorkouts);
       localStorage.setItem('plateup_posts', JSON.stringify(updatedWorkouts));
+      
+      // Also delete from Supabase if it exists there
+      try {
+        await supabase.from('posts').delete().eq('id', confirmModal.id);
+      } catch (e) {
+        console.error('Failed to delete from DB:', e);
+      }
     }
     setConfirmModal({ isOpen: false, id: null });
   };

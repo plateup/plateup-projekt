@@ -37,10 +37,23 @@ export default function Profile() {
         .maybeSingle();
       
       const fetchedAvatar = data?.avatar_url || localStorage.getItem('plateup_avatar');
-      const fetchedName = data?.username || data?.display_name || localStorage.getItem('plateup_username') || user.email?.split('@')[0] || 'User';
+      const fetchedName = data?.username || data?.display_name || localStorage.getItem('plateup_username') || user.email.split('@')[0];
       
       setProfile({ ...user, ...data, avatar_url: fetchedAvatar });
       setEditName(fetchedName);
+      
+      // Sync EXP from DB if available and higher than local
+      const localExp = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
+      const dbExp = data?.exp || 0;
+      const bestExp = Math.max(localExp, dbExp);
+      
+      setExp(bestExp);
+      if (bestExp > localExp) {
+        localStorage.setItem('plateup_exp', bestExp.toString());
+      } else if (localExp > dbExp) {
+        // Sync local to DB
+        supabase.from('profiles').update({ exp: localExp }).eq('id', user.id).then();
+      }
       
       localStorage.setItem('plateup_username', fetchedName);
       if (fetchedAvatar) localStorage.setItem('plateup_avatar', fetchedAvatar);
