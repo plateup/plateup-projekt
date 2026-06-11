@@ -12,6 +12,8 @@ import { ConfirmModal, ModalPortal } from '../../components/ui';
 import WorkoutRecap from '../workout/WorkoutRecap';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 
+// Funkcja pomocnicza: formatPostTime
+
 const formatPostTime = (dateString) => {
   if (!dateString) return 'Just now';
   try {
@@ -28,12 +30,19 @@ const formatPostTime = (dateString) => {
   }
 };
 
+// Funkcja pomocnicza: CommentsModal
+
 const CommentsModal = ({ onClose, comments, onAddComment, currentUsername }) => {
+  // Stan przechowujący zmienną: text
   const [text, setText] = useState('');
+  // Stan przechowujący zmienną: replyTo
   const [replyTo, setReplyTo] = useState(null);
   
   // Local state to track likes just for UI mock
+  // Stan przechowujący zmienną: likedComments
   const [likedComments, setLikedComments] = useState({});
+
+  // Funkcja pomocnicza: handleSend
 
   const handleSend = () => {
     if (!text.trim()) return;
@@ -42,9 +51,13 @@ const CommentsModal = ({ onClose, comments, onAddComment, currentUsername }) => 
     setReplyTo(null);
   };
 
+  // Funkcja pomocnicza: toggleLike
+
   const toggleLike = (idx) => {
     setLikedComments(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <ModalPortal>
@@ -133,20 +146,32 @@ const CommentsModal = ({ onClose, comments, onAddComment, currentUsername }) => 
   );
 };
 
+// Funkcja pomocnicza: WorkoutPost
+
 const WorkoutPost = ({ post, onCopy, onDelete, currentUsername, currentUserAvatar, onViewSummary }) => {
+  // Stan przechowujący zmienną: showOptions
   const [showOptions, setShowOptions] = useState(false);
+  // Stan przechowujący zmienną: liked
   const [liked, setLiked] = useState(false);
+  // Stan przechowujący zmienną: likesCount
   const [likesCount, setLikesCount] = useState(post.likes || 0);
+  // Stan przechowujący zmienną: showComments
   const [showComments, setShowComments] = useState(false);
+  // Stan przechowujący zmienną: commentText
   const [commentText, setCommentText] = useState('');
+  // Stan przechowujący zmienną: commentsList
   const [commentsList, setCommentsList] = useState([]); // Simulated comments
 
   const isOwner = post.user.name === currentUsername;
+
+  // Funkcja pomocnicza: handleLike
 
   const handleLike = () => {
     setLiked(!liked);
     setLikesCount(prev => liked ? prev - 1 : prev + 1);
   };
+
+  // Funkcja pomocnicza: handleAddComment
 
   const handleAddComment = (text, replyTarget) => {
     setCommentsList([...commentsList, { 
@@ -158,6 +183,8 @@ const WorkoutPost = ({ post, onCopy, onDelete, currentUsername, currentUserAvata
       time: 'Just now'
     }]);
   };
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] p-6 mb-6 shadow-xl relative">
@@ -217,6 +244,7 @@ const WorkoutPost = ({ post, onCopy, onDelete, currentUsername, currentUserAvata
 
       {(() => {
         const hasHiddenContent = post.exercises?.length > 3 || post.exercises?.slice(0, 3).some(ex => ex.setsList?.length > 3);
+        // Zwraca interfejs użytkownika (JSX) dla tego komponentu
         return (
           <div className="bg-black/40 p-4 rounded-[24px] border border-white/5 mb-6 cursor-pointer hover:border-white/20 transition-all" onClick={() => onViewSummary(post)}>
             <div className={`relative ${hasHiddenContent ? 'max-h-[160px] overflow-hidden' : ''}`}>
@@ -300,22 +328,37 @@ const StatBox = ({ label, value, highlight }) => (
 );
 
 export default function SocialFeed() {
+  // Stan przechowujący zmienną: activeSubTab
   const [activeSubTab, setActiveSubTab] = useState('feed');
+  // Stan przechowujący zmienną: posts
   const [posts, setPosts] = useState([]);
+  // Stan przechowujący zmienną: currentUsername
   const [currentUsername, setCurrentUsername] = useState('Athlete');
+  // Stan przechowujący zmienną: currentUserAvatar
   const [currentUserAvatar, setCurrentUserAvatar] = useState(null);
+  // Stan przechowujący zmienną: activeChatUser
   const [activeChatUser, setActiveChatUser] = useState(null);
+  // Stan przechowujący zmienną: chatMessages
   const [chatMessages, setChatMessages] = useState([]);
+  // Stan przechowujący zmienną: allMessages
   const [allMessages, setAllMessages] = useState([]);
+  // Stan przechowujący zmienną: chatInput
   const [chatInput, setChatInput] = useState('');
+  // Stan przechowujący zmienną: sentRequests
   const [sentRequests, setSentRequests] = useState({});
+  // Stan przechowujący zmienną: incomingRequests
   const [incomingRequests, setIncomingRequests] = useState([]);
+  // Stan przechowujący zmienną: currentUserId
   const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Funkcja pomocnicza: getChatLocalKey
 
   const getChatLocalKey = (id1, id2) => {
     const sorted = [id1, id2].sort();
     return `chat_${sorted[0]}_${sorted[1]}`;
   };
+
+  // Asynchroniczna funkcja: loadChatMessages - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const loadChatMessages = async (friendId) => {
     if (!currentUserId || !friendId) return;
@@ -333,6 +376,7 @@ export default function SocialFeed() {
     const localKey = getChatLocalKey(currentUserId, friendId);
     
     // Use .in() which is much more reliable than nested .or() strings in Supabase JS
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     const { data, error } = await supabase
       .from('messages')
       .select('*')
@@ -351,6 +395,8 @@ export default function SocialFeed() {
       setChatMessages(localMsgs);
     }
   };
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
     let subscription;
@@ -398,6 +444,8 @@ export default function SocialFeed() {
         .subscribe();
     }
     
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+    
     return () => {
       if (subscription) {
         supabase.removeChannel(subscription);
@@ -405,11 +453,15 @@ export default function SocialFeed() {
     };
   }, [currentUserId, activeChatUser]);
 
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
   useEffect(() => {
     if (activeChatUser) {
       loadChatMessages(activeChatUser.id);
     }
   }, [activeChatUser]);
+
+  // Asynchroniczna funkcja: handleSendMessage - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const handleSendMessage = async () => {
     if (!chatInput.trim() || !activeChatUser || !currentUserId) return;
@@ -426,6 +478,8 @@ export default function SocialFeed() {
     setChatInput('');
     setChatMessages(prev => [...prev, newMsg]); // Optimistic update
     setAllMessages(prev => [newMsg, ...prev]);
+    
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     
     const { data, error } = await supabase.from('messages').insert([{
       sender_id: newMsg.sender_id,
@@ -447,23 +501,37 @@ export default function SocialFeed() {
     }
   };
 
+  // Stan przechowujący zmienną: confirmModal
+
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
+  // Stan przechowujący zmienną: copyNotice
   const [copyNotice, setCopyNotice] = useState(false);
+  // Stan przechowujący zmienną: selectedWorkoutRecap
   const [selectedWorkoutRecap, setSelectedWorkoutRecap] = useState(null);
 
   // Search States
+  // Stan przechowujący zmienną: searchQuery
   const [searchQuery, setSearchQuery] = useState('');
+  // Stan przechowujący zmienną: searchResults
   const [searchResults, setSearchResults] = useState([]);
+  // Stan przechowujący zmienną: isSearching
   const [isSearching, setIsSearching] = useState(false);
 
+  // Stan przechowujący zmienną: leaderboardData
+
   const [leaderboardData, setLeaderboardData] = useState([]);
+  // Stan przechowujący zmienną: selectedProfile
   const [selectedProfile, setSelectedProfile] = useState(null);
 
   const messagesEndRef = useRef(null);
 
+  // Funkcja pomocnicza: scrollToBottom
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
     if (activeSubTab === 'chats' && activeChatUser) {
@@ -471,7 +539,10 @@ export default function SocialFeed() {
     }
   }, [chatMessages, activeSubTab, activeChatUser]);
 
+  // Asynchroniczna funkcja: handleAddFriend - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleAddFriend = async (receiverId) => {
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -500,6 +571,8 @@ export default function SocialFeed() {
     }
   };
 
+  // Asynchroniczna funkcja: handleAcceptRequest - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleAcceptRequest = async (requestId, senderId) => {
     setIncomingRequests(prev => prev.filter(req => req.id !== requestId));
     setSentRequests(prev => ({ ...prev, [senderId]: 'accepted' }));
@@ -517,6 +590,8 @@ export default function SocialFeed() {
     await fetchUserAndPosts();
   };
 
+  // Asynchroniczna funkcja: handleRejectRequest - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleRejectRequest = async (requestId) => {
     setIncomingRequests(prev => prev.filter(req => req.id !== requestId));
     
@@ -530,6 +605,8 @@ export default function SocialFeed() {
     }
   };
 
+  // Asynchroniczna funkcja: handleSearch - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleSearch = async (e) => {
     if (e.key === 'Enter') {
       if (!searchQuery.trim()) {
@@ -537,6 +614,7 @@ export default function SocialFeed() {
         return;
       }
       setIsSearching(true);
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
       const { data, error } = await supabase
         .from('profiles')
         .select('id, username, avatar_url, display_name')
@@ -550,7 +628,12 @@ export default function SocialFeed() {
 
 
 
+  // Asynchroniczna funkcja: fetchUserAndPosts - odpowiada za operacje w tle (np. fetchowanie bazy)
+
+
+
   const fetchUserAndPosts = async () => {
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     const { data: { user } } = await supabase.auth.getUser();
     const localName = localStorage.getItem('plateup_username');
     setCurrentUsername(localName || user?.email?.split('@')[0] || 'Athlete');
@@ -564,6 +647,7 @@ export default function SocialFeed() {
       const incoming = [];
 
       // Fetch current user profile to get avatar
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
       const { data: profileData } = await supabase
         .from('profiles')
         .select('username, avatar_url')
@@ -576,6 +660,7 @@ export default function SocialFeed() {
       }
 
       // 1. Fetch where user is sender
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
       const { data: sentData } = await supabase
         .from('friend_requests')
         .select('receiver_id, status')
@@ -593,6 +678,7 @@ export default function SocialFeed() {
       }
 
       // 2. Fetch where user is receiver
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
       const { data: incData, error: incError } = await supabase
         .from('friend_requests')
         .select(`
@@ -607,6 +693,7 @@ export default function SocialFeed() {
       if (incError) {
         console.error("Error fetching incoming requests:", incError);
         // Fallback query if the foreign key syntax fails
+        // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
         const { data: incDataFallback } = await supabase
           .from('friend_requests')
           .select('*')
@@ -615,6 +702,7 @@ export default function SocialFeed() {
         if (incDataFallback && incDataFallback.length > 0) {
           // Manually fetch profiles
           const senderIds = incDataFallback.map(r => r.sender_id);
+          // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
           const { data: profilesData } = await supabase.from('profiles').select('id, username, avatar_url').in('id', senderIds);
           
           const enrichedData = incDataFallback.map(req => ({
@@ -653,6 +741,7 @@ export default function SocialFeed() {
       setIncomingRequests(incoming);
 
       if (friendIds.length > 0) {
+        // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
         const { data: friendsProfiles, error: friendsError } = await supabase
           .from('profiles')
           .select('id, username, display_name, avatar_url, exp')
@@ -661,6 +750,7 @@ export default function SocialFeed() {
         if (friendsError) {
           console.error("Error fetching friends profiles:", friendsError);
           // Try fetching without display_name and exp if they don't exist in DB
+          // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
           const { data: fallbackProfiles } = await supabase
             .from('profiles')
             .select('id, username, avatar_url')
@@ -699,6 +789,7 @@ export default function SocialFeed() {
       query = query.in('user_id', friendIds);
       
       // Also fetch all messages for current user to show latest in chats list
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
       const { data: msgsData } = await supabase
         .from('messages')
         .select('*')
@@ -747,9 +838,13 @@ export default function SocialFeed() {
     }
   };
 
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
   useEffect(() => {
     fetchUserAndPosts();
   }, []);
+
+  // Asynchroniczna funkcja: handleCopyRoutine - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const handleCopyRoutine = async (post) => {
     const newRoutine = {
@@ -762,6 +857,8 @@ export default function SocialFeed() {
         restDuration: 90
       }))
     };
+
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
 
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
@@ -776,9 +873,13 @@ export default function SocialFeed() {
     setTimeout(() => setCopyNotice(false), 2000);
   };
 
+  // Funkcja pomocnicza: handleDeletePost
+
   const handleDeletePost = (id) => {
     setConfirmModal({ isOpen: true, id });
   };
+
+  // Asynchroniczna funkcja: executeDeletePost - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const executeDeletePost = async () => {
     if (confirmModal.id) {
@@ -796,6 +897,8 @@ export default function SocialFeed() {
     }
     setConfirmModal({ isOpen: false, id: null });
   };
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -870,6 +973,7 @@ export default function SocialFeed() {
               <div className="space-y-3">
                 {incomingRequests.map(req => {
                   const sender = req.profiles || {};
+                  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
                   return (
                     <div key={req.id} className="flex items-center justify-between bg-[#1C1C1E] p-4 rounded-[24px] border border-white/5">
                       <div className="flex items-center gap-4">
@@ -921,6 +1025,7 @@ export default function SocialFeed() {
                   {(() => {
                     const status = sentRequests[user.id];
                     if (status === 'accepted') {
+                      // Zwraca interfejs użytkownika (JSX) dla tego komponentu
                       return (
                         <button disabled className="bg-white/10 text-white px-4 py-2 rounded-xl font-black text-sm flex items-center gap-2">
                           Friends
@@ -928,6 +1033,7 @@ export default function SocialFeed() {
                       );
                     }
                     if (status === 'pending') {
+                      // Zwraca interfejs użytkownika (JSX) dla tego komponentu
                       return (
                         <button disabled className="bg-white/10 text-[#8E8E93] px-4 py-2 rounded-xl font-black text-sm flex items-center gap-2">
                           Pending
@@ -942,6 +1048,7 @@ export default function SocialFeed() {
                         </button>
                       ) : null;
                     }
+                    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
                     return (
                       <button onClick={() => handleAddFriend(user.id)} className="bg-white text-black px-4 py-2 rounded-xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-2">
                         <UserPlus size={16} /> Add
@@ -1025,6 +1132,8 @@ export default function SocialFeed() {
 
               const isCurrentUser = user.username === currentUsername;
 
+              // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
               return (
                 <div 
                   key={user.id} 
@@ -1076,6 +1185,8 @@ export default function SocialFeed() {
                   {leaderboardData.filter(u => u.id !== currentUserId).map(friend => {
                     const friendMessages = allMessages.filter(m => m.sender_id === friend.id || m.receiver_id === friend.id);
                     const lastMsg = friendMessages.length > 0 ? friendMessages[0] : null; // Already sorted desc
+
+                    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
                     return (
                       <div key={friend.id} onClick={() => setActiveChatUser(friend)} className="flex items-center gap-4 bg-[#1C1C1E] p-4 rounded-[24px] border border-white/5 cursor-pointer hover:border-white/20 transition-all">
@@ -1150,6 +1261,7 @@ export default function SocialFeed() {
                 ) : (
                   chatMessages.map((msg, idx) => {
                     const isMe = msg.sender_id === currentUserId;
+                    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
                     return (
                       <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[75%] px-4 py-3 rounded-2xl ${isMe ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-[#2C2C2E] text-white rounded-bl-sm'} shadow-md`}>

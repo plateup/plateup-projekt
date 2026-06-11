@@ -20,6 +20,8 @@ export default function Stats() {
     prData: []
   });
 
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
   useEffect(() => {
     const posts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
     
@@ -70,6 +72,8 @@ export default function Stats() {
 
   }, []);
 
+  // Funkcja pomocnicza: addWeight
+
   const addWeight = () => {
     const w = prompt("Enter new weight (kg):");
     if (w) {
@@ -78,6 +82,8 @@ export default function Stats() {
       setStatsData(prev => ({ ...prev, weightData: data }));
     }
   };
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="animate-in fade-in duration-700">
@@ -182,6 +188,7 @@ export default function Stats() {
 }
 
 function StatCard({ icon, label, value, subValue, subColor }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
     <div className="bg-[#1C1C1E] p-8 rounded-[40px] border border-[#2C2C2E] shadow-sm hover:border-[#3C3C3E] transition-all">
       <div className="w-12 h-12 rounded-2xl bg-black flex items-center justify-center mb-6">

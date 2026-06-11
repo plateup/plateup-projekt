@@ -25,12 +25,20 @@ export default function ExerciseCard({
   activeRestSetId,
   restTime
 }) {
+  // Stan przechowujący zmienną: showTimerModal
   const [showTimerModal, setShowTimerModal] = useState(false);
+  // Stan przechowujący zmienną: showOptions
   const [showOptions, setShowOptions] = useState(false);
+  // Stan przechowujący zmienną: showPlateCalc
   const [showPlateCalc, setShowPlateCalc] = useState(false);
+  // Stan przechowujący zmienną: showHistory
   const [showHistory, setShowHistory] = useState(false);
+  // Stan przechowujący zmienną: showRpeInfo
   const [showRpeInfo, setShowRpeInfo] = useState(false);
+  // Stan przechowujący zmienną: showAddedWeightInfo
   const [showAddedWeightInfo, setShowAddedWeightInfo] = useState(false);
+
+  // Funkcja pomocnicza: formatRest
 
   const formatRest = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -52,6 +60,8 @@ export default function ExerciseCard({
                                exercise.name.toLowerCase().includes('muscle up') ||
                                exercise.name.toLowerCase().includes('push-up') ||
                                exercise.name.toLowerCase().includes('push up');
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] transition-all hover:border-white/10 shadow-lg relative">
@@ -132,6 +142,7 @@ export default function ExerciseCard({
           <div className="space-y-2">
             {exercise.sets.map((set, index) => {
               const displayIndex = exercise.sets.slice(0, index + 1).filter(s => s.type !== 'warmup').length;
+              // Zwraca interfejs użytkownika (JSX) dla tego komponentu
               return (
                 <SetRow
                   key={set.id}

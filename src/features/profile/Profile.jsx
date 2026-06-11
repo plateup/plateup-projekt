@@ -11,18 +11,29 @@ import { User, Mail, Settings, LogOut, Shield, Bell, ChevronRight, ChevronLeft, 
 import Stats from '../stats/Stats';
 
 export default function Profile() {
+  // Stan przechowujący zmienną: profile
   const [profile, setProfile] = useState(null);
+  // Stan przechowujący zmienną: loading
   const [loading, setLoading] = useState(true);
+  // Stan przechowujący zmienną: isEditing
   const [isEditing, setIsEditing] = useState(false);
+  // Stan przechowujący zmienną: editName
   const [editName, setEditName] = useState('');
+  // Stan przechowujący zmienną: activeView
   const [activeView, setActiveView] = useState('main');
+  // Stan przechowujący zmienną: exp
   const [exp, setExp] = useState(0);
+  // Stan przechowujący zmienną: errorMsg
   const [errorMsg, setErrorMsg] = useState(null);
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
     fetchProfile();
     setExp(parseInt(localStorage.getItem('plateup_exp') || '0', 10));
   }, []);
+
+  // Funkcja pomocnicza: getLevelInfo
 
   const getLevelInfo = (exp) => {
     if (exp < 1000) return { level: 1, rank: 'Beginner', current: exp, max: 1000, progress: (exp/1000)*100 };
@@ -34,9 +45,13 @@ export default function Profile() {
 
   const levelInfo = getLevelInfo(exp);
 
+  // Asynchroniczna funkcja: fetchProfile - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const fetchProfile = async () => {
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -69,6 +84,8 @@ export default function Profile() {
     setLoading(false);
   };
 
+  // Asynchroniczna funkcja: handleSaveProfile - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleSaveProfile = async () => {
     if (!profile) return;
     setProfile({ ...profile, username: editName });
@@ -83,6 +100,8 @@ export default function Profile() {
     
     if (error) setErrorMsg("Failed to save to database. Make sure 'profiles' table exists.");
   };
+
+  // Asynchroniczna funkcja: handleAvatarUpload - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const handleAvatarUpload = async (event) => {
     try {
@@ -214,6 +233,7 @@ export default function Profile() {
   }
 
   if (activeView === 'stats') {
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
     return (
       <div className="animate-in fade-in duration-300">
         <button onClick={() => setActiveView('main')} className="mb-8 flex items-center gap-2 font-bold text-[#8E8E93]">
@@ -223,6 +243,8 @@ export default function Profile() {
       </div>
     );
   }
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="animate-in fade-in duration-700 pb-32">
@@ -330,6 +352,7 @@ export default function Profile() {
 }
 
 function SettingsView({ title, onBack, children }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
     <div className="animate-in slide-in-from-right-8 duration-300 pb-32">
       <header className="flex items-center gap-4 mb-10">
@@ -346,7 +369,9 @@ function SettingsView({ title, onBack, children }) {
 }
 
 function ToggleRow({ label, value, toggleState, locked }) {
+  // Stan przechowujący zmienną: isOn
   const [isOn, setIsOn] = useState(toggleState);
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
     <div className="flex items-center justify-between p-6 bg-[#1C1C1E] rounded-[32px] border border-white/5">
       <span className="font-bold text-white text-lg">{label}</span>
@@ -365,6 +390,7 @@ function ToggleRow({ label, value, toggleState, locked }) {
 }
 
 function BadgeCard({ icon, title, desc, active }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
     <div className={`p-6 rounded-[32px] border ${active ? 'bg-[#1C1C1E] border-white/20' : 'bg-transparent border-white/5 opacity-40'} flex flex-col items-center text-center gap-3`}>
       <div className={`w-16 h-16 rounded-[20px] flex items-center justify-center ${active ? 'bg-white text-black' : 'bg-[#2C2C2E] text-[#8E8E93]'}`}>
@@ -379,6 +405,7 @@ function BadgeCard({ icon, title, desc, active }) {
 }
 
 function PRRow({ exercise, weight, reps, date }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
     <div className="flex items-center justify-between p-6 bg-[#1C1C1E] rounded-[32px] border border-white/5">
       <div>
@@ -398,6 +425,7 @@ function SectionHeader({ title }) {
 }
 
 function MenuLink({ icon, label, border, onClick }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
     <button onClick={onClick} className={`w-full flex items-center justify-between p-6 hover:bg-white/5 transition-all group ${border ? 'border-t border-white/5' : ''}`}>
       <div className="flex items-center gap-4">

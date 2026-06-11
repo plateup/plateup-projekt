@@ -1,76 +1,95 @@
-# Dokumentacja Projektowa - PlateUp 🏋️‍♂️
+# Kompleksowa Dokumentacja Projektowa - PlateUp 🏋️‍♂️
 
 ## 1. Metryka Projektu
 - **Nazwa aplikacji:** PlateUp
-- **Rodzaj projektu:** Aplikacja webowa typu SPA (Single Page Application)
+- **Rodzaj projektu:** Zaawansowana aplikacja webowa typu SPA (Single Page Application)
 - **Zespół projektowy:** Langier, Mietła, Jadwiszczok, Bogdański
-- **Cel projektu:** Stworzenie minimalistycznego, wydajnego i społecznościowego asystenta treningowego, który pozwala na śledzenie postępów na siłowni, rywalizację ze znajomymi oraz komunikację w czasie rzeczywistym.
+- **Cel projektu:** Zaprojektowanie i wdrożenie minimalistycznego, wysoce zoptymalizowanego asystenta treningowego w przeglądarce, łączącego funkcjonalności śledzenia treningów z bogatym systemem społecznościowym (live chat, rankingi, znajomi).
 
 ---
 
-## 2. Architektura i Wykorzystane Technologie
+## 2. Architektura Systemu i Wykorzystane Technologie
 
-Aby zapewnić najwyższą wydajność, nowoczesny wygląd i łatwość utrzymania kodu, projekt został zbudowany w oparciu o następujący stos technologiczny:
+Nasz projekt został stworzony w oparciu o najnowsze standardy branżowe, co zapewnia jego skalowalność, bezpieczeństwo oraz błyskawiczne działanie.
 
-### Frontend (Warstwa Wizualna i Logika Klienta)
-*   **React.js (v18):** Główna biblioteka do budowania interfejsu użytkownika w oparciu o komponenty. Wykorzystaliśmy nowoczesne hooki (`useState`, `useEffect`, `useRef`) do zarządzania stanem.
-*   **Vite:** Ultraszybkie narzędzie budujące (bundler), które zastąpiło wysłużonego Create React App, znacząco przyspieszając proces developmentu.
-*   **Tailwind CSS:** Biblioteka do stylowania aplikacji z wykorzystaniem klas narzędziowych (utility-first). Pozwoliła nam na stworzenie spójnego, ciemnego motywu inspirowanego designem Apple (duże zaokrąglenia, głębokie kontrasty, responsywność).
-*   **Lucide React:** Zestaw nowoczesnych, minimalistycznych ikon wektorowych.
-*   **Date-fns:** Lekka biblioteka do formatowania i manipulacji datami (wykorzystana m.in. w kalendarzu na głównym panelu oraz przy formatowaniu czasu wiadomości).
-*   **Framer Motion:** Biblioteka do płynnych i naturalnych animacji interfejsu (przejścia ekranów, modale).
+### 2.1. Warstwa Prezentacji (Frontend)
+*   **React.js (v18):** Szkielet całej aplikacji. Pozwala na budowanie modularnego interfejsu z wykorzystaniem nowoczesnych hooków (np. `useState`, `useEffect`, `useMemo`, `useRef`).
+*   **Vite:** Superszybki bundler, który zapewnia natychmiastowe ładowanie modułów podczas developmentu (HMR) i zoptymalizowany, lekki kod wynikowy na produkcję.
+*   **Tailwind CSS:** System stylowania oparty na klasach narzędziowych (utility-first). Został przez nas rygorystycznie wykorzystany do stworzenia spójnego, ciemnego motywu (Dark Mode) inspirowanego estetyką iOS. Zapewnia pełną responsywność (Mobile-First).
+*   **Framer Motion:** Zaawansowana biblioteka animacji w React. Odpowiada za płynne przejścia (`fade-in`, `slide-up`) ekranów oraz modali, dodając aplikacji "poloru" i uczucia płynności (fluidity).
+*   **Lucide React:** Zbiór pięknych i skalowalnych ikon wektorowych.
+*   **Date-fns:** Niezwykle lekka biblioteka do operacji na datach, krytyczna przy formatowaniu historii treningów i powiadomień w czasie rzeczywistym.
+*   **Canvas Confetti:** Biblioteka do efektów wizualnych (konfetti), uaktywniająca się w momencie pomyślnego zakończenia treningu (mechanizm gamifikacji i nagradzania użytkownika).
 
-### Backend (Baza Danych i Autoryzacja)
-*   **Supabase:** Nowoczesna alternatywa dla Firebase, oparta na otwartoźródłowej relacyjnej bazie danych PostgreSQL.
-*   **Supabase Auth:** Zintegrowany moduł do zarządzania rejestracją, logowaniem i bezpiecznymi sesjami użytkowników.
-*   **PostgreSQL (RLS):** Główna baza danych. Wykorzystaliśmy Row Level Security (RLS) do zabezpieczenia danych – dzięki temu użytkownik ma dostęp tylko do swoich własnych treningów i wiadomości.
-*   **Supabase Realtime (WebSockets):** Mechanizm nasłuchiwania na zmiany w bazie danych w czasie rzeczywistym. Wykorzystany do implementacji komunikatora (Live Chat), który odświeża wiadomości bez potrzeby przeładowywania strony.
-
----
-
-## 3. Struktura Projektu (Feature-Based)
-
-Aplikacja nie używa standardowego podziału na "widoki" i "komponenty". Zastosowaliśmy nowoczesną architekturę **Feature-Based**, co oznacza, że kod podzielony jest ze względu na funkcjonalności. Ułatwia to pracę w zespole i unikanie konfliktów (tzw. merge conflicts) w systemie kontroli wersji Git.
-
-*   `/src/features/auth` - Logowanie, rejestracja, ustawianie nazwy użytkownika.
-*   `/src/features/feed` - Główny panel (Dashboard), tablica aktywności (Social Feed), Czat oraz Rankingi.
-*   `/src/features/workout` - System dodawania treningów na żywo, podsumowania, kalkulator obciążeń i biblioteka ćwiczeń.
-*   `/src/features/profile` - Statystyki użytkownika, poziomy (EXP) i personalizacja.
-*   `/src/components/ui` - Współdzielone, uniwersalne komponenty interfejsu (np. Przyciski, Modale).
+### 2.2. Warstwa Logiki i Danych (Backend & Database)
+Zdecydowaliśmy się na rozwiązanie typu BaaS (Backend-as-a-Service), aby skupić się na logice i szybkości dostarczenia aplikacji.
+*   **Supabase:** Nasz główny silnik backendowy działający na zaawansowanej relacyjnej bazie PostgreSQL.
+*   **Supabase Auth:** Zabezpieczony moduł do rejestracji i logowania (JWT Tokens, Session Management).
+*   **PostgreSQL RLS (Row Level Security):** Zaawansowany mechanizm bezpieczeństwa bezpośrednio na poziomie tabel w bazie danych. Gwarantuje, że zapytanie o wiadomości i treningi filtruje wyniki bezpośrednio po identyfikatorze `auth.uid()`, uniemożliwiając kradzież danych lub dostęp nieautoryzowany.
+*   **Supabase Realtime (WebSockets):** Nasłuchiwanie zmian (INSERT, UPDATE) na tabelach w bazie z milisekundowym opóźnieniem. Odpowiada za bezprzeładowaniowy system czatów "jak na Instagramie".
 
 ---
 
-## 4. Opis Działania Głównych Modułów
+## 3. Szczegółowy Opis Modułów i Funkcji Aplikacji
 
-### A. Autoryzacja i Zarządzanie Użytkownikami
-Aplikacja wymaga od użytkownika utworzenia konta (E-mail + Hasło). Po rejestracji użytkownik zmuszony jest do wybrania unikalnej nazwy (`username`), która posłuży do identyfikacji przez innych znajomych. Sesja jest utrzymywana w bezpiecznych ciasteczkach (Local Storage / Supabase Auth).
+Aplikacja oparta jest na nowoczesnym wzorcu architektury folderów "Feature-Based". Poniżej znajduje się dekonstrukcja każdego z modułów, wraz z opisem logiki pod spodem.
 
-### B. Live Workout (Trening na żywo)
-Moduł ten to serce aplikacji. Użytkownik może dodawać ćwiczenia z wbudowanej biblioteki. Podczas treningu:
-*   Aplikacja na bieżąco zlicza podniesiony tonaż (Volume) oraz czas trwania.
-*   Zaimplementowano inteligentny `RestTimer` (stoper), który pozwala kontrolować czas odpoczynku między seriami.
-*   Po kliknięciu "Finish", aplikacja wylicza zdobyte punkty doświadczenia (EXP) i zapisuje trening do bazy danych.
+### 3.1 Moduł Wejściowy (App & Auth)
+Plik `App.jsx` pełni rolę głównego routera. Posiada mechanizm, który sprawdza stan sesji za pomocą `supabase.auth.getSession()` podczas pierwszego renderowania.
+*   **Funkcja `handleSessionData`:** Zarządza sesją i synchronizacją danych między lokalną przeglądarką (`localStorage`) a kontem użytkownika w chmurze. Posiada system archiwizacji lokalnych danych - zapobiega nadpisywaniu treningów, jeśli na jednym urządzeniu zaloguje się inna osoba.
+*   **Widoki `Landing.jsx` oraz `Auth.jsx`:** Ekrany powitalne z płynnymi przejściami. Posiadają walidację pól e-mail i hasła oraz automatyczne przechwytywanie błędów po stronie serwera (np. e-mail już zajęty).
+*   **Widok `UsernameSetup.jsx`:** Proces Onboardingu - wymusza na nowo zarejestrowanym użytkowniku utworzenie unikalnego identyfikatora (`username`), który jest krytyczny do działania funkcji wyszukiwania znajomych.
 
-### C. System Społecznościowy i Rankingi (Social & Leaderboard)
-Zbudowaliśmy zaawansowany system znajomych.
-*   **Dodawanie znajomych:** Wyszukiwarka wysyła asynchroniczne zapytania do bazy profilów. Użytkownik może wysłać zaproszenie, które druga osoba musi zaakceptować.
-*   **Ochrona przed duplikatami:** Jeżeli dwaj użytkownicy wyślą zaproszenie do siebie nawzajem w tym samym czasie, system inteligentnie to wykryje i scali w jedną relację "Friends".
-*   **Ranking (EXP):** Za każdy udokumentowany trening gracz otrzymuje punkty doświadczenia. Na ekranie Ranks widnieje posortowana tabela wyników znajomych z przypisanymi miejscami i medalami.
+### 3.2 Moduł Głównego Panelu (Dashboard - `Dashboard.jsx`)
+Miejsce pierwszego kontaktu użytkownika po zalogowaniu.
+*   **Logika Pobierania (Data Fetching):** `fetchProfileAndWorkouts` pobiera z Supabase dane personalne i listę postów/treningów (`posts`).
+*   **System "Offline-First" (Fallback):** Jeżeli sieć jest niedostępna, system odwołuje się do pamięci `localStorage` (`plateup_posts`), pozwalając użytkownikowi na wgląd w historię treningów nawet bez dostępu do Internetu.
+*   **Funkcja `generateDates`:** Tworzy horyzontalny kalendarz pokazujący 14 dni wstecz, służący jako nawigacja i wskaźnik regularności.
+*   **Funkcja `executeDeleteWorkout`:** Wyposażona w mechanizm Optimistic UI. Po kliknięciu "Usuń", trening znika natychmiast z interfejsu (szybka reakcja), a w tle asynchronicznie uruchamiane jest polecenie `delete().eq('id', ...)` na bazie PostgreSQL.
 
-### D. Komunikator (Realtime DMs)
-Inspirowany wiadomościami prywatnymi z popularnych sieci społecznościowych.
-*   Wykorzystuje kanały WebSockets z bazy Supabase (`postgres_changes`).
-*   Wysłanie wiadomości do znajomego następuje natychmiastowo na froncie (tzw. Optimistic UI Update), a w tle weryfikowane jest z bazą danych.
-*   Jeśli serwer wykryje, że druga strona wysłała wiadomość, okno czatu natychmiast zjedzie na sam dół (Smooth Auto-Scroll), pokazując nowy dymek z odpowiedzią.
-*   W przypadku awarii sieci lub braku połączenia z Supabase, aplikacja posiada wbudowany **Fallback (Plan Awaryjny)** oparty na pamięci lokalnej przeglądarki (`localStorage`), więc historia nie ginie.
+### 3.3 Moduł Społecznościowy (SocialFeed - `SocialFeed.jsx`)
+Najbardziej zaawansowany technicznie plik w całej aplikacji. Obsługuje logikę relacji i komunikacji na żywo. Zawiera 4 sub-karty nawigacyjne.
+
+#### A. Wyszukiwanie i Zaproszenia do Znajomych
+*   **Funkcja `handleSearch`:** Odpytuje bazę danych o nazwy użytkowników dopasowując ciąg znaków (klauzula `ilike`).
+*   **Funkcja `fetchUserAndPosts`:** Pobiera zaproszenia wysłane (`sentData`) i otrzymane (`incData`). Zawiera niezwykle istotny mechanizm "Fallback" - jeśli brakuje tabel relacyjnych, aplikacja wchodzi w tryb ratunkowy i pobiera profile ręcznie na podstawie IDs (gwarantując stabilność).
+*   **Funkcja `handleAddFriend`:** Przyciski wysyłają do Supabase obiekt `friend_requests`. Użytkownik celowy otrzymuje to natychmiast. Jeżeli obaj wyślą sobie zaproszenie (skrzyżowanie zapytań), funkcja uodparnia bazę, automatycznie "akceptując" zapytanie zamiast je dublować.
+
+#### B. Globalny Ranking (Leaderboard)
+*   Budowany dynamicznie na podstawie punktów doświadczenia (EXP) pobranych z tabeli `profiles`. Użytkownicy są sortowani (`lb.sort`), a 3 najlepszym przypisywane są specjalne kolory medali i poświaty CSS dla wzmocnienia elementu rywalizacji.
+
+#### C. System Komunikacji (Realtime Chats)
+*   **Realtime Subscription:** W bloku `useEffect` używamy `supabase.channel('global_chat_messages')`. Metoda `.on('postgres_changes')` nasłuchuje każdego nowego rekordu.
+*   **Deduplikacja:** Aplikacja eliminuje zjawisko "migotania" wiadomości (double-render). Wysyłając wiadomość funkcja `handleSendMessage` wstrzykuje na ekranie fałszywe ID (`tempId`), a po pomyślnym odebraniu potwierdzenia z serwera, podmienia to ID na stałe (UUID). Mechanizm uodporniony jest na opóźnienia sieci rzędu do 5 sekund.
+*   **Funkcja `scrollToBottom`:** Wykorzystująca referencję `useRef` na tagu elementu pustego na samym dole ekranu. Wymusza przewinięcie (`scrollIntoView`) w momencie nadejścia nowej wiadomości.
+*   **Inteligentne znaczniki "Reply":** Interfejs rozróżnia ostatniego nadawcę z pomocą zmiennych. Jeśli wiadomość nie jest naszego autorstwa, obok daty doczepiany jest znacznik "Reply".
+
+### 3.4 Moduł Modułu Treningowego (Live Workout - `LiveWorkout.jsx`)
+Rdzeń aplikacji. Umożliwia rejestrowanie postępów.
+*   **Stan (State Management):** Wykorzystuje złożone obiekty stanowe do przetrzymywania zestawów (`sets`), powtórzeń (`reps`) i kilogramów (`kg`).
+*   **Funkcje `handleUpdateSet` / `handleAddSet` / `handleRemoveSet`:** Zapewniają wysoką interaktywność i dynamikę formularzy.
+*   **Funkcja `handleFinish`:** Agreguje wszystkie dane wejściowe. Wylicza łączny tonaż (Volume), przypisuje tagi, zlicza czas z milisekund. Dodatkowo działa tu skrypt obliczający ilość punktów EXP przyznanych za sesję (dodatkowy mnożnik za np. trening nóg - element nagrody).
+*   Zapis danych działa w dwóch wektorach - modyfikuje `localStorage` oraz wywołuje `supabase.from('profiles').update({ exp: newExp })` w celu synchronizacji bazy profilowej, dzięki czemu ranking (leaderboard) w module `SocialFeed` jest na bieżąco odświeżany.
+
+### 3.5 Moduł Profilu Użytkownika (`Profile.jsx`)
+Służy do personalizacji. Obrazuje osiągnięcia.
+*   **Funkcja `fetchProfile`:** Pobiera dane upewniając się, że poziom punktowy (`exp`) pokrywa się z najwyższą dotychczasową wartością zapisaną na dowolnym z urządzeń użytkownika. 
+*   **Logika Poziomów (`getLevelInfo`):** Przypisuje rangi, tj. "Beginner", "Iron Lifter", "Titan" w oparciu o sztywne przedziały matematyczne doświadczenia. Dynamicznie kalkuluje procentowy przyrost paska postępu.
+*   Przechwytuje akcje `signOut`, niszcząc sesję z Supabase i przywracając użytkownika do ekranu logowania, w pełni czyszcząc dostęp z widoków.
 
 ---
 
-## 5. Przepływ Danych i Bezpieczeństwo
-Aplikacja została zaprojektowana w taki sposób, aby maksymalnie odciążyć serwer:
-1. Podczas ładowania głównego widoku pobierana jest jednorazowo historia treningów.
-2. Historia czatów i postów jest kasowana w pamięci lokalnej i nadpisywana najświeższą wersją z serwera, co pozwala na bardzo płynne działanie.
-3. Bezpieczeństwo zapewnia system RLS w PostgreSQL – każde zapytanie do bazy z automatu dokleja identyfikator użytkownika (`auth.uid()`). Nie ma fizycznej możliwości, aby jakikolwiek skrypt z zewnątrz pobrał wiadomości czatu należące do kogoś innego.
+## 4. Wyzwania Napotkane podczas Implementacji i Rozwiązania
 
-## 6. Podsumowanie
-Projekt PlateUp łączy w sobie rygorystyczne podejście do inżynierii oprogramowania ze zrozumieniem potrzeb końcowego użytkownika (UI/UX). Wykorzystanie nowoczesnych technologii (React 18 + Supabase) pozwoliło naszemu zespołowi na dostarczenie produktu przypominającego profesjonalne aplikacje produkcyjne ze sklepów z aplikacjami.
+1.  **Synchronizacja Stanu Offline i Online:** 
+    Użytkownicy na siłowni nie zawsze mają dostęp do stabilnej sieci.
+    **Rozwiązanie:** Zbudowaliśmy aplikację "Offline-First". Wszelkie rekordy (treningi, czaty) zapisują się jako pierwsza warstwa do `localStorage` z tymczasowym identyfikatorem. Dopiero w drugiej fazie (w asynchronicznym promise) synchronizują się z PostgreSQL. Gdy baza zawodzi, użyty zostaje wbudowany mechanizm "Fallback", zapewniając bezprzerwowe działanie aplikacji.
+2.  **Optymalizacja odpytywania bazy (N+1 queries problem):** 
+    Wyszukiwanie kilkudziesięciu znajomych z bazy byłoby nieefektywne.
+    **Rozwiązanie:** Skonstruowaliśmy zapytania oparte o łączenie tabel klauzulami `.in('id', array)`. Załadowanie wszystkich znajomych sprowadza się do 1 ustrukturyzowanego zapytania, skracając czas ładowania z paru sekund do zaledwie ms.
+3.  **Animacje a zwalnianie pamięci:** 
+    Szybkie przeklikiwanie ekranów generowało błędy odmontowania (unmounted component update).
+    **Rozwiązanie:** Wdrożenie biblioteki Framer Motion z otoczką `AnimatePresence (mode="wait")` – rozwiązanie uniemożliwiające narysowanie komponentu, zanim poprzedni całkowicie zniknie. Gwarantuje to absolutną spójność drzewa DOM i brak wycieków pamięci.
+
+## 5. Zakończenie
+Aplikacja PlateUp nie ustępuje na polu technicznym współczesnym nowoczesnym platformom społecznościowym. Wykorzystuje potężną moc Reacta do budowy responsywnego, reaktorowego (reaktywnego) frontendu i nowoczesną architekturę backendową bazującą na subskrypcjach WebSocket (Supabase). Projekt w pełni uosabia możliwości, jakie niosą współczesne standardy inżynierii oprogramowania webowego.

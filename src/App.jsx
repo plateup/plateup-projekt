@@ -19,10 +19,16 @@ import LiveWorkout from './features/workout/LiveWorkout';
 import AIChat from './features/ai/AIChat';
 
 function App() {
+  // Stan przechowujący zmienną: session
   const [session, setSession] = useState(null);
+  // Stan przechowujący zmienną: view
   const [view, setView] = useState('landing'); // landing, auth, onboarding, app
+  // Stan przechowujący zmienną: activeTab
   const [activeTab, setActiveTab] = useState('feed');
+  // Stan przechowujący zmienną: isInitializing
   const [isInitializing, setIsInitializing] = useState(true);
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -33,11 +39,17 @@ function App() {
       handleSessionData(session);
     });
 
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
     return () => subscription.unsubscribe();
   }, []);
 
+  // Asynchroniczna funkcja: handleSessionData - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleSessionData = async (session) => {
     const savedUserId = localStorage.getItem('plateup_last_user_id');
+
+    // Funkcja pomocnicza: archiveCurrentData
 
     const archiveCurrentData = (userIdToArchive) => {
       if (!userIdToArchive) return;
@@ -81,6 +93,7 @@ function App() {
       setSession(session);
 
       // Check if username is setup (for Google OAuth flow)
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
       const { data: profile } = await supabase.from('profiles').select('username').eq('id', currentUserId).maybeSingle();
       
       if (!profile || !profile.username) {
@@ -103,6 +116,8 @@ function App() {
     }
   };
 
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
   useEffect(() => {
     let title = 'PlateUp';
     if (view === 'landing') title = 'PlateUp - Start';
@@ -124,6 +139,8 @@ function App() {
   if (view === 'landing') return <Landing onGetStarted={() => setView('auth')} />;
   if (view === 'auth' && !session) return <Auth onBack={() => setView('landing')} />;
   if (view === 'onboarding') return <UsernameSetup onComplete={() => setView('app')} />;
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <AppShell 

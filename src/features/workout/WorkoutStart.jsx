@@ -12,18 +12,28 @@ import RoutineCreator from './RoutineCreator';
 import { ConfirmModal, ModalPortal } from '../../components/ui';
 
 export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
+  // Stan przechowujący zmienną: routines
   const [routines, setRoutines] = useState([]);
+  // Stan przechowujący zmienną: loading
   const [loading, setLoading] = useState(true);
+  // Stan przechowujący zmienną: showRoutineCreator
   const [showRoutineCreator, setShowRoutineCreator] = useState(false);
+  // Stan przechowujący zmienną: editingRoutine
   const [editingRoutine, setEditingRoutine] = useState(null);
+  // Stan przechowujący zmienną: selectedRoutine
   const [selectedRoutine, setSelectedRoutine] = useState(null);
+  // Stan przechowujący zmienną: activeMenuId
   const [activeMenuId, setActiveMenuId] = useState(null);
   
   // Confirm Modal state
+  // Stan przechowujący zmienną: confirmModal
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
+
+  // Asynchroniczna funkcja: fetchRoutines - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const fetchRoutines = async () => {
     setLoading(true);
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     const { data, error } = await supabase
       .from('routines')
       .select('*')
@@ -33,11 +43,15 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
     setLoading(false);
   };
 
+  // Funkcja pomocnicza: confirmDeleteRoutine
+
   const confirmDeleteRoutine = (id, e) => {
     e.stopPropagation();
     setActiveMenuId(null);
     setConfirmModal({ isOpen: true, id });
   };
+
+  // Asynchroniczna funkcja: executeDeleteRoutine - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const executeDeleteRoutine = async () => {
     if (confirmModal.id) {
@@ -47,9 +61,13 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
     setConfirmModal({ isOpen: false, id: null });
   };
 
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
   useEffect(() => {
     fetchRoutines();
   }, []);
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

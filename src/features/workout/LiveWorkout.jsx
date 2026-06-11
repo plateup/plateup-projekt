@@ -17,9 +17,13 @@ import { Plus, ChevronUp } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 
 export default function LiveWorkout({ isVisible = true, onRestore }) {
+  // Stan przechowujący zmienną: activeTab
   const [activeTab, setActiveTab] = useState('workout');
+  // Stan przechowujący zmienną: showLibrary
   const [showLibrary, setShowLibrary] = useState(false);
+  // Stan przechowujący zmienną: showRecap
   const [showRecap, setShowRecap] = useState(false);
+  // Stan przechowujący zmienną: completedWorkoutSummary
   const [completedWorkoutSummary, setCompletedWorkoutSummary] = useState(null);
   const {
     exercises,
@@ -48,8 +52,13 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     setRestTime
   } = useWorkoutSession();
 
+  // Stan przechowujący zmienną: showResetModal
+
   const [showResetModal, setShowResetModal] = useState(false);
+  // Stan przechowujący zmienną: isTimerMinimized
   const [isTimerMinimized, setIsTimerMinimized] = useState(false);
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
     const pendingRoutine = localStorage.getItem('plateup_pending_routine');
@@ -66,6 +75,8 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   const isIdle = sessionStatus === 'idle';
   const isActive = sessionStatus === 'active';
+
+  // Funkcja pomocnicza: handleComplete
 
   const handleComplete = () => {
     let totalVolume = 0;
@@ -167,6 +178,8 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     setShowRecap(true);
   };
 
+  // Funkcja pomocnicza: handleAddExercise
+
   const handleAddExercise = (exercisesToAdd) => {
     if (Array.isArray(exercisesToAdd)) {
       exercisesToAdd.forEach(ex => addExerciseToSession(ex));
@@ -176,6 +189,8 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     setShowLibrary(false);
   };
 
+  // Funkcja pomocnicza: handleSkipRest
+
   const handleSkipRest = () => {
     stopRest();
     setIsTimerMinimized(false);
@@ -183,6 +198,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   if (isIdle) {
     if (!isVisible) return null;
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
     return (
       <div className="min-h-screen bg-black text-white antialiased flex flex-col items-center w-full px-4 pt-10 relative">
         <div className="w-full max-w-2xl">
@@ -200,6 +216,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   // Active workout minimized view
   if (!isVisible && isActive) {
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
     return (
       <ModalPortal>
         <div 
@@ -220,6 +237,8 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
   }
 
   if (!isVisible) return null;
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

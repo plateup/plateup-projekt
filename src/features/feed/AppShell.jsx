@@ -18,6 +18,8 @@ export default function AppShell({ children, activeTab, setActiveTab, persistent
     { id: 'profile', icon: User, label: 'Profile' },
   ];
 
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white/30">
       {/* Main Content Area */}
@@ -43,6 +45,7 @@ export default function AppShell({ children, activeTab, setActiveTab, persistent
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
+          // Zwraca interfejs użytkownika (JSX) dla tego komponentu
           return (
             <button
               key={tab.id}

@@ -11,12 +11,20 @@ import { supabase } from '../../services/supabaseClient';
 import { Mail, Lock, Loader2, ChevronLeft, User } from 'lucide-react';
 
 export default function Auth({ onBack }) {
+  // Stan przechowujący zmienną: loading
   const [loading, setLoading] = useState(false);
+  // Stan przechowujący zmienną: isRegister
   const [isRegister, setIsRegister] = useState(false);
+  // Stan przechowujący zmienną: email
   const [email, setEmail] = useState('');
+  // Stan przechowujący zmienną: username
   const [username, setUsername] = useState('');
+  // Stan przechowujący zmienną: password
   const [password, setPassword] = useState('');
+  // Stan przechowujący zmienną: error
   const [error, setError] = useState(null);
+
+  // Asynchroniczna funkcja: requestNotificationPermission - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const requestNotificationPermission = async () => {
     if ('Notification' in window) {
@@ -30,6 +38,8 @@ export default function Auth({ onBack }) {
     }
   };
 
+  // Asynchroniczna funkcja: handleAuth - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -41,6 +51,7 @@ export default function Auth({ onBack }) {
     try {
       if (isRegister) {
         // 1. Sign up user
+        // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
         const { data, error: signUpError } = await supabase.auth.signUp({ 
           email, 
           password,
@@ -68,6 +79,7 @@ export default function Auth({ onBack }) {
 
         // If 'email' doesn't look like an email, assume it's a username
         if (!email.includes('@')) {
+          // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('email')
@@ -89,6 +101,8 @@ export default function Auth({ onBack }) {
       setLoading(false);
     }
   };
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="min-h-screen bg-[#F2F2F7] dark:bg-black px-4 py-12 flex flex-col">

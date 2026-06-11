@@ -15,15 +15,22 @@ export default function AIChat({ onStartRoutine }) {
     const saved = localStorage.getItem('plateup_ai_chat');
     return saved ? JSON.parse(saved) : [{ role: 'assistant', text: 'Hey! I am your AI Coach. How can I help you train today?' }];
   });
+  // Stan przechowujący zmienną: input
   const [input, setInput] = useState('');
+  // Stan przechowujący zmienną: isLoading
   const [isLoading, setIsLoading] = useState(false);
+  // Stan przechowujący zmienną: userAvatar
   const [userAvatar, setUserAvatar] = useState(() => localStorage.getItem('plateup_avatar') || null);
   const messagesEndRef = useRef(null);
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
     localStorage.setItem('plateup_ai_chat', JSON.stringify(messages));
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Asynchroniczna funkcja: handleSend - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -60,7 +67,11 @@ export default function AIChat({ onStartRoutine }) {
     }
   };
 
+  // Stan przechowujący zmienną: savedRoutines
+
   const [savedRoutines, setSavedRoutines] = useState({});
+
+  // Asynchroniczna funkcja: handleSaveRoutine - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const handleSaveRoutine = async (routineData, index) => {
     const exercisesList = Array.isArray(routineData.exercises) ? routineData.exercises : [];
@@ -76,6 +87,8 @@ export default function AIChat({ onStartRoutine }) {
       }))
     };
 
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       await supabase.from('routines').insert([{
@@ -86,6 +99,8 @@ export default function AIChat({ onStartRoutine }) {
     }
     setSavedRoutines(prev => ({ ...prev, [index]: true }));
   };
+
+  // Funkcja pomocnicza: handleStartRoutine
 
   const handleStartRoutine = (routineData) => {
     const exercisesList = Array.isArray(routineData.exercises) ? routineData.exercises : [];
@@ -113,9 +128,13 @@ export default function AIChat({ onStartRoutine }) {
     onStartRoutine();
   };
 
+  // Funkcja pomocnicza: handleKeyDown
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleSend();
   };
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="flex flex-col h-[calc(100dvh-230px)] lg:h-[calc(100dvh-260px)] animate-in fade-in duration-500">

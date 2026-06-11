@@ -8,6 +8,7 @@
 import React from 'react';
 
 export default function MuscleHeatmap({ stats }) {
+  // Funkcja pomocnicza: getColor
   const getColor = (intensity) => {
     if (!intensity || intensity === 0) return 'bg-white/5 text-white/40 border-white/5';
     if (intensity < 30) return 'bg-white/20 text-white/80 border-white/10';
@@ -16,6 +17,8 @@ export default function MuscleHeatmap({ stats }) {
   };
 
   const getVal = (muscle) => stats?.[muscle] || 0;
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <div className="bg-[#1C1C1E] rounded-[48px] p-8 border border-white/5 h-full flex flex-col justify-between">

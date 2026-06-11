@@ -13,9 +13,13 @@ import confetti from 'canvas-confetti';
 import { ModalPortal } from '../../components/ui';
 
 export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
+  // Stan przechowujący zmienną: publishing
   const [publishing, setPublishing] = useState(false);
+  // Stan przechowujący zmienną: published
   const [published, setPublished] = useState(false);
+  // Stan przechowujący zmienną: routineSaved
   const [routineSaved, setRoutineSaved] = useState(false);
+  // Stan przechowujący zmienną: localWorkoutId
   const [localWorkoutId, setLocalWorkoutId] = useState(null);
 
   const summary = workout || {
@@ -27,6 +31,8 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
     muscleStats: {},
     rawStats: { time: '0:00', volume: '0 kg', sets: 0, prs: 0 }
   };
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
     if (isHistory) return;
@@ -70,6 +76,8 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
       const duration = 3000;
       const end = Date.now() + duration;
 
+      // Funkcja pomocnicza: frame
+
       const frame = () => {
         confetti({
           particleCount: 5,
@@ -100,18 +108,24 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
       }
     }, 1000); // 1 second delay
 
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
     return () => clearTimeout(timer);
   }, [isHistory]);
+
+  // Asynchroniczna funkcja: handlePublish - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const handlePublish = async () => {
     setPublishing(true);
     
     // Fetch current user from Supabase
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     const { data: { user } } = await supabase.auth.getUser();
     let username = localStorage.getItem('plateup_username') || 'Athlete';
     let avatarUrl = localStorage.getItem('plateup_avatar') || null;
     
     if (user) {
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
       const { data } = await supabase.from('profiles').select('username, display_name, avatar_url').eq('id', user.id).maybeSingle();
       if (data) {
         if (data.username || data.display_name) username = data.username || data.display_name;
@@ -171,6 +185,8 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
     setPublished(true);
   };
 
+  // Asynchroniczna funkcja: handleSaveRoutine - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleSaveRoutine = async () => {
     // Collect exercises into a routine structure
     const routineExercises = summary.exercises.map(ex => ({
@@ -185,6 +201,7 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
     };
 
     // Try DB first
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       await supabase.from('routines').insert([{
@@ -196,6 +213,8 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
     setRoutineSaved(true);
     setTimeout(() => setRoutineSaved(false), 3000);
   };
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <ModalPortal>

@@ -10,6 +10,7 @@ import { Dumbbell, ArrowRight, Activity, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Landing({ onGetStarted }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
     <div className="bg-black text-white selection:bg-white/30 h-[100dvh] overflow-y-auto snap-y snap-proximity scroll-smooth no-scrollbar relative">
       
