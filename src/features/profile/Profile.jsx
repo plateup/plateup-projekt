@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { User, Settings, LogOut, Shield, ChevronRight, ChevronLeft, Target, Edit3 } from 'lucide-react';
+import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from 'recharts';
+import { format, subDays, startOfToday } from 'date-fns';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -10,7 +12,7 @@ export default function Profile() {
   const [activeView, setActiveView] = useState('main');
   const [errorMsg, setErrorMsg] = useState(null);
   
-  const [stats, setStats] = useState({ workoutsCount: 0, totalVolume: 0 });
+  const [stats, setStats] = useState({ workoutsCount: 0, totalVolume: 0, chartData: [] });
 
   useEffect(() => {
     fetchProfile();
@@ -20,12 +22,29 @@ export default function Profile() {
   const calculateStats = () => {
     const posts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
     let volume = 0;
+    
+    // Calculate total volume
     posts.forEach(post => {
       if (post.stats?.volume) {
         volume += parseFloat(post.stats.volume.replace(' kg', '').replace(',', '')) || 0;
       }
     });
-    setStats({ workoutsCount: posts.length, totalVolume: volume });
+
+    // Calculate daily volume for the last 7 days for the chart
+    const today = startOfToday();
+    const chartData = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = subDays(today, i);
+      const dateStr = format(date, 'MMM dd');
+      const dailyPosts = posts.filter(p => new Date(p.created_at).toDateString() === date.toDateString());
+      let dailyVol = 0;
+      dailyPosts.forEach(post => {
+        if (post.stats?.volume) dailyVol += parseFloat(post.stats.volume.replace(' kg', '').replace(',', '')) || 0;
+      });
+      chartData.push({ name: dateStr, volume: dailyVol });
+    }
+
+    setStats({ workoutsCount: posts.length, totalVolume: volume, chartData });
   };
 
   const fetchProfile = async () => {
@@ -164,7 +183,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-10">
+      <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="bg-[#1C1C1E] rounded-3xl p-6 border border-white/5 flex flex-col items-center justify-center text-center">
           <div className="text-3xl font-black text-white">{stats.workoutsCount}</div>
           <div className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mt-1">Workouts</div>
@@ -174,6 +193,30 @@ export default function Profile() {
           <div className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mt-1">Volume</div>
         </div>
       </div>
+
+      {stats.chartData && stats.chartData.length > 0 && (
+        <div className="bg-[#1C1C1E] rounded-[32px] p-6 mb-10 border border-white/5 shadow-xl">
+          <h3 className="text-xs font-black text-[#8E8E93] uppercase tracking-widest mb-6 ml-2">Tonaż (Ostatnie 7 dni)</h3>
+          <div className="h-40 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={stats.chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#000', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', fontWeight: 900 }}
+                  itemStyle={{ color: '#fff' }}
+                  cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2, strokeDasharray: '4 4' }}
+                />
+                <Area type="monotone" dataKey="volume" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorVolume)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         <SectionHeader title="Settings" />

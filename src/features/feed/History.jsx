@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { Dumbbell, Plus, MoreHorizontal, User, Trash2, LogOut } from 'lucide-react';
-import { format, addDays, subDays, isSameDay, startOfToday } from 'date-fns';
+import { format, addDays, subDays, isSameDay, startOfToday, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, getDay } from 'date-fns';
 import WorkoutRecap from '../workout/WorkoutRecap';
 import { ConfirmModal } from '../../components/ui';
 
@@ -22,21 +22,28 @@ export default function Dashboard({ setActiveTab }) {
   const [openMenuId, setOpenMenuId] = useState(null);
   // Stan przechowujący zmienną: confirmModal
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
-  const scrollRef = useRef(null);
 
   // Funkcja pomocnicza: generateDates
 
   const generateDates = () => {
-    const dates = [];
     const today = startOfToday();
-    for (let i = 14; i > 0; i--) {
-      dates.push(subDays(today, i));
-    }
-    dates.push(today);
-    for (let i = 1; i <= 7; i++) {
-      dates.push(addDays(today, i));
-    }
-    return dates;
+    // Generate dates for current month view
+    const start = startOfMonth(today);
+    const end = endOfMonth(today);
+    const daysInMonth = eachDayOfInterval({ start, end });
+    
+    // Add padding days for the first week (if month doesn't start on Monday)
+    // getDay() returns 0 for Sunday, 1 for Monday in some locales, but standard JS is 0=Sun, 1=Mon...6=Sat.
+    // We want Monday=0, Sunday=6
+    const firstDayIndex = (getDay(start) + 6) % 7; 
+    const paddedStart = Array.from({ length: firstDayIndex }).map((_, i) => subDays(start, firstDayIndex - i));
+    
+    // Add padding days for the last week
+    const lastDayIndex = (getDay(end) + 6) % 7;
+    const paddingEndLength = 6 - lastDayIndex;
+    const paddedEnd = Array.from({ length: paddingEndLength }).map((_, i) => addDays(end, i + 1));
+    
+    return [...paddedStart, ...daysInMonth, ...paddedEnd];
   };
 
   const dates = generateDates();
@@ -106,17 +113,6 @@ export default function Dashboard({ setActiveTab }) {
       }
     };
     fetchProfileAndWorkouts();
-  }, []);
-
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      const todayElement = scrollRef.current.querySelector('[data-istoday="true"]');
-      if (todayElement) {
-        todayElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-      }
-    }
   }, []);
 
   // Funkcja pomocnicza: getWorkoutsForDate
@@ -218,45 +214,48 @@ export default function Dashboard({ setActiveTab }) {
         </div>
       </header>
 
-      {/* Horizontal Calendar */}
+      {/* Monthly Grid Calendar */}
       <section className="mb-12">
         <div className="flex items-center justify-between mb-6 px-1">
-          <h2 className="text-xl font-black">Calendar</h2>
+          <h2 className="text-2xl font-black text-white">{format(startOfToday(), 'MMMM yyyy')}</h2>
         </div>
-        <div 
-          ref={scrollRef}
-          className="flex gap-4 overflow-x-auto no-scrollbar py-4 -mx-6 px-6 md:mx-0 md:px-0 snap-x scroll-smooth"
-        >
-          {dates.map((date, index) => {
-            const isSelected = isSameDay(date, selectedDate);
-            const isToday = isSameDay(date, startOfToday());
-            const hasWorkout = getWorkoutsForDate(date).length > 0;
-            
-            // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-            
-            return (
-              <button
-                key={index}
-                data-istoday={isToday}
-                onClick={() => setSelectedDate(date)}
-                className={`snap-center flex flex-col items-center justify-center min-w-[72px] h-[100px] rounded-[32px] transition-all relative shrink-0 ${
-                  isSelected 
-                    ? 'bg-white text-black scale-105 shadow-[0_20px_40px_rgba(255,255,255,0.15)]' 
-                    : 'bg-[#1C1C1E] text-[#8E8E93] border border-[#2C2C2E] hover:border-white/20'
-                }`}
-              >
-                <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isSelected ? 'text-black/60' : 'text-[#8E8E93]'}`}>
-                  {format(date, 'EEE')}
-                </span>
-                <span className="text-2xl font-black tabular-nums">
-                  {format(date, 'd')}
-                </span>
-                {hasWorkout && (
-                  <div className={`absolute bottom-2 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-black' : 'bg-white'}`} />
-                )}
-              </button>
-            );
-          })}
+        <div className="bg-[#1C1C1E] rounded-[32px] p-6 border border-white/5">
+          <div className="grid grid-cols-7 gap-2 mb-4">
+            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
+              <div key={i} className="text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest">{day}</div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-2 gap-y-3">
+            {dates.map((date, index) => {
+              const isSelected = isSameDay(date, selectedDate);
+              const isToday = isSameDay(date, startOfToday());
+              const hasWorkout = getWorkoutsForDate(date).length > 0;
+              const isCurrentMonth = isSameMonth(date, startOfToday());
+              
+              return (
+                <button
+                  key={index}
+                  onClick={() => setSelectedDate(date)}
+                  className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-full transition-all active:scale-[0.90] ${
+                    isSelected 
+                      ? 'bg-white text-black shadow-lg shadow-white/20 scale-105' 
+                      : isToday
+                      ? 'bg-[#2C2C2E] text-white border border-white/20'
+                      : isCurrentMonth
+                      ? 'text-white/80 hover:bg-white/5'
+                      : 'text-white/20'
+                  }`}
+                >
+                  <span className={`text-sm font-bold ${isSelected ? 'text-black' : ''}`}>
+                    {format(date, 'd')}
+                  </span>
+                  {hasWorkout && (
+                    <div className={`absolute bottom-1.5 w-1 h-1 rounded-full ${isSelected ? 'bg-black' : 'bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]'}`} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
