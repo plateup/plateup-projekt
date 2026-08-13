@@ -165,6 +165,18 @@ export default function ExerciseCard({
             <Plus size={16} strokeWidth={3} />
             ADD SET
           </button>
+
+          {/* Inline Stats (Volume & 1RM) */}
+          {exercise.sets.filter(s => s.isCompleted).length > 0 && (
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/5 text-xs font-bold text-[#8E8E93]">
+              <div>
+                Volume: <span className="text-white">{exercise.sets.filter(s => s.isCompleted).reduce((sum, s) => sum + (parseFloat(s.kg) || 0) * (parseInt(s.reps) || 0), 0)} kg</span>
+              </div>
+              <div>
+                Est. 1RM: <span className="text-white">{Math.round(Math.max(0, ...exercise.sets.filter(s => s.isCompleted).map(s => (parseFloat(s.kg) || 0) * (1 + (parseInt(s.reps) || 0) / 30))))} kg</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

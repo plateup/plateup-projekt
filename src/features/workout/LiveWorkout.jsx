@@ -219,18 +219,36 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   // Active workout minimized view
   if (!isVisible && isActive) {
+    const isRestingNow = isResting && restTime > 0;
+    
     return (
       <ModalPortal>
         <div 
           onClick={onRestore}
-          className="fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg bg-green-500 text-black p-4 rounded-[20px] z-[90] flex items-center justify-between shadow-2xl cursor-pointer active:scale-[0.98] transition-all duration-300"
+          className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg p-4 rounded-[20px] z-[90] flex items-center justify-between shadow-2xl cursor-pointer active:scale-[0.98] transition-all duration-300 ${
+            isRestingNow ? 'bg-indigo-500 text-white' : 'bg-green-500 text-black'
+          }`}
           style={{ bottom: 'calc(4.5rem + var(--safe-bottom))' }}
         >
           <div className="flex flex-col">
-            <span className="font-black text-sm tracking-tight">Workout in Progress</span>
-            <span className="text-xs font-bold text-black/70">{workoutTimeFormatted}</span>
+            <span className="font-black text-sm tracking-tight">
+              {isRestingNow ? 'Rest Timer' : 'Workout in Progress'}
+            </span>
+            <span className={`text-xs font-bold ${isRestingNow ? 'text-indigo-200' : 'text-black/70'}`}>
+              {isRestingNow ? `${Math.floor(restTime / 60)}:${(restTime % 60).toString().padStart(2, '0')}` : workoutTimeFormatted}
+            </span>
           </div>
-          <ChevronUp size={24} strokeWidth={3} className="text-black/50" />
+          <div className="flex items-center gap-3">
+            {isRestingNow && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); stopRest(); }}
+                className="bg-black/20 hover:bg-black/30 text-white px-3 py-1.5 rounded-full text-xs font-black transition-colors"
+              >
+                Skip
+              </button>
+            )}
+            <ChevronUp size={24} strokeWidth={3} className={isRestingNow ? 'text-white/50' : 'text-black/50'} />
+          </div>
         </div>
       </ModalPortal>
     );
