@@ -12,9 +12,9 @@ export default function SetRow({
   removeSetFromExercise,
   duplicateSetInExercise,
   isDisabled,
-  isBodyweight
+  isBodyweight,
+  maxReps
 }) {
-  // Stan przechowujący zmienną: showTypeSelector
   const [showTypeSelector, setShowTypeSelector] = useState(false);
   const controls = useAnimation();
 
@@ -158,7 +158,7 @@ export default function SetRow({
           type="text"
           inputMode="numeric"
           placeholder={set.prevReps || "0"}
-          className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
+          className={`w-full bg-black text-white text-center font-black py-4 rounded-xl border outline-none transition-all placeholder:text-[#3C3C3E] ${maxReps && parseInt(set.reps) > parseInt(maxReps) ? 'border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'border-[#2C2C2E] focus:border-white/40'}`}
           value={set.reps}
           onClick={() => handleInputClick('reps')}
           onChange={(e) => updateSet(exerciseId, set.id, 'reps', e.target.value)}

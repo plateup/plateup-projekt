@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabaseClient';
-import { Plus, Play, MoreVertical, Dumbbell, Copy, Edit3, Trash2, X, Loader2 } from 'lucide-react';
+import { Plus, Play, MoreVertical, Dumbbell, Copy, Edit3, Trash2, X, Loader2, Download } from 'lucide-react';
 import RoutineCreator from './RoutineCreator';
 import { ConfirmModal, ModalPortal } from '../../components/ui';
+import { landziPlan } from './landziPlan';
 
 export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
   // Stan przechowujący zmienną: routines
@@ -54,7 +55,34 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
     setConfirmModal({ isOpen: false, id: null });
   };
 
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+  const handleInjectPlan = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return alert("Musisz być zalogowany!");
+    
+    setLoading(true);
+    for (const routine of landziPlan) {
+      const formattedExercises = routine.exercises.map(ex => ({
+        id: `ex-${Date.now()}-${Math.random()}`,
+        name: ex.name,
+        muscle_group: ex.muscle_group,
+        progType: ex.progType,
+        minReps: ex.minReps,
+        maxReps: ex.maxReps,
+        rpe: ex.rpe,
+        restDuration: ex.rest,
+        sets: ex.sets
+      }));
+
+      await supabase.from('routines').insert([{
+        user_id: user.id,
+        name: routine.name,
+        exercises: formattedExercises
+      }]);
+    }
+    await fetchRoutines();
+    setLoading(false);
+    alert('Plan Landziego został wgrany!');
+  };
 
   useEffect(() => {
     fetchRoutines();
@@ -88,12 +116,20 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
 
         <div className="mt-8 mb-4 flex items-center justify-between px-2">
           <h2 className="text-2xl font-black text-white">My Routines</h2>
-          <button 
-            onClick={() => setShowRoutineCreator(true)}
-            className="text-white font-bold text-sm flex items-center gap-1 hover:text-[#8E8E93] transition-colors"
-          >
-            <Plus size={16} /> New Routine
-          </button>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={handleInjectPlan}
+              className="text-indigo-400 font-bold text-xs flex items-center gap-1 hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full"
+            >
+              <Download size={14} /> Wgraj Plan
+            </button>
+            <button 
+              onClick={() => setShowRoutineCreator(true)}
+              className="text-white font-bold text-sm flex items-center gap-1 hover:text-[#8E8E93] transition-colors"
+            >
+              <Plus size={16} /> New Routine
+            </button>
+          </div>
         </div>
 
         {loading ? (

@@ -157,13 +157,38 @@ export function useWorkoutSession() {
           }));
         }
 
+        // Generate Assistant Tip based on progression rules
+        let tip = null;
+        if (ex.progType && ex.maxReps && pastSets.length > 0) {
+          const allMaxed = pastSets.every(s => parseInt(s.reps, 10) >= ex.maxReps);
+          if (allMaxed) {
+            if (ex.progType === 'W') {
+              tip = `Ostatnio we wszystkich seriach wbiłeś ${ex.maxReps}+ powtórzeń. Zwiększ ciężar o 1.25kg!`;
+            } else if (ex.progType === 'I') {
+              tip = `Ostatnio zrealizowałeś górny limit we wszystkich seriach. Jeśli technika była idealna, dołóż ciężaru!`;
+            }
+          } else {
+            if (ex.progType === 'W') {
+              tip = `Celuj w przedział ${ex.minReps}-${ex.maxReps} powt. Zwiększysz ciężar, gdy we wszystkich seriach dobijesz do ${ex.maxReps}.`;
+            } else if (ex.progType === 'I') {
+              tip = `Izolacja: walcz o powtórzenia! Cel ${ex.minReps}-${ex.maxReps}. Dołóż ciężar dopiero gdy w każdej serii zrobisz ${ex.maxReps} z idealną techniką.`;
+            }
+          }
+        } else if (ex.progType) {
+          tip = `Pierwszy raz! Ustal ciężar roboczy dla przedziału ${ex.minReps}-${ex.maxReps} powtórzeń.`;
+        }
+
         return {
           id: `ex-${Date.now()}-${idx}`,
           name: ex.name,
           muscle_group: ex.muscle_group || 'Full Body',
           restDuration: ex.restDuration || 90,
+          progType: ex.progType,
+          minReps: ex.minReps,
+          maxReps: ex.maxReps,
           pastSets: pastSets,
-          sets: initialSets
+          sets: initialSets,
+          assistantTip: tip
         };
       });
       setExercises(routineExercises);

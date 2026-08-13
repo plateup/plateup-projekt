@@ -149,6 +149,7 @@ export default function ExerciseCard({
                   duplicateSetInExercise={duplicateSetInExercise}
                   isDisabled={isDisabled}
                   isBodyweight={isBodyweightExercise}
+                  maxReps={exercise.maxReps}
                 />
               );
             })}
