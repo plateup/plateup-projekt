@@ -86,16 +86,27 @@ export default function SetRow({
   // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
-    <motion.div 
-      drag="x"
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.4}
-      onDragEnd={handleDragEnd}
-      animate={controls}
-      className={`relative grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 items-center p-2 rounded-2xl transition-all ${
-        set.isCompleted ? 'bg-white/5' : ''
-      }`}
-    >
+    <div className="relative rounded-2xl overflow-hidden">
+      {/* Background reveals on swipe */}
+      <div className="absolute inset-0 flex items-center justify-between px-6 pointer-events-none">
+        <div className="text-red-500 font-bold flex items-center gap-2">
+          <Trash2 size={20} /> Usuń
+        </div>
+        <div className="text-green-500 font-bold flex items-center gap-2">
+          Duplikuj <Plus size={20} />
+        </div>
+      </div>
+
+      <motion.div 
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.4}
+        onDragEnd={handleDragEnd}
+        animate={controls}
+        className={`relative grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 items-center p-2 rounded-2xl transition-all z-10 ${
+          set.isCompleted ? 'bg-[#252528]' : 'bg-[#1C1C1E]'
+        }`}
+      >
       
       {/* Set Number / Type Trigger */}
       <div className="relative">
@@ -207,5 +218,6 @@ export default function SetRow({
         </button>
       </div>
     </motion.div>
+    </div>
   );
 }

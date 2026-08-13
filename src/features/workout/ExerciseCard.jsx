@@ -14,22 +14,20 @@ export default function ExerciseCard({
   removeSetFromExercise,
   duplicateSetInExercise,
   updateExerciseRestDuration,
+  updateExerciseNote,
+  onRequestReplace,
   isDisabled,
   activeRestSetId,
   restTime
 }) {
-  // Stan przechowujący zmienną: showTimerModal
   const [showTimerModal, setShowTimerModal] = useState(false);
-  // Stan przechowujący zmienną: showOptions
   const [showOptions, setShowOptions] = useState(false);
-  // Stan przechowujący zmienną: showPlateCalc
   const [showPlateCalc, setShowPlateCalc] = useState(false);
-  // Stan przechowujący zmienną: showHistory
   const [showHistory, setShowHistory] = useState(false);
-  // Stan przechowujący zmienną: showRpeInfo
   const [showRpeInfo, setShowRpeInfo] = useState(false);
-  // Stan przechowujący zmienną: showAddedWeightInfo
   const [showAddedWeightInfo, setShowAddedWeightInfo] = useState(false);
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [localNote, setLocalNote] = useState(exercise.note || '');
 
   // Funkcja pomocnicza: formatRest
 
@@ -89,29 +87,33 @@ export default function ExerciseCard({
             </div>
           </div>
           
-          <div className="relative">
+          <div>
             <button 
-              onClick={() => setShowOptions(!showOptions)}
-              className="p-2 text-[#8E8E93] hover:text-white transition-colors"
+              onClick={() => setShowOptions(true)}
+              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
             >
-              <MoreHorizontal size={24} />
+              <MoreHorizontal size={20} />
             </button>
-            
-            {showOptions && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-[#1C1C1E] border border-[#2C2C2E] rounded-2xl shadow-2xl z-[105] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                <button className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold">
-                  <Edit3 size={16} /> Edit Exercise
-                </button>
-                <button 
-                  onClick={() => removeSetFromExercise(exercise.id, 'all')}
-                  className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold text-red-500"
-                >
-                  <Trash2 size={16} /> Remove
-                </button>
-              </div>
-            )}
           </div>
         </div>
+
+        {/* Notes (Scratchpad) */}
+        {(exercise.note || isEditingNote) && (
+          <div className="mb-6 animate-in fade-in duration-300">
+            <textarea
+              className="w-full bg-[#1C1C1E] border border-white/10 rounded-2xl p-4 text-sm text-white/90 placeholder:text-white/30 focus:border-indigo-500/50 outline-none resize-none transition-all"
+              placeholder="Zanotuj np. ustawienie maszyny..."
+              value={localNote}
+              rows={2}
+              onChange={(e) => setLocalNote(e.target.value)}
+              onBlur={() => {
+                setIsEditingNote(false);
+                if (updateExerciseNote) updateExerciseNote(exercise.id, localNote);
+              }}
+              autoFocus={isEditingNote}
+            />
+          </div>
+        )}
 
         <div className="space-y-4">
           {/* Labels */}
@@ -258,6 +260,62 @@ export default function ExerciseCard({
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* Options Bottom Sheet */}
+      {showOptions && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[700] flex flex-col justify-end">
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+              onClick={() => setShowOptions(false)}
+            />
+            <div className="relative w-full bg-[#1C1C1E] rounded-t-[32px] p-6 pb-12 animate-in slide-in-from-bottom duration-[400ms] ease-out-ios border-t border-white/10">
+              <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" />
+              
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={() => {
+                    setShowOptions(false);
+                    if (onRequestReplace) onRequestReplace();
+                  }}
+                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-2xl flex items-center justify-between text-white font-bold transition-all active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-3">
+                    <Dumbbell size={20} className="text-indigo-400" />
+                    <span>Podmień ćwiczenie</span>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={() => {
+                    setShowOptions(false);
+                    setIsEditingNote(true);
+                  }}
+                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-2xl flex items-center justify-between text-white font-bold transition-all active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-3">
+                    <Edit3 size={20} className="text-white/70" />
+                    <span>Dodaj notatkę (Scratchpad)</span>
+                  </div>
+                </button>
+                
+                <button 
+                  onClick={() => {
+                    setShowOptions(false);
+                    removeSetFromExercise(exercise.id, 'all');
+                  }}
+                  className="w-full bg-red-500/10 hover:bg-red-500/20 p-5 rounded-2xl flex items-center justify-between text-red-500 font-bold transition-all active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-3">
+                    <Trash2 size={20} />
+                    <span>Usuń ćwiczenie z treningu</span>
+                  </div>
+                </button>
               </div>
             </div>
           </div>

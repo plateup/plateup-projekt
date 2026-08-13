@@ -7,8 +7,37 @@ import ExerciseLibrary from './ExerciseLibrary';
 import RestTimerOverlay from './RestTimerOverlay';
 import WorkoutRecap from './WorkoutRecap';
 import { Plus, ChevronUp } from 'lucide-react';
+import { useDragControls, Reorder } from 'framer-motion';
 import { ModalPortal } from '../../components/ui';
 import { supabase } from '../../services/supabaseClient';
+
+function DraggableExerciseCard({ exercise, ...props }) {
+  const controls = useDragControls();
+
+  return (
+    <Reorder.Item 
+      value={exercise} 
+      dragListener={false} 
+      dragControls={controls}
+      className="relative"
+    >
+      <div 
+        className="absolute -right-2 -top-2 p-4 cursor-grab active:cursor-grabbing z-20 opacity-30 hover:opacity-100"
+        onPointerDown={(e) => controls.start(e)}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="12" x2="21" y2="12"></line>
+          <line x1="8" y1="18" x2="21" y2="18"></line>
+          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        </svg>
+      </div>
+      <ExerciseCard exercise={exercise} {...props} />
+    </Reorder.Item>
+  );
+}
 
 export default function LiveWorkout({ isVisible = true, onRestore }) {
   // Stan przechowujący zmienną: activeTab
@@ -43,14 +72,15 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     removeSetFromExercise,
     duplicateSetInExercise,
     updateExerciseRestDuration,
+    updateExerciseNote,
+    replaceExerciseInSession,
+    reorderExercises,
     setRestTime
   } = useWorkoutSession();
 
-  // Stan przechowujący zmienną: showResetModal
-
   const [showResetModal, setShowResetModal] = useState(false);
-  // Stan przechowujący zmienną: isTimerMinimized
   const [isTimerMinimized, setIsTimerMinimized] = useState(false);
+  const [replacingExerciseId, setReplacingExerciseId] = useState(null);
 
   // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
@@ -271,9 +301,9 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
         {/* Exercises List */}
         <main className="space-y-6 pb-32 min-h-[60vh]">
-          <div className="grid grid-cols-1 gap-8">
+          <Reorder.Group axis="y" values={exercises} onReorder={reorderExercises} className="grid grid-cols-1 gap-8">
             {exercises.map((exercise) => (
-              <ExerciseCard
+              <DraggableExerciseCard
                 key={exercise.id}
                 exercise={exercise}
                 updateSet={updateSet}
@@ -283,12 +313,14 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
                 removeSetFromExercise={removeSetFromExercise}
                 duplicateSetInExercise={duplicateSetInExercise}
                 updateExerciseRestDuration={updateExerciseRestDuration}
+                updateExerciseNote={updateExerciseNote}
+                onRequestReplace={() => setReplacingExerciseId(exercise.id)}
                 isDisabled={!isActive}
                 activeRestSetId={activeRestSetId}
                 restTime={restTime}
               />
             ))}
-          </div>
+          </Reorder.Group>
 
           <div className="flex flex-col gap-4 mt-8">
             <button 
@@ -306,10 +338,21 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
         <WorkoutRecap workout={completedWorkoutSummary} onClose={() => setShowRecap(false)} />
       )}
 
-      {showLibrary && (
+      {(showLibrary || replacingExerciseId) && (
         <ExerciseLibrary 
-          onSelect={handleAddExercise}
-          onClose={() => setShowLibrary(false)}
+          onSelect={(ex) => {
+            if (replacingExerciseId) {
+              const selectedEx = Array.isArray(ex) ? ex[0] : ex;
+              replaceExerciseInSession(replacingExerciseId, selectedEx);
+              setReplacingExerciseId(null);
+            } else {
+              handleAddExercise(ex);
+            }
+          }}
+          onClose={() => {
+            setShowLibrary(false);
+            setReplacingExerciseId(null);
+          }}
         />
       )}
 

@@ -448,9 +448,37 @@ export function useWorkoutSession() {
     setExercises(prev => [...prev, newExercise]);
   };
 
+  const updateExerciseNote = (exerciseId, note) => {
+    setExercises(prev => prev.map(ex => ex.id === exerciseId ? { ...ex, note } : ex));
+  };
+
+  const replaceExerciseInSession = (oldExerciseId, newExerciseInfo) => {
+    setExercises(prev => prev.map(ex => {
+      if (ex.id !== oldExerciseId) return ex;
+      const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
+      const pastSets = history[newExerciseInfo.name] || [];
+      return {
+        ...ex,
+        name: newExerciseInfo.name,
+        muscle_group: newExerciseInfo.muscle_group || ex.muscle_group,
+        pastSets: pastSets,
+        sets: ex.sets.map((s, j) => ({
+          ...s,
+          prevKg: pastSets[j]?.kg || pastSets[0]?.kg || '',
+          prevReps: pastSets[j]?.reps || pastSets[0]?.reps || '',
+          prevRpe: pastSets[j]?.rpe || pastSets[0]?.rpe || ''
+        }))
+      };
+    }));
+  };
+
+  const reorderExercises = (newOrder) => {
+    setExercises(newOrder);
+  };
+
   return {
     exercises, sessionStatus, workoutTime, workoutTimeFormatted: Math.floor(workoutTime / 60).toString().padStart(2, '0') + ":" + (workoutTime % 60).toString().padStart(2, '0'),
     workoutTitle, setWorkoutTitle, restTime, initialRestTime, setRestTime, isResting, activeRestSetId, startWorkout, stopRest, pauseWorkout, executeReset, completeAndSaveWorkout, updateSet, toggleSetComplete, toggleSetType, moveSet,
-    addExerciseToSession, addSetToExercise, removeSetFromExercise, duplicateSetInExercise, updateExerciseRestDuration
+    addExerciseToSession, addSetToExercise, removeSetFromExercise, duplicateSetInExercise, updateExerciseRestDuration, updateExerciseNote, replaceExerciseInSession, reorderExercises
   };
 }
