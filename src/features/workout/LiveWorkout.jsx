@@ -189,21 +189,18 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   // Active workout minimized view
   if (!isVisible && isActive) {
-    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
     return (
       <ModalPortal>
         <div 
           onClick={onRestore}
-          className="fixed bottom-[120px] left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-lg bg-white text-black p-4 rounded-[24px] z-[500] flex items-center justify-between shadow-2xl cursor-pointer hover:bg-neutral-200 active:scale-95 transition-all animate-in slide-in-from-bottom-8 duration-300"
+          className="fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg bg-green-500 text-black p-4 rounded-[20px] z-[90] flex items-center justify-between shadow-2xl cursor-pointer active:scale-[0.98] transition-all duration-300"
+          style={{ bottom: 'calc(4.5rem + var(--safe-bottom))' }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-black animate-pulse" />
-            <span className="font-black text-sm uppercase tracking-widest">Active Workout</span>
+          <div className="flex flex-col">
+            <span className="font-black text-sm tracking-tight">Workout in Progress</span>
+            <span className="text-xs font-bold text-black/70">{workoutTimeFormatted}</span>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="font-mono font-black">{workoutTimeFormatted}</span>
-            <ChevronUp size={20} />
-          </div>
+          <ChevronUp size={24} strokeWidth={3} className="text-black/50" />
         </div>
       </ModalPortal>
     );

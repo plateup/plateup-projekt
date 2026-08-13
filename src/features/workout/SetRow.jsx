@@ -143,7 +143,13 @@ export default function SetRow({
           placeholder={set.prevKg || "0"}
           className={`w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E] ${isBodyweight ? 'pl-6 pr-2' : ''}`}
           value={set.kg}
-          onClick={() => handleInputClick('kg')}
+          onFocus={(e) => {
+            handleInputClick('kg');
+            if (!set.kg && set.prevKg) {
+              updateSet(exerciseId, set.id, 'kg', set.prevKg);
+              if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+            }
+          }}
           onChange={(e) => {
             let val = e.target.value.replace('+', '');
             updateSet(exerciseId, set.id, 'kg', val);
@@ -160,7 +166,13 @@ export default function SetRow({
           placeholder={set.prevReps || "0"}
           className={`w-full bg-black text-white text-center font-black py-4 rounded-xl border outline-none transition-all placeholder:text-[#3C3C3E] ${maxReps && parseInt(set.reps) > parseInt(maxReps) ? 'border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'border-[#2C2C2E] focus:border-white/40'}`}
           value={set.reps}
-          onClick={() => handleInputClick('reps')}
+          onFocus={(e) => {
+            handleInputClick('reps');
+            if (!set.reps && set.prevReps) {
+              updateSet(exerciseId, set.id, 'reps', set.prevReps);
+              if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+            }
+          }}
           onChange={(e) => updateSet(exerciseId, set.id, 'reps', e.target.value)}
           disabled={isDisabled || set.isCompleted}
         />
