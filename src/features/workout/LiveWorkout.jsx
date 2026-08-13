@@ -1,10 +1,3 @@
-/**
- * Plik: LiveWorkout.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
- * Opis: Silnik treningowy. Rejestruje wykonywane ćwiczenia, serie, powtórzenia, czas przerw oraz przydziela EXP po zakończeniu.
- * Technologia: React / JSX / Tailwind CSS
- */
-
 import React, { useState, useEffect } from 'react';
 import { useWorkoutSession } from './useWorkoutSession';
 import ExerciseCard from './ExerciseCard';
@@ -143,32 +136,11 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
       normalizedMuscleStats[muscle] = Math.round((muscleStats[muscle] / maxMuscleVolume) * 100);
     });
 
-    // EXP Calculation
-    const durationMinutes = workoutTime / 60;
-    let baseExp = (totalVolume * 0.01) + (durationMinutes * 2) + (newPrs * 50); // 50 EXP per PR
-    const hasLegs = Object.keys(muscleStats).some(m => m.toLowerCase().includes('leg'));
-    if (hasLegs) baseExp *= 1.2;
-    
-    const totalExpEarned = Math.round(baseExp);
-
-    // Save EXP globally
-    const currentExp = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
-    const newExp = currentExp + totalExpEarned;
-    localStorage.setItem('plateup_exp', newExp.toString());
-
-    // Sync EXP to Supabase profiles (fire and forget)
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        supabase.from('profiles').update({ exp: newExp }).eq('id', user.id).then();
-      }
-    });
-
     const summary = {
       name: workoutTitle,
       duration: workoutTimeFormatted,
       volume: totalVolume > 0 ? `${totalVolume.toLocaleString()} kg` : '0 kg',
       prs: newPrs,
-      expEarned: totalExpEarned,
       exercises: completedExercises,
       muscleStats: normalizedMuscleStats,
       rawStats: { time: workoutTimeFormatted, volume: `${totalVolume.toLocaleString()} kg`, sets: completedExercises.reduce((acc, ex) => acc + ex.sets, 0), prs: newPrs }

@@ -1,26 +1,11 @@
-/**
- * Plik: WorkoutRecap.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
- * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/WorkoutRecap.jsx.
- * Technologia: React / JSX / Tailwind CSS
- */
-
-import React, { useState, useEffect } from 'react';
-import { Clock, Activity, Award, Check, Share2, Globe } from 'lucide-react';
-import MuscleHeatmap from '../feed/MuscleHeatmap';
+import React, { useState } from 'react';
 import { supabase } from '../../services/supabaseClient';
-import confetti from 'canvas-confetti';
+import { Dumbbell, Clock, X, ArrowUpRight } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 
 export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
-  // Stan przechowujący zmienną: publishing
-  const [publishing, setPublishing] = useState(false);
-  // Stan przechowujący zmienną: published
   const [published, setPublished] = useState(false);
-  // Stan przechowujący zmienną: routineSaved
-  const [routineSaved, setRoutineSaved] = useState(false);
-  // Stan przechowujący zmienną: localWorkoutId
-  const [localWorkoutId, setLocalWorkoutId] = useState(null);
+  const [publishing, setPublishing] = useState(false);
 
   const summary = workout || {
     name: 'Workout',
@@ -32,176 +17,54 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
     rawStats: { time: '0:00', volume: '0 kg', sets: 0, prs: 0 }
   };
 
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-
-  useEffect(() => {
-    if (isHistory) return;
-
-    // --- AUTO-SAVE LOGIC ---
-    const posts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
-    let username = localStorage.getItem('plateup_username') || 'Athlete';
-    let avatarUrl = localStorage.getItem('plateup_avatar') || null;
-
-    const newId = Date.now();
-    setLocalWorkoutId(newId);
-
-    const newPost = {
-      id: newId,
-      user: { name: username, avatar: avatarUrl },
-      title: summary.name,
-      timeAgo: 'Just now',
-      likes: 0,
-      comments: 0,
-      stats: summary.rawStats || { time: summary.duration, volume: summary.volume, sets: summary.exercises.length, prs: summary.prs },
-      exercises: summary.exercises.map(ex => ({
-        name: ex.name,
-        sets: ex.sets,
-        best: ex.best,
-        isPR: ex.isPR || false,
-        setsList: ex.setsList || []
-      })),
-      muscleStats: summary.muscleStats || {},
-      created_at: new Date().toISOString()
-    };
-    
-    // Only auto-save once
-    const alreadySaved = posts.some(p => p.title === newPost.title && Math.abs(new Date(p.created_at).getTime() - new Date(newPost.created_at).getTime()) < 5000);
-    if (!alreadySaved) {
-      posts.unshift(newPost);
-      localStorage.setItem('plateup_posts', JSON.stringify(posts));
-    }
-
-    // Fire confetti with a slight delay and high z-index
-    const timer = setTimeout(() => {
-      const duration = 3000;
-      const end = Date.now() + duration;
-
-      // Funkcja pomocnicza: frame
-
-      const frame = () => {
-        confetti({
-          particleCount: 5,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: ['#ffffff', '#8E8E93', '#2C2C2E'],
-          zIndex: 9999
-        });
-        confetti({
-          particleCount: 5,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: ['#ffffff', '#8E8E93', '#2C2C2E'],
-          zIndex: 9999
-        });
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      };
-      frame();
-      
-      // Haptic feedback
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate([100, 50, 100, 50, 200]);
-      }
-    }, 1000); // 1 second delay
-
-    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
-    return () => clearTimeout(timer);
-  }, [isHistory]);
-
-  // Asynchroniczna funkcja: handlePublish - odpowiada za operacje w tle (np. fetchowanie bazy)
-
   const handlePublish = async () => {
+    if (publishing || published) return;
     setPublishing(true);
-    
-    // Fetch current user from Supabase
-    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+
+    const postToPublish = { ...summary };
     const { data: { user } } = await supabase.auth.getUser();
+
     let username = localStorage.getItem('plateup_username') || 'Athlete';
-    let avatarUrl = localStorage.getItem('plateup_avatar') || null;
-    
-    if (user) {
-      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
-      const { data } = await supabase.from('profiles').select('username, display_name, avatar_url').eq('id', user.id).maybeSingle();
-      if (data) {
-        if (data.username || data.display_name) username = data.username || data.display_name;
-        if (data.avatar_url) avatarUrl = data.avatar_url;
-      }
-    }
+    let avatarUrl = localStorage.getItem('plateup_avatar');
 
-    // Get the locally saved post
     const posts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
-    let postToPublish = posts.find(p => p.id === localWorkoutId);
+    const localWorkoutId = summary.id || Date.now();
+    postToPublish.id = localWorkoutId;
 
-    // If for some reason it wasn't found, reconstruct it
-    if (!postToPublish) {
-      postToPublish = {
-        id: localWorkoutId || Date.now(),
-        user: { name: username, avatar: avatarUrl },
-        title: summary.name,
-        timeAgo: 'Just now',
-        likes: 0,
-        comments: 0,
-        stats: summary.rawStats || { time: summary.duration, volume: summary.volume, sets: summary.exercises.length, prs: summary.prs },
-        exercises: summary.exercises.map(ex => ({
-          name: ex.name,
-          sets: ex.sets,
-          best: ex.best,
-          isPR: ex.isPR || false,
-          setsList: ex.setsList || []
-        })),
-        muscleStats: summary.muscleStats || {},
-        created_at: new Date().toISOString()
-      };
+    if (!posts.find(p => p.id === localWorkoutId)) {
+      postToPublish.user = { name: username, avatar: avatarUrl };
       posts.unshift(postToPublish);
       localStorage.setItem('plateup_posts', JSON.stringify(posts));
-    } else {
-      // Update local post with fresh Supabase profile data if it changed
-      postToPublish.user = { name: username, avatar: avatarUrl };
-      const index = posts.findIndex(p => p.id === localWorkoutId);
-      if (index !== -1) {
-        posts[index] = postToPublish;
-        localStorage.setItem('plateup_posts', JSON.stringify(posts));
-      }
     }
 
-    // Attempt to save to Supabase
     if (user) {
       try {
         await supabase.from('posts').insert([{
           user_id: user.id,
           workout_data: postToPublish
         }]);
-      } catch (e) {
-        // Ignore if table doesn't exist yet
-      }
+      } catch (e) {}
     }
 
     setPublishing(false);
     setPublished(true);
   };
 
-  // Asynchroniczna funkcja: handleSaveRoutine - odpowiada za operacje w tle (np. fetchowanie bazy)
-
   const handleSaveRoutine = async () => {
-    // Collect exercises into a routine structure
     const routineExercises = summary.exercises.map(ex => ({
-      id: `ex-${Date.now()}-${Math.random()}`,
-      name: ex.name,
-      muscle_group: 'Full Body' // Simplification
+      ...ex,
+      setsList: ex.setsList ? ex.setsList.map(() => ({ kg: '', reps: '' })) : []
     }));
 
     const newRoutine = {
-      name: summary.name + ' Routine',
+      id: `routine-${Date.now()}`,
+      name: `${summary.name || 'Workout'} Routine`,
       exercises: routineExercises
     };
 
-    // Try DB first
-    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+    const storedRoutines = JSON.parse(localStorage.getItem('plateup_routines') || '[]');
+    localStorage.setItem('plateup_routines', JSON.stringify([...storedRoutines, newRoutine]));
+
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       await supabase.from('routines').insert([{
@@ -210,170 +73,114 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
         exercises: newRoutine.exercises
       }]);
     }
-    setRoutineSaved(true);
-    setTimeout(() => setRoutineSaved(false), 3000);
+    alert('Routine saved!');
   };
-
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-[500] bg-black flex flex-col items-center p-6 animate-in slide-in-from-bottom duration-500 overflow-y-auto">
-        <div className="w-full max-w-5xl flex flex-col items-center pb-24">
+      <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[1000] flex flex-col items-center pt-20 px-4 overflow-y-auto pb-32 animate-in fade-in zoom-in-95 duration-500">
         
-        {/* Celebration Header or History Header */}
-        <div className="mt-12 mb-10 text-center">
-          {!isHistory ? (
-            <>
-              <div className="w-24 h-24 bg-white rounded-[32px] flex items-center justify-center mb-6 mx-auto shadow-2xl shadow-white/10">
-                <Check size={48} strokeWidth={4} className="text-black" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tighter text-white">Workout Complete!</h1>
-              <p className="text-[#8E8E93] font-bold">You just crushed your goals.</p>
-            </>
-          ) : (
-            <>
-              <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tighter text-white">Workout Summary</h1>
-              <p className="text-[#8E8E93] font-bold">Review your past performance.</p>
-            </>
+        <button 
+          onClick={onClose}
+          className="absolute top-8 right-6 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all z-10"
+        >
+          <X size={24} />
+        </button>
+
+        <div className="w-full max-w-md text-center relative z-10">
+          {!isHistory && (
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-500/20 text-green-400 mb-8 animate-bounce shadow-[0_0_40px_rgba(34,197,94,0.3)]">
+              <CheckMark />
+            </div>
           )}
-        </div>
 
-        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 items-start">
-          {/* Recap Card */}
-          <div className="w-full bg-[#1C1C1E] rounded-[48px] p-8 md:p-10 border border-white/5 shadow-2xl flex flex-col">
-            <h2 className="text-2xl font-black mb-8 text-white">{summary.name}</h2>
-            
-            <div className="grid grid-cols-3 gap-4 mb-10">
-              <div className="flex flex-col items-center">
-                <Clock className="text-white mb-3" size={28} />
-                <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mb-1">Time</span>
-                <span className="font-black text-xl text-white">{summary.duration}</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Activity className="text-white mb-3" size={28} />
-                <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mb-1">Volume</span>
-                <span className="font-black text-xl text-white">{summary.volume}</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Award className="text-white mb-3" size={28} />
-                <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mb-1">PRs</span>
-                <span className="font-black text-xl text-white">{summary.prs}</span>
-              </div>
-            </div>
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter">
+            {isHistory ? "Workout Summary" : "Workout Completed"}
+          </h1>
+          <p className="text-[#8E8E93] font-bold text-lg mb-10">
+            {isHistory ? "Review your performance." : "You crushed it today."}
+          </p>
 
-            <div className="space-y-6 border-t border-white/5 pt-8 flex-1">
-              {summary.exercises.length > 0 ? summary.exercises.map((ex, i) => (
-                <div key={i} className="flex flex-col mb-4">
-                  <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
-                    <h3 className="font-black text-white text-xl tracking-tight flex items-center gap-2">
-                      {ex.name}
-                      {ex.isPR && (
-                        <span className="bg-amber-400/10 text-amber-400 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest border border-amber-400/20 flex items-center gap-1">
-                          <Award size={10} /> PR
-                        </span>
-                      )}
-                    </h3>
-                  </div>
-                  
-                  {ex.setsList && ex.setsList.length > 0 ? (
-                    <div className="w-full">
-                      <div className="grid grid-cols-[40px_1fr_1fr] text-[10px] font-black text-[#8E8E93] uppercase tracking-widest mb-2 px-2">
-                        <span>Set</span>
-                        <span className="text-center">KG</span>
-                        <span className="text-center">Reps</span>
-                      </div>
-                      <div className="space-y-1">
-                        {ex.setsList.map((set, setIdx) => (
-                          <div key={setIdx} className="grid grid-cols-[40px_1fr_1fr] items-center px-2 py-2.5 bg-black/20 rounded-xl border border-white/5">
-                            {set.type !== 'normal' ? (
-                              <span className="w-6 h-6 flex items-center justify-center rounded-md bg-white/10 text-[10px] font-black text-white">
-                                {set.type.charAt(0).toUpperCase()}
-                              </span>
-                            ) : (
-                              <span className="text-xs font-black text-white/50 w-6 text-center">{setIdx + 1}</span>
-                            )}
-                            <span className="text-sm font-black text-white text-center">{set.kg}</span>
-                            <span className="text-sm font-black text-white text-center">{set.reps}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between px-4 py-3 bg-black/20 rounded-xl border border-white/5 text-sm font-bold text-[#8E8E93]">
-                      <span>{ex.sets} {ex.sets === 1 ? 'Set' : 'Sets'} Completed</span>
-                      <span className="text-white">Best: {ex.best}</span>
-                    </div>
-                  )}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <StatCard icon={<Clock size={20} />} label="Duration" value={summary.duration || summary.rawStats?.time} />
+            <StatCard icon={<Dumbbell size={20} />} label="Volume" value={summary.volume || summary.rawStats?.volume} />
+          </div>
+
+          <div className="bg-[#1C1C1E] border border-white/5 rounded-[32px] p-6 mb-8 text-left">
+            <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-wider mb-4">Summary</h3>
+            <div className="space-y-4">
+              {summary.exercises.slice(0, 4).map((ex, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="font-bold text-white">{ex.name}</span>
+                  <span className="text-[#8E8E93] font-black text-sm">{ex.setsList?.length || ex.sets} sets</span>
                 </div>
-              )) : (
-                <div className="text-center text-[#8E8E93] text-sm py-4 italic">No exercises logged during this session.</div>
+              ))}
+              {summary.exercises.length > 4 && (
+                <div className="text-center pt-2 text-[#8E8E93] font-bold text-sm">
+                  + {summary.exercises.length - 4} more exercises
+                </div>
               )}
             </div>
           </div>
 
-          {/* Heatmap Section */}
-          <div className="w-full flex flex-col gap-4 lg:sticky lg:top-8">
-            {Object.keys(summary.muscleStats || {}).length > 0 ? (
-               <MuscleHeatmap stats={summary.muscleStats} />
-            ) : (
-               <div className="w-full h-full bg-[#1C1C1E] rounded-[48px] border border-white/5 flex items-center justify-center text-[#8E8E93]">No Muscle Data</div>
+          <div className="space-y-4 w-full">
+            {!isHistory && (
+              <>
+                <button 
+                  onClick={handlePublish}
+                  disabled={published || publishing}
+                  className={`w-full py-5 rounded-[24px] font-black flex items-center justify-center gap-3 transition-all ${
+                    published 
+                      ? 'bg-white/10 text-white cursor-default' 
+                      : 'bg-white text-black hover:bg-neutral-200 active:scale-95 shadow-xl shadow-white/10'
+                  }`}
+                >
+                  {published ? (
+                    <>Saved <CheckMark size={20} className="w-5 h-5" /></>
+                  ) : publishing ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black" />
+                  ) : (
+                    <>Save to History</>
+                  )}
+                </button>
+                
+                <button 
+                  onClick={handleSaveRoutine}
+                  className="w-full bg-[#1C1C1E] text-white py-5 rounded-[24px] font-black flex items-center justify-center gap-3 hover:bg-white/5 transition-all border border-white/10 active:scale-95"
+                >
+                  <ArrowUpRight size={20} />
+                  Save as Routine
+                </button>
+              </>
             )}
-            
-            {/* Actions moved under Heatmap on Desktop for balance, or at bottom */}
-            <div className="w-full space-y-4 mt-auto pt-4">
-              {!isHistory && (
-                <>
-                  <button 
-                    onClick={handlePublish}
-                    disabled={published || publishing}
-                    className={`w-full py-5 rounded-[24px] font-black flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all text-lg ${
-                      published 
-                        ? 'bg-white/10 text-white/60 cursor-not-allowed border border-white/5' 
-                        : 'bg-white text-black shadow-white/10 hover:bg-neutral-200'
-                    }`}
-                  >
-                    {published ? (
-                      <>
-                        <Check size={24} />
-                        Published to Social
-                      </>
-                    ) : publishing ? (
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-black"></div>
-                    ) : (
-                      <>
-                        <Globe size={24} />
-                        Publish to Social
-                      </>
-                    )}
-                  </button>
-                  
-                  <div className="flex gap-4">
-                    <button 
-                      onClick={handleSaveRoutine}
-                      className="flex-1 bg-[#1C1C1E] text-white py-5 rounded-[24px] font-black flex items-center justify-center gap-3 hover:bg-white/5 active:scale-95 transition-all border border-white/5"
-                    >
-                      {routineSaved ? <span className="text-green-400">Saved!</span> : 'Save as Routine'}
-                    </button>
-                    <button className="flex-1 bg-[#1C1C1E] text-white py-5 rounded-[24px] font-black flex items-center justify-center gap-3 hover:bg-white/5 active:scale-95 transition-all border border-white/5">
-                      <Share2 size={20} />
-                      Share
-                    </button>
-                  </div>
-                </>
-              )}
-              
-              <button 
-                onClick={onClose}
-                className="w-full bg-transparent text-[#8E8E93] py-5 rounded-[24px] font-black hover:text-white active:scale-95 transition-all"
-              >
-                Close
-              </button>
-            </div>
+
+            <button 
+              onClick={onClose}
+              className="w-full bg-transparent text-[#8E8E93] py-5 rounded-[24px] font-black hover:text-white transition-all"
+            >
+              Close
+            </button>
           </div>
         </div>
-      </div>
       </div>
     </ModalPortal>
+  );
+}
+
+function StatCard({ icon, label, value }) {
+  return (
+    <div className="bg-[#1C1C1E] border border-white/5 rounded-[24px] p-5 flex flex-col items-center justify-center gap-2">
+      <div className="text-[#8E8E93]">{icon}</div>
+      <div className="text-2xl font-black text-white">{value}</div>
+      <div className="text-[10px] font-black text-[#8E8E93] uppercase tracking-widest">{label}</div>
+    </div>
+  );
+}
+
+function CheckMark({ className = "" }) {
+  return (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className || "w-12 h-12"}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
   );
 }

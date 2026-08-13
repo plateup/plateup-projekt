@@ -1,10 +1,3 @@
-/**
- * Plik: useExercises.js
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
- * Opis: Moduł odpowiedzialny za logikę powiązaną z hooks/useExercises.js.
- * Technologia: React / JSX / Tailwind CSS
- */
-
 import { useState, useEffect } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { EXTENDED_EXERCISES } from '../constants/exercises';

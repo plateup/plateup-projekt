@@ -1,30 +1,18 @@
-/**
- * Plik: App.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
- * Opis: Główny plik wejściowy (Router). Definiuje ścieżki i renderuje odpowiednie widoki na podstawie stanu autoryzacji.
- * Technologia: React / JSX / Tailwind CSS
- */
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from './services/supabaseClient';
 import AppShell from './features/feed/AppShell';
-import Dashboard from './features/feed/Dashboard';
-import SocialFeed from './features/feed/SocialFeed';
-import Stats from './features/stats/Stats';
+import History from './features/feed/History';
 import Profile from './features/profile/Profile';
 import Landing from './features/auth/Landing';
 import Auth from './features/auth/Auth';
 import UsernameSetup from './features/auth/UsernameSetup';
 import LiveWorkout from './features/workout/LiveWorkout';
-import AIChat from './features/ai/AIChat';
+import ExercisesScreen from './features/workout/ExercisesScreen';
 
 function App() {
-  // Stan przechowujący zmienną: session
   const [session, setSession] = useState(null);
-  // Stan przechowujący zmienną: view
-  const [view, setView] = useState('landing'); // landing, auth, onboarding, app
-  // Stan przechowujący zmienną: activeTab
-  const [activeTab, setActiveTab] = useState('feed');
+  const [view, setView] = useState('landing');
+  const [activeTab, setActiveTab] = useState('history');
   // Stan przechowujący zmienną: isInitializing
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -124,10 +112,9 @@ function App() {
     else if (view === 'auth') title = 'PlateUp - Login';
     else if (view === 'app') {
       const tabNames = {
-        feed: 'Dashboard',
-        social: 'Social',
+        history: 'History',
         workout: 'Workout',
-        chat: 'AI Coach',
+        exercises: 'Exercises',
         profile: 'Profile'
       };
       title = `PlateUp - ${tabNames[activeTab] || 'App'}`;
@@ -140,17 +127,14 @@ function App() {
   if (view === 'auth' && !session) return <Auth onBack={() => setView('landing')} />;
   if (view === 'onboarding') return <UsernameSetup onComplete={() => setView('app')} />;
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
   return (
     <AppShell 
       activeTab={activeTab} 
       setActiveTab={setActiveTab}
       persistentComponent={<LiveWorkout isVisible={activeTab === 'workout'} onRestore={() => setActiveTab('workout')} />}
     >
-      {activeTab === 'feed' && <Dashboard setActiveTab={setActiveTab} />}
-      {activeTab === 'social' && <SocialFeed />}
-      {activeTab === 'chat' && <AIChat onStartRoutine={() => setActiveTab('workout')} />}
+      {activeTab === 'history' && <History />}
+      {activeTab === 'exercises' && <ExercisesScreen />}
       {activeTab === 'profile' && <Profile />}
     </AppShell>
   );
