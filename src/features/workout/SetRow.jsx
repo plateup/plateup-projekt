@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Trash2 } from 'lucide-react';
+import { Check, Trash2, Plus } from 'lucide-react';
 import { motion, useAnimation } from 'framer-motion';
 
 export default function SetRow({ 
