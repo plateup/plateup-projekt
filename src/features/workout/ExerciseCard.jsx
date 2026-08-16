@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SetRow from './SetRow';
-import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X } from 'lucide-react';
+import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X, Check } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 import RestTimerModal from './RestTimerModal';
 import PlateCalculator from './PlateCalculator';
@@ -55,42 +55,22 @@ export default function ExerciseCard({
   // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
-    <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] transition-all hover:border-white/10 shadow-lg relative">
-      <div className="p-6 md:p-8">
+    <div className="bg-transparent mb-6 relative">
+      <div className="px-1 md:px-2">
         
         {/* Header */}
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white font-black text-lg border border-white/5">
-              {exercise.name[0]}
-            </div>
-            <div>
-              <h3 className="text-xl font-black tracking-tight text-white leading-none mb-2">{exercise.name}</h3>
-              <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => setShowTimerModal(true)}
-                  className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#8E8E93] hover:text-white transition-colors"
-                >
-                  <Timer size={12} />
-                  Rest: {formatRest(exercise.restDuration || 90)}
-                </button>
-                {isBarbellExercise && (
-                  <button 
-                    onClick={() => setShowPlateCalc(true)}
-                    className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#8E8E93] hover:text-white transition-colors"
-                  >
-                    <Dumbbell size={12} />
-                    Calc
-                  </button>
-                )}
-              </div>
-            </div>
+        <div className="flex justify-between items-center mb-4 pl-2 pr-1">
+          <div className="flex flex-col">
+            <h3 className="text-[17px] font-bold text-indigo-400 leading-tight">{exercise.name}</h3>
+            {exercise.note && (
+              <p className="text-xs text-[#8E8E93] mt-0.5 line-clamp-1">{exercise.note}</p>
+            )}
           </div>
           
           <div>
             <button 
               onClick={() => setShowOptions(true)}
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:bg-white/10 transition-colors"
             >
               <MoreHorizontal size={20} />
             </button>
@@ -98,11 +78,11 @@ export default function ExerciseCard({
         </div>
 
         {/* Notes (Scratchpad) */}
-        {(exercise.note || isEditingNote) && (
-          <div className="mb-6 animate-in fade-in duration-300">
+        {isEditingNote && (
+          <div className="mb-4 px-2 animate-in fade-in duration-300">
             <textarea
-              className="w-full bg-[#1C1C1E] border border-white/10 rounded-2xl p-4 text-sm text-white/90 placeholder:text-white/30 focus:border-indigo-500/50 outline-none resize-none transition-all"
-              placeholder="Zanotuj np. ustawienie maszyny..."
+              className="w-full bg-[#1C1C1E] border border-white/10 rounded-xl p-3 text-sm text-white/90 placeholder:text-white/30 focus:border-indigo-500/50 outline-none resize-none transition-all"
+              placeholder="Add a note..."
               value={localNote}
               rows={2}
               onChange={(e) => setLocalNote(e.target.value)}
@@ -115,22 +95,20 @@ export default function ExerciseCard({
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Labels */}
-          <div className="grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-2">
-            <span>Set</span>
+          <div className="grid grid-cols-[40px_1fr_70px_60px_40px] gap-2 text-center text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider px-1">
+            <span>SET</span>
+            <span className="text-left pl-2">PREVIOUS</span>
             {isBodyweightExercise ? (
               <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowAddedWeightInfo(true)}>
-                + KG <Info size={10} className="text-white/60" />
+                + kg <Info size={10} className="text-white/60" />
               </span>
             ) : (
               <span>KG</span>
             )}
-            <span>Reps</span>
-            <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowRpeInfo(true)}>
-              RPE <Info size={10} className="text-white/60" />
-            </span>
-            <span>Done</span>
+            <span>REPS</span>
+            <span><Check size={14} className="mx-auto" /></span>
           </div>
 
           {/* Sets */}
@@ -160,10 +138,10 @@ export default function ExerciseCard({
           {/* Add Set Button */}
           <button 
             onClick={() => addSetToExercise(exercise.id)}
-            className="w-full py-4 mt-2 rounded-2xl bg-black border border-[#2C2C2E] flex items-center justify-center gap-2 text-[#8E8E93] font-black text-xs hover:text-white hover:border-[#3C3C3E] transition-all"
+            className="w-full py-2.5 mt-1 rounded-lg bg-transparent hover:bg-white/5 flex items-center justify-center gap-1.5 text-white/50 font-bold text-xs transition-all"
           >
-            <Plus size={16} strokeWidth={3} />
-            ADD SET
+            <Plus size={14} strokeWidth={3} />
+            Add Set
           </button>
 
           {/* Inline Stats (Volume & 1RM) */}
@@ -293,13 +271,41 @@ export default function ExerciseCard({
                 <button 
                   onClick={() => {
                     setShowOptions(false);
+                    setShowTimerModal(true);
+                  }}
+                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-2xl flex items-center justify-between text-white font-bold transition-all active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-3">
+                    <Timer size={20} className="text-white/70" />
+                    <span>Rest Timer ({formatRest(exercise.restDuration || 90)})</span>
+                  </div>
+                </button>
+
+                {isBarbellExercise && (
+                  <button 
+                    onClick={() => {
+                      setShowOptions(false);
+                      setShowPlateCalc(true);
+                    }}
+                    className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-2xl flex items-center justify-between text-white font-bold transition-all active:scale-[0.98]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Dumbbell size={20} className="text-white/70" />
+                      <span>Plate Calculator</span>
+                    </div>
+                  </button>
+                )}
+
+                <button 
+                  onClick={() => {
+                    setShowOptions(false);
                     if (onRequestReplace) onRequestReplace();
                   }}
                   className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-2xl flex items-center justify-between text-white font-bold transition-all active:scale-[0.98]"
                 >
                   <div className="flex items-center gap-3">
                     <Dumbbell size={20} className="text-indigo-400" />
-                    <span>Podmień ćwiczenie</span>
+                    <span>Replace Exercise</span>
                   </div>
                 </button>
 
@@ -312,7 +318,7 @@ export default function ExerciseCard({
                 >
                   <div className="flex items-center gap-3">
                     <Edit3 size={20} className="text-white/70" />
-                    <span>Dodaj notatkę (Scratchpad)</span>
+                    <span>Add/Edit Note</span>
                   </div>
                 </button>
                 
@@ -325,7 +331,7 @@ export default function ExerciseCard({
                 >
                   <div className="flex items-center gap-3">
                     <Trash2 size={20} />
-                    <span>Usuń ćwiczenie z treningu</span>
+                    <span>Remove from workout</span>
                   </div>
                 </button>
               </div>

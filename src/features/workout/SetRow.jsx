@@ -83,17 +83,17 @@ export default function SetRow({
     toggleSetComplete(exerciseId, set.id);
   };
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+  const prevText = (set.prevKg && set.prevReps) ? `${set.prevKg}kg × ${set.prevReps}` : '-';
 
   return (
-    <div className="relative rounded-2xl overflow-hidden">
+    <div className="relative overflow-hidden mb-1">
       {/* Background reveals on swipe */}
       <div className="absolute inset-0 flex items-center justify-between px-6 pointer-events-none">
         <div className="text-red-500 font-bold flex items-center gap-2">
-          <Trash2 size={20} /> Usuń
+          <Trash2 size={16} />
         </div>
         <div className="text-green-500 font-bold flex items-center gap-2">
-          Duplikuj <Plus size={20} />
+          <Plus size={16} />
         </div>
       </div>
 
@@ -103,17 +103,17 @@ export default function SetRow({
         dragElastic={0.4}
         onDragEnd={handleDragEnd}
         animate={controls}
-        className={`relative grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 items-center p-2 rounded-2xl transition-all z-10 ${
-          set.isCompleted ? 'bg-[#252528]' : 'bg-[#1C1C1E]'
+        className={`relative grid grid-cols-[40px_1fr_70px_60px_40px] gap-2 items-center py-1.5 px-1 rounded-lg transition-all z-10 ${
+          set.isCompleted ? 'bg-green-500/10' : 'bg-transparent'
         }`}
       >
       
       {/* Set Number / Type Trigger */}
-      <div className="relative">
+      <div className="relative flex justify-center">
         <button 
           onClick={() => setShowTypeSelector(!showTypeSelector)}
-          className={`w-full aspect-square rounded-xl flex items-center justify-center font-black transition-all ${
-            set.type !== 'normal' ? 'bg-white/10 text-white' : 'text-[#8E8E93] hover:text-white'
+          className={`w-7 h-7 rounded-md flex items-center justify-center font-bold text-xs transition-all ${
+            set.type !== 'normal' ? 'bg-white/20 text-white' : 'text-[#8E8E93] hover:text-white'
           }`}
         >
           {currentType.short}
@@ -143,16 +143,21 @@ export default function SetRow({
         )}
       </div>
 
+      {/* Previous */}
+      <div className="text-center text-xs font-semibold text-[#8E8E93] pl-2 whitespace-nowrap overflow-hidden text-ellipsis text-left">
+        {prevText}
+      </div>
+
       {/* Weight KG */}
       <div className="relative flex items-center justify-center">
         {isBodyweight && (
-          <span className="absolute left-3 text-[#8E8E93] font-black text-sm pointer-events-none">+</span>
+          <span className="absolute left-2 text-[#8E8E93] font-bold text-[10px] pointer-events-none">+</span>
         )}
         <input
           type="text"
           inputMode="decimal"
-          placeholder={set.prevKg || "0"}
-          className={`w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E] ${isBodyweight ? 'pl-6 pr-2' : ''}`}
+          placeholder="-"
+          className={`w-full bg-[#2C2C2E]/50 text-white text-center font-bold py-2 rounded-lg border-none focus:bg-[#3C3C3E] outline-none transition-all placeholder:text-[#3C3C3E] text-sm ${isBodyweight ? 'pl-4' : ''}`}
           value={set.kg}
           onFocus={(e) => {
             handleInputClick('kg');
@@ -174,8 +179,8 @@ export default function SetRow({
         <input
           type="text"
           inputMode="numeric"
-          placeholder={set.prevReps || "0"}
-          className={`w-full bg-black text-white text-center font-black py-4 rounded-xl border outline-none transition-all placeholder:text-[#3C3C3E] ${maxReps && parseInt(set.reps) > parseInt(maxReps) ? 'border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'border-[#2C2C2E] focus:border-white/40'}`}
+          placeholder="-"
+          className={`w-full bg-[#2C2C2E]/50 text-white text-center font-bold py-2 rounded-lg border-none focus:bg-[#3C3C3E] outline-none transition-all placeholder:text-[#3C3C3E] text-sm`}
           value={set.reps}
           onFocus={(e) => {
             handleInputClick('reps');
@@ -189,32 +194,18 @@ export default function SetRow({
         />
       </div>
 
-      {/* RPE */}
-      <div className="relative">
-        <input
-          type="text"
-          inputMode="decimal"
-          placeholder={set.prevRpe || "-"}
-          className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
-          value={set.rpe}
-          onClick={() => handleInputClick('rpe')}
-          onChange={(e) => updateSet(exerciseId, set.id, 'rpe', e.target.value)}
-          disabled={isDisabled || set.isCompleted}
-        />
-      </div>
-
       {/* Checkbox */}
       <div className="flex justify-center">
         <button
           onClick={onCheck}
           disabled={isDisabled}
-          className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
             set.isCompleted 
-              ? 'bg-white text-black shadow-lg shadow-white/10' 
-              : 'bg-black border border-[#2C2C2E] text-transparent hover:border-white/20'
+              ? 'bg-green-500 text-white shadow-md' 
+              : 'bg-[#2C2C2E] text-transparent hover:bg-[#3C3C3E]'
           }`}
         >
-          <Check size={24} strokeWidth={4} className={set.isCompleted ? 'scale-100' : 'scale-0'} />
+          <Check size={16} strokeWidth={4} className={set.isCompleted ? 'scale-100' : 'scale-0'} />
         </button>
       </div>
     </motion.div>

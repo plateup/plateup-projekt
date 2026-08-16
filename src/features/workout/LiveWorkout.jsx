@@ -343,9 +343,9 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
           <div className="flex flex-col gap-4 mt-8">
             <button 
               onClick={() => setShowLibrary(true)}
-              className="w-full py-5 rounded-2xl bg-white/5 text-white font-bold text-lg flex items-center justify-center gap-2 hover:bg-white/10 active:scale-[0.98] transition-all border border-white/10 shadow-sm"
+              className="w-full py-4 rounded-xl bg-indigo-500/10 text-indigo-400 font-bold text-base flex items-center justify-center gap-2 hover:bg-indigo-500/20 active:scale-[0.98] transition-all"
             >
-              <Plus size={24} strokeWidth={3} />
+              <Plus size={20} strokeWidth={3} />
               Add Exercise
             </button>
           </div>

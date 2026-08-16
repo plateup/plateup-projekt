@@ -376,18 +376,15 @@ export default function Dashboard({ setActiveTab }) {
             ))}
           </div>
         ) : (
-          <div className="bg-[#1C1C1E] border border-[#2C2C2E] border-dashed border-2 p-16 rounded-[40px] flex flex-col items-center justify-center text-center h-[300px]">
-            <div className="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mb-6 shadow-2xl border border-white/5">
-              <Dumbbell className="text-white/20" size={32} />
-            </div>
-            <p className="text-[#8E8E93] font-bold text-lg mb-8">No activity recorded for this day.</p>
+          <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+            <p className="text-[#8E8E93] font-medium text-base mb-6">No activity recorded for this day.</p>
             {isSameDay(selectedDate, startOfToday()) && (
                <button 
                  onClick={() => setActiveTab('workout')}
-                 className="flex items-center gap-3 bg-white text-black px-10 py-5 rounded-[24px] font-black shadow-xl hover:scale-105 active:scale-95 transition-all"
+                 className="flex items-center gap-2 bg-indigo-500 text-white px-8 py-3.5 rounded-full font-bold shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 active:scale-95 transition-all"
                >
-                 <Plus size={24} strokeWidth={3} />
-                 Start Training
+                 <Plus size={20} strokeWidth={3} />
+                 Start an Empty Workout
                </button>
             )}
           </div>

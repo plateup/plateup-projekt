@@ -197,14 +197,11 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
             </div>
           ))
         ) : (
-          <div className="py-12 bg-[#1C1C1E] rounded-[32px] border-2 border-dashed border-white/5 flex flex-col items-center text-center px-6">
-             <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                <Dumbbell className="text-[#8E8E93]" size={28} />
-             </div>
-             <p className="text-[#8E8E93] font-bold mb-4">No routines found.</p>
+          <div className="py-12 flex flex-col items-center text-center px-6 mt-4">
+             <p className="text-[#8E8E93] font-medium mb-6">No routines found.</p>
              <button 
                 onClick={() => setShowRoutineCreator(true)}
-                className="bg-white text-black px-8 py-4 rounded-2xl font-black shadow-lg shadow-white/10 active:scale-95 transition-transform"
+                className="bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 px-8 py-3.5 rounded-full font-bold active:scale-95 transition-all"
              >
                Create First Routine
              </button>
