@@ -138,7 +138,7 @@ export default function ExerciseCard({
           {/* Add Set Button */}
           <button 
             onClick={() => addSetToExercise(exercise.id)}
-            className="w-full py-2.5 mt-1 rounded-lg bg-transparent hover:bg-white/5 flex items-center justify-center gap-1.5 text-white/50 font-bold text-xs transition-all"
+            className="w-full py-2.5 mt-1 rounded-lg bg-transparent hover:bg-white/5 flex items-center justify-center gap-1.5 text-white/50 font-bold text-xs transition-all active:scale-[0.97] ease-out-ios"
           >
             <Plus size={14} strokeWidth={3} />
             Add Set
@@ -273,7 +273,7 @@ export default function ExerciseCard({
                     setShowOptions(false);
                     setShowTimerModal(true);
                   }}
-                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-2xl flex items-center justify-between text-white font-bold transition-all active:scale-[0.98]"
+                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-xl flex items-center justify-between text-white font-semibold transition-all active:scale-[0.97] ease-out-ios"
                 >
                   <div className="flex items-center gap-3">
                     <Timer size={20} className="text-white/70" />
@@ -287,7 +287,7 @@ export default function ExerciseCard({
                       setShowOptions(false);
                       setShowPlateCalc(true);
                     }}
-                    className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-2xl flex items-center justify-between text-white font-bold transition-all active:scale-[0.98]"
+                    className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-xl flex items-center justify-between text-white font-semibold transition-all active:scale-[0.97] ease-out-ios"
                   >
                     <div className="flex items-center gap-3">
                       <Dumbbell size={20} className="text-white/70" />
@@ -301,7 +301,7 @@ export default function ExerciseCard({
                     setShowOptions(false);
                     if (onRequestReplace) onRequestReplace();
                   }}
-                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-2xl flex items-center justify-between text-white font-bold transition-all active:scale-[0.98]"
+                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-xl flex items-center justify-between text-white font-semibold transition-all active:scale-[0.97] ease-out-ios"
                 >
                   <div className="flex items-center gap-3">
                     <Dumbbell size={20} className="text-indigo-400" />
@@ -314,7 +314,7 @@ export default function ExerciseCard({
                     setShowOptions(false);
                     setIsEditingNote(true);
                   }}
-                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-2xl flex items-center justify-between text-white font-bold transition-all active:scale-[0.98]"
+                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-xl flex items-center justify-between text-white font-semibold transition-all active:scale-[0.97] ease-out-ios"
                 >
                   <div className="flex items-center gap-3">
                     <Edit3 size={20} className="text-white/70" />
@@ -327,7 +327,7 @@ export default function ExerciseCard({
                     setShowOptions(false);
                     removeSetFromExercise(exercise.id, 'all');
                   }}
-                  className="w-full bg-red-500/10 hover:bg-red-500/20 p-5 rounded-2xl flex items-center justify-between text-red-500 font-bold transition-all active:scale-[0.98]"
+                  className="w-full bg-red-500/10 hover:bg-red-500/20 p-5 rounded-xl flex items-center justify-between text-red-500 font-semibold transition-all active:scale-[0.97] ease-out-ios"
                 >
                   <div className="flex items-center gap-3">
                     <Trash2 size={20} />

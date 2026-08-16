@@ -274,9 +274,9 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
           <ModalPortal>
             <div 
               onClick={() => setIsTimerMinimized(false)}
-              className="fixed top-6 left-1/2 -translate-x-1/2 z-[500] bg-black border border-white/20 text-white px-6 py-3 rounded-full flex items-center gap-3 font-black shadow-[0_10px_40px_rgba(0,0,0,0.5)] animate-in slide-in-from-top duration-300 cursor-pointer active:scale-95 backdrop-blur-3xl"
+              className="fixed top-6 left-1/2 -translate-x-1/2 z-[500] bg-[#1C1C1E]/80 backdrop-blur-2xl border border-white/10 text-white px-6 py-3 rounded-full flex items-center gap-3 font-bold shadow-2xl animate-in slide-in-from-top duration-300 cursor-pointer active:scale-[0.97] transition-all ease-out-ios"
             >
-              <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
               <span>{Math.floor(restTime / 60)}:{(restTime % 60).toString().padStart(2, '0')}</span>
             </div>
           </ModalPortal>
@@ -287,20 +287,20 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
       <div className="max-w-4xl mx-auto px-2 sm:px-0">
         
         {/* iOS-like Sticky Header */}
-        <header className="sticky top-0 z-[100] bg-black/90 backdrop-blur-md pt-4 pb-4 border-b border-white/5 mb-6 flex items-center justify-between px-2 -mx-2 sm:mx-0 sm:px-4 sm:rounded-b-3xl">
+        <header className="sticky top-0 z-[100] bg-black/60 backdrop-blur-2xl pt-4 pb-4 border-b border-white/5 mb-6 flex items-center justify-between px-2 -mx-2 sm:mx-0 sm:px-4 sm:rounded-b-3xl transition-all">
           <button 
             onClick={() => setShowResetModal(true)} 
-            className="text-white/60 font-bold px-4 py-2.5 bg-white/5 rounded-2xl text-sm active:scale-95 hover:text-white hover:bg-white/10 transition-all"
+            className="text-white/60 font-medium px-4 py-2.5 bg-white/5 rounded-xl text-sm active:scale-[0.97] hover:text-white hover:bg-white/10 transition-all ease-out-ios duration-200"
           >
             Discard
           </button>
           <div className="flex flex-col items-center">
-            <span className="text-[10px] font-black text-[#8E8E93] uppercase tracking-widest mb-0.5">Live</span>
-            <div className="font-mono text-xl font-black tabular-nums text-white">{workoutTimeFormatted}</div>
+            <span className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider mb-0.5">Live</span>
+            <div className="font-mono text-xl font-bold tabular-nums text-white tracking-tight">{workoutTimeFormatted}</div>
           </div>
           <button 
             onClick={handleComplete} 
-            className="text-black font-black px-5 py-2.5 bg-white rounded-2xl text-sm active:scale-95 hover:bg-neutral-200 transition-all"
+            className="text-black font-semibold px-5 py-2.5 bg-white rounded-xl text-sm active:scale-[0.97] hover:bg-neutral-200 transition-all ease-out-ios duration-200"
           >
             Finish
           </button>
@@ -313,7 +313,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
             value={workoutTitle}
             onChange={(e) => setWorkoutTitle(e.target.value)}
             placeholder="Workout Title"
-            className="w-full bg-transparent text-4xl md:text-5xl font-black tracking-tighter outline-none placeholder:text-white/20 focus:text-white transition-colors"
+            className="w-full bg-transparent text-3xl md:text-4xl font-bold tracking-tight outline-none placeholder:text-white/20 focus:text-white transition-colors"
           />
         </div>
 

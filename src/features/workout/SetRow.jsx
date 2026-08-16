@@ -48,15 +48,17 @@ export default function SetRow({
 
   const handleDragEnd = (event, info) => {
     const threshold = 60;
-    if (info.offset.x < -threshold) {
+    const velocity = info.velocity.x;
+    
+    if (info.offset.x < -threshold || velocity < -500) {
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
       removeSetFromExercise(exerciseId, set.id);
-    } else if (info.offset.x > threshold) {
+    } else if (info.offset.x > threshold || velocity > 500) {
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(30);
       if (duplicateSetInExercise) duplicateSetInExercise(exerciseId, set.id);
-      controls.start({ x: 0 }); // snap back
+      controls.start({ x: 0, transition: { type: 'spring', damping: 20, stiffness: 300 } }); // snap back
     } else {
-      controls.start({ x: 0 }); // snap back
+      controls.start({ x: 0, transition: { type: 'spring', damping: 20, stiffness: 300 } }); // snap back
     }
   };
 
@@ -100,11 +102,11 @@ export default function SetRow({
       <motion.div 
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.4}
+        dragElastic={0.1}
         onDragEnd={handleDragEnd}
         animate={controls}
-        className={`relative grid grid-cols-[40px_1fr_70px_60px_40px] gap-2 items-center py-1.5 px-1 rounded-lg transition-all z-10 ${
-          set.isCompleted ? 'bg-green-500/10' : 'bg-transparent'
+        className={`relative grid grid-cols-[40px_1fr_70px_60px_40px] gap-2 items-center py-1.5 px-1 rounded-lg transition-colors z-10 ${
+          set.isCompleted ? 'bg-green-500/10' : 'bg-[#1C1C1E]'
         }`}
       >
       
@@ -112,7 +114,7 @@ export default function SetRow({
       <div className="relative flex justify-center">
         <button 
           onClick={() => setShowTypeSelector(!showTypeSelector)}
-          className={`w-7 h-7 rounded-md flex items-center justify-center font-bold text-xs transition-all ${
+          className={`w-7 h-7 rounded-md flex items-center justify-center font-bold text-xs transition-all active:scale-95 ${
             set.type !== 'normal' ? 'bg-white/20 text-white' : 'text-[#8E8E93] hover:text-white'
           }`}
         >
