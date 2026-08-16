@@ -11,7 +11,18 @@ import { useDragControls, Reorder } from 'framer-motion';
 import { ModalPortal } from '../../components/ui';
 import { supabase } from '../../services/supabaseClient';
 
-function DraggableExerciseCard({ exercise, ...props }) {
+const SUPERSET_COLORS = ['bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-orange-500', 'bg-green-500'];
+const getSupersetColor = (groupId) => {
+  if (!groupId) return null;
+  // Simple hash to consistently pick a color based on string
+  let hash = 0;
+  for (let i = 0; i < groupId.length; i++) {
+    hash = groupId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return SUPERSET_COLORS[Math.abs(hash) % SUPERSET_COLORS.length];
+};
+
+function DraggableExerciseCard({ exercise, isSuperset, nextIsSameSuperset, prevIsSameSuperset, supersetColor, ...props }) {
   const controls = useDragControls();
 
   return (
@@ -22,7 +33,7 @@ function DraggableExerciseCard({ exercise, ...props }) {
       className="relative"
     >
       <div 
-        className="absolute -right-2 -top-2 p-4 cursor-grab active:cursor-grabbing z-20 opacity-30 hover:opacity-100"
+        className="absolute right-0 top-0 p-4 cursor-grab active:cursor-grabbing z-20 opacity-30 hover:opacity-100"
         onPointerDown={(e) => controls.start(e)}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -34,6 +45,16 @@ function DraggableExerciseCard({ exercise, ...props }) {
           <line x1="3" y1="18" x2="3.01" y2="18"></line>
         </svg>
       </div>
+
+      {isSuperset && (
+        <div className="absolute -left-3 md:-left-4 top-0 bottom-0 w-1 flex flex-col items-center">
+          <div className={`w-full ${supersetColor} ${!prevIsSameSuperset ? 'rounded-t-full mt-4 h-[calc(100%-1rem)]' : nextIsSameSuperset ? 'h-full' : 'rounded-b-full mb-4 h-[calc(100%-1rem)]'} ${nextIsSameSuperset && prevIsSameSuperset ? 'h-[120%]' : ''}`} />
+          {nextIsSameSuperset && (
+            <div className={`absolute -bottom-6 w-full h-6 ${supersetColor}`} />
+          )}
+        </div>
+      )}
+
       <ExerciseCard exercise={exercise} {...props} />
     </Reorder.Item>
   );
@@ -308,26 +329,37 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
         </div>
 
         {/* Exercises List */}
-        <main className="space-y-6 pb-32 min-h-[60vh]">
-          <Reorder.Group axis="y" values={exercises} onReorder={reorderExercises} className="grid grid-cols-1 gap-8">
-            {exercises.map((exercise) => (
-              <DraggableExerciseCard
-                key={exercise.id}
-                exercise={exercise}
-                updateSet={updateSet}
-                toggleSetComplete={toggleSetComplete}
-                toggleSetType={toggleSetType}
-                addSetToExercise={addSetToExercise}
-                removeSetFromExercise={removeSetFromExercise}
-                duplicateSetInExercise={duplicateSetInExercise}
-                updateExerciseRestDuration={updateExerciseRestDuration}
-                updateExerciseNote={updateExerciseNote}
-                onRequestReplace={() => setReplacingExerciseId(exercise.id)}
-                isDisabled={!isActive}
-                activeRestSetId={activeRestSetId}
-                restTime={restTime}
-              />
-            ))}
+        <main className="space-y-6 pb-32 min-h-[60vh] pl-4 md:pl-6 pr-1">
+          <Reorder.Group axis="y" values={exercises} onReorder={reorderExercises} className="grid grid-cols-1 gap-6 relative">
+            {exercises.map((exercise, index) => {
+              const isSuperset = exercise.supersetGroupId != null;
+              const nextIsSameSuperset = isSuperset && exercises[index + 1]?.supersetGroupId === exercise.supersetGroupId;
+              const prevIsSameSuperset = isSuperset && exercises[index - 1]?.supersetGroupId === exercise.supersetGroupId;
+              const supersetColor = isSuperset ? getSupersetColor(exercise.supersetGroupId) : null;
+
+              return (
+                <DraggableExerciseCard
+                  key={exercise.id}
+                  exercise={exercise}
+                  updateSet={updateSet}
+                  toggleSetComplete={toggleSetComplete}
+                  toggleSetType={toggleSetType}
+                  addSetToExercise={addSetToExercise}
+                  removeSetFromExercise={removeSetFromExercise}
+                  duplicateSetInExercise={duplicateSetInExercise}
+                  updateExerciseRestDuration={updateExerciseRestDuration}
+                  updateExerciseNote={updateExerciseNote}
+                  onRequestReplace={() => setReplacingExerciseId(exercise.id)}
+                  isDisabled={!isActive}
+                  activeRestSetId={activeRestSetId}
+                  restTime={restTime}
+                  isSuperset={isSuperset}
+                  nextIsSameSuperset={nextIsSameSuperset}
+                  prevIsSameSuperset={prevIsSameSuperset}
+                  supersetColor={supersetColor}
+                />
+              );
+            })}
           </Reorder.Group>
 
           <div className="flex flex-col gap-4 mt-8">

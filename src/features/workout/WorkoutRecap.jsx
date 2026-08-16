@@ -94,10 +94,10 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
             </div>
           )}
 
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tighter">
             {isHistory ? "Workout Summary" : "Workout Completed"}
           </h1>
-          <p className="text-[#8E8E93] font-bold text-lg mb-10">
+          <p className="text-[#8E8E93] font-medium text-lg mb-10">
             {isHistory ? "Review your performance." : "You crushed it today."}
           </p>
 
@@ -106,17 +106,17 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
             <StatCard icon={<Dumbbell size={20} />} label="Volume" value={summary.volume || summary.rawStats?.volume} />
           </div>
 
-          <div className="bg-[#1C1C1E] border border-white/5 rounded-[32px] p-6 mb-8 text-left">
-            <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-wider mb-4">Summary</h3>
+          <div className="bg-[#1C1C1E] border border-white/5 rounded-[32px] p-6 mb-8 text-left shadow-xl">
+            <h3 className="text-sm font-bold text-[#8E8E93] uppercase tracking-wider mb-4">Summary</h3>
             <div className="space-y-4">
               {summary.exercises.slice(0, 4).map((ex, i) => (
                 <div key={i} className="flex items-center justify-between">
-                  <span className="font-bold text-white">{ex.name}</span>
-                  <span className="text-[#8E8E93] font-black text-sm">{ex.setsList?.length || ex.sets} sets</span>
+                  <span className="font-semibold text-white">{ex.name}</span>
+                  <span className="text-[#8E8E93] font-semibold text-sm">{ex.setsList?.length || ex.sets} sets</span>
                 </div>
               ))}
               {summary.exercises.length > 4 && (
-                <div className="text-center pt-2 text-[#8E8E93] font-bold text-sm">
+                <div className="text-center pt-2 text-[#8E8E93] font-medium text-sm">
                   + {summary.exercises.length - 4} more exercises
                 </div>
               )}
@@ -129,10 +129,10 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
                 <button 
                   onClick={handlePublish}
                   disabled={published || publishing}
-                  className={`w-full py-5 rounded-[24px] font-black flex items-center justify-center gap-3 transition-all ${
+                  className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all ease-out-ios ${
                     published 
                       ? 'bg-white/10 text-white cursor-default' 
-                      : 'bg-white text-black hover:bg-neutral-200 active:scale-95 shadow-xl shadow-white/10'
+                      : 'bg-white text-black hover:bg-neutral-200 active:scale-[0.97] shadow-xl shadow-white/10'
                   }`}
                 >
                   {published ? (
@@ -146,7 +146,7 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
                 
                 <button 
                   onClick={handleSaveRoutine}
-                  className="w-full bg-[#1C1C1E] text-white py-5 rounded-[24px] font-black flex items-center justify-center gap-3 hover:bg-white/5 transition-all border border-white/10 active:scale-95"
+                  className="w-full bg-[#1C1C1E] text-white py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-white/5 transition-all ease-out-ios border border-white/10 active:scale-[0.97]"
                 >
                   <ArrowUpRight size={20} />
                   Save as Routine
@@ -156,7 +156,7 @@ export default function WorkoutRecap({ workout, onClose, isHistory = false }) {
 
             <button 
               onClick={onClose}
-              className="w-full bg-transparent text-[#8E8E93] py-5 rounded-[24px] font-black hover:text-white transition-all"
+              className="w-full bg-transparent text-[#8E8E93] py-4 rounded-2xl font-bold text-lg hover:text-white transition-colors"
             >
               Close
             </button>
@@ -171,8 +171,8 @@ function StatCard({ icon, label, value }) {
   return (
     <div className="bg-[#1C1C1E] border border-white/5 rounded-[24px] p-5 flex flex-col items-center justify-center gap-2">
       <div className="text-[#8E8E93]">{icon}</div>
-      <div className="text-2xl font-black text-white">{value}</div>
-      <div className="text-[10px] font-black text-[#8E8E93] uppercase tracking-widest">{label}</div>
+      <div className="text-2xl font-bold text-white tracking-tight">{value}</div>
+      <div className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider">{label}</div>
     </div>
   );
 }
