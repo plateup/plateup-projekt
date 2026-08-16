@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { ModalPortal } from '../../components/ui';
 
 export default function RestTimerModal({ currentDuration, exerciseName, onSave, onClose }) {
-  // Stan przechowujący zmienną: customSeconds
-  const [customSeconds, setCustomSeconds] = useState(currentDuration);
+    const [customSeconds, setCustomSeconds] = useState(currentDuration);
 
   const quickTimes = [
     { label: '1:00', value: 60 },
@@ -13,24 +12,21 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
     { label: '5:00', value: 300 },
   ];
 
-  // Funkcja pomocnicza: handleMinutesChange
-
+  
   const handleMinutesChange = (mins) => {
     const currentSecs = customSeconds % 60;
     const newTotal = (parseInt(mins || 0, 10) * 60) + currentSecs;
     setCustomSeconds(newTotal);
   };
 
-  // Funkcja pomocnicza: handleSecondsChange
-
+  
   const handleSecondsChange = (secs) => {
     const currentMins = Math.floor(customSeconds / 60);
     const newTotal = (currentMins * 60) + parseInt(secs || 0, 10);
     setCustomSeconds(newTotal);
   };
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <ModalPortal>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[500] p-4 animate-in fade-in duration-200">

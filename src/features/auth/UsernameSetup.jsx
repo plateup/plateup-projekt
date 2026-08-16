@@ -3,15 +3,11 @@ import { supabase } from '../../services/supabaseClient';
 import { User, Loader2, ArrowRight } from 'lucide-react';
 
 export default function UsernameSetup({ onComplete }) {
-  // Stan przechowujący zmienną: username
-  const [username, setUsername] = useState('');
-  // Stan przechowujący zmienną: loading
-  const [loading, setLoading] = useState(false);
-  // Stan przechowujący zmienną: error
-  const [error, setError] = useState(null);
+    const [username, setUsername] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-  // Asynchroniczna funkcja: handleSubmit - odpowiada za operacje w tle (np. fetchowanie bazy)
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!username.trim()) return;
@@ -19,13 +15,11 @@ export default function UsernameSetup({ onComplete }) {
     setError(null);
 
     try {
-      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
-      const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       // Check if username is taken
-      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
-      const { data: existing } = await supabase.from('profiles').select('id').eq('username', username.trim()).maybeSingle();
+            const { data: existing } = await supabase.from('profiles').select('id').eq('username', username.trim()).maybeSingle();
       if (existing && existing.id !== user.id) {
         throw new Error("Username is already taken.");
       }
@@ -49,8 +43,7 @@ export default function UsernameSetup({ onComplete }) {
     }
   };
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <div className="min-h-screen bg-black px-4 py-12 flex flex-col items-center justify-center text-white selection:bg-white/30">
       <div className="max-w-md mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">

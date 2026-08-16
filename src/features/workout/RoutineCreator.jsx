@@ -5,18 +5,14 @@ import ExerciseLibrary from './ExerciseLibrary';
 import { ModalPortal } from '../../components/ui';
 
 export default function RoutineCreator({ onClose, onSave, initialRoutine = null }) {
-  // Stan przechowujący zmienną: name
-  const [name, setName] = useState(initialRoutine ? initialRoutine.name : '');
+    const [name, setName] = useState(initialRoutine ? initialRoutine.name : '');
   const [selectedExercises, setSelectedExercises] = useState(
     initialRoutine ? initialRoutine.exercises.map(ex => ({ ...ex, tempId: Date.now() + Math.random() })) : []
   );
-  // Stan przechowujący zmienną: showLibrary
-  const [showLibrary, setShowLibrary] = useState(false);
-  // Stan przechowujący zmienną: saving
-  const [saving, setSaving] = useState(false);
+    const [showLibrary, setShowLibrary] = useState(false);
+    const [saving, setSaving] = useState(false);
 
-  // Funkcja pomocnicza: addExercise
-
+  
   const addExercise = (exercisesToAdd) => {
     if (Array.isArray(exercisesToAdd)) {
       const newExs = exercisesToAdd.map(ex => ({ ...ex, tempId: Date.now() + Math.random(), targetSets: 3, restDuration: 90 }));
@@ -27,44 +23,38 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
     setShowLibrary(false);
   };
 
-  // Funkcja pomocnicza: removeExercise
-
+  
   const removeExercise = (tempId) => {
     setSelectedExercises(selectedExercises.filter(ex => ex.tempId !== tempId));
   };
 
-  // Funkcja pomocnicza: updateExerciseSets
-
+  
   const updateExerciseSets = (tempId, sets) => {
     setSelectedExercises(selectedExercises.map(ex => 
       ex.tempId === tempId ? { ...ex, targetSets: parseInt(sets, 10) || 1 } : ex
     ));
   };
 
-  // Funkcja pomocnicza: updateExerciseRest
-
+  
   const updateExerciseRest = (tempId, duration) => {
     setSelectedExercises(selectedExercises.map(ex => 
       ex.tempId === tempId ? { ...ex, restDuration: Math.max(30, duration) } : ex
     ));
   };
 
-  // Funkcja pomocnicza: formatRest
-
+  
   const formatRest = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  // Asynchroniczna funkcja: handleSave - odpowiada za operacje w tle (np. fetchowanie bazy)
-
+  
   const handleSave = async () => {
     if (!name.trim() || selectedExercises.length === 0) return;
     setSaving(true);
     
-    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
-    
+        
     const { data: { user } } = await supabase.auth.getUser();
     
     if (initialRoutine) {
@@ -109,8 +99,7 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
     setSaving(false);
   };
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <ModalPortal>
       <div className="fixed inset-0 bg-black z-[500] flex flex-col animate-in slide-in-from-bottom duration-300">

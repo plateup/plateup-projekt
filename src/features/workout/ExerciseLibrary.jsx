@@ -5,16 +5,11 @@ import { ModalPortal } from '../../components/ui';
 
 export default function ExerciseLibrary({ onSelect, onClose }) {
   const { exercises, loading, addCustomExercise } = useExercises();
-  // Stan przechowujący zmienną: searchTerm
-  const [searchTerm, setSearchTerm] = useState('');
-  // Stan przechowujący zmienną: showAddCustom
-  const [showAddCustom, setShowAddCustom] = useState(false);
-  // Stan przechowujący zmienną: newExName
-  const [newExName, setNewExName] = useState('');
-  // Stan przechowujący zmienną: newExMuscle
-  const [newExMuscle, setNewExMuscle] = useState('Chest');
-  // Stan przechowujący zmienną: selectedExercises
-  const [selectedExercises, setSelectedExercises] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showAddCustom, setShowAddCustom] = useState(false);
+    const [newExName, setNewExName] = useState('');
+    const [newExMuscle, setNewExMuscle] = useState('Chest');
+    const [selectedExercises, setSelectedExercises] = useState([]);
 
   const filteredExercises = exercises.filter(ex => 
     ex.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -28,8 +23,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
     return acc;
   }, {});
 
-  // Funkcja pomocnicza: handleAddCustom
-
+  
   const handleAddCustom = () => {
     if (newExName.trim()) {
       addCustomExercise({ name: newExName, muscle_group: newExMuscle });
@@ -38,8 +32,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
     }
   };
 
-  // Funkcja pomocnicza: toggleSelection
-
+  
   const toggleSelection = (ex) => {
     if (selectedExercises.find(s => s.id === ex.id)) {
       setSelectedExercises(selectedExercises.filter(s => s.id !== ex.id));
@@ -48,8 +41,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
     }
   };
 
-  // Funkcja pomocnicza: handleConfirmSelection
-
+  
   const handleConfirmSelection = (isSuperset = false) => {
     if (isSuperset) {
       // Create superset group ID
@@ -61,8 +53,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
     }
   };
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <ModalPortal>
       <div className="fixed inset-0 z-[600] flex flex-col justify-end">
@@ -121,8 +112,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
                   <div className="bg-[#1C1C1E] rounded-2xl overflow-hidden divide-y divide-white/5 border border-white/5">
                     {groupedExercises[muscle].map((ex) => {
                       const isSelected = selectedExercises.some(s => s.id === ex.id);
-                      // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-                      return (
+                                            return (
                         <button
                           key={ex.id}
                           onClick={() => toggleSelection(ex)}

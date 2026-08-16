@@ -14,8 +14,7 @@ export const Button = ({ children, onClick, variant = 'primary', className = '' 
     outline: 'border-2 border-black dark:border-white text-black dark:text-white',
   };
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <button 
       onClick={onClick} 
@@ -27,8 +26,7 @@ export const Button = ({ children, onClick, variant = 'primary', className = '' 
 };
 
 export const Card = ({ children, className = '' }) => {
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-  return (
+    return (
     <div className={`bg-white dark:bg-[#1C1C1E] rounded-[32px] p-6 shadow-sm ${className}`}>
       {children}
     </div>
@@ -36,8 +34,7 @@ export const Card = ({ children, className = '' }) => {
 };
 
 export const Avatar = ({ src, name }) => {
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-  return (
+    return (
     <div className="w-12 h-12 rounded-full bg-[#E5E5EA] dark:bg-[#3A3A3C] flex items-center justify-center overflow-hidden">
       {src ? (
         <img src={src} alt={name} className="w-full h-full object-cover" />
@@ -51,8 +48,7 @@ export const Avatar = ({ src, name }) => {
 export const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = 'Confirm', cancelText = 'Cancel', isDanger = false }) => {
   if (!isOpen) return null;
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <ModalPortal>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[9999] p-4 animate-in fade-in duration-200">

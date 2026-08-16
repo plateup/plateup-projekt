@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SetRow from './SetRow';
-import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X, Check } from 'lucide-react';
+import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X, Check, Pin } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 import RestTimerModal from './RestTimerModal';
 import PlateCalculator from './PlateCalculator';
@@ -29,8 +29,7 @@ export default function ExerciseCard({
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [localNote, setLocalNote] = useState(exercise.note || '');
 
-  // Funkcja pomocnicza: formatRest
-
+  
   const formatRest = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -52,8 +51,7 @@ export default function ExerciseCard({
                                exercise.name.toLowerCase().includes('push-up') ||
                                exercise.name.toLowerCase().includes('push up');
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <div className="bg-transparent mb-6 relative">
       <div className="px-1 md:px-2">
@@ -62,9 +60,6 @@ export default function ExerciseCard({
         <div className="flex justify-between items-center mb-4 pl-2 pr-1">
           <div className="flex flex-col">
             <h3 className="text-[17px] font-bold text-indigo-400 leading-tight">{exercise.name}</h3>
-            {exercise.note && (
-              <p className="text-xs text-[#8E8E93] mt-0.5 line-clamp-1">{exercise.note}</p>
-            )}
           </div>
           
           <div>
@@ -77,21 +72,54 @@ export default function ExerciseCard({
           </div>
         </div>
 
+        {/* Display Note */}
+        {!isEditingNote && exercise.note && (
+          <div className="mb-4 px-2 animate-in fade-in duration-300">
+             <div 
+                className="flex items-start gap-2 bg-[#2C2C2E]/30 rounded-xl p-3 cursor-pointer hover:bg-[#2C2C2E]/50 transition-colors"
+                onClick={() => setIsEditingNote(true)}
+             >
+                <div className="w-1 h-full min-h-[16px] bg-indigo-500 rounded-full shrink-0" />
+                <p className="text-xs text-[#8E8E93] font-medium leading-relaxed whitespace-pre-wrap">{exercise.note}</p>
+             </div>
+          </div>
+        )}
+
         {/* Notes (Scratchpad) */}
         {isEditingNote && (
           <div className="mb-4 px-2 animate-in fade-in duration-300">
-            <textarea
-              className="w-full bg-[#1C1C1E] border border-white/10 rounded-xl p-3 text-sm text-white/90 placeholder:text-white/30 focus:border-indigo-500/50 outline-none resize-none transition-all"
-              placeholder="Add a note..."
-              value={localNote}
-              rows={2}
-              onChange={(e) => setLocalNote(e.target.value)}
-              onBlur={() => {
-                setIsEditingNote(false);
-                if (updateExerciseNote) updateExerciseNote(exercise.id, localNote);
-              }}
-              autoFocus={isEditingNote}
-            />
+            <div className="bg-[#1C1C1E] border border-white/10 rounded-xl overflow-hidden transition-all focus-within:border-indigo-500/50">
+              <textarea
+                className="w-full bg-transparent p-3 text-sm text-white/90 placeholder:text-white/30 outline-none resize-none"
+                placeholder="Add a note (e.g. seat at 4, machine settings)..."
+                value={localNote}
+                rows={2}
+                onChange={(e) => setLocalNote(e.target.value)}
+                autoFocus={isEditingNote}
+              />
+              <div className="px-3 pb-2 pt-1 flex justify-between items-center bg-[#1C1C1E]">
+                <button 
+                  onClick={() => {
+                     const pinned = JSON.parse(localStorage.getItem('plateup_pinned_notes') || '{}');
+                     pinned[exercise.name] = localNote;
+                     localStorage.setItem('plateup_pinned_notes', JSON.stringify(pinned));
+                     if (updateExerciseNote) updateExerciseNote(exercise.id, localNote);
+                     setIsEditingNote(false);
+                     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(20);
+                  }}
+                  className="text-xs flex items-center gap-1.5 text-indigo-400 font-bold hover:text-indigo-300 bg-indigo-500/10 px-2.5 py-1.5 rounded-lg active:scale-95 transition-all"
+                >
+                  <Pin size={12} fill="currentColor" /> Pin to Exercise
+                </button>
+                <button 
+                  onClick={() => {
+                    setIsEditingNote(false);
+                    if (updateExerciseNote) updateExerciseNote(exercise.id, localNote);
+                  }}
+                  className="text-xs text-white font-bold bg-white/10 px-3 py-1.5 rounded-lg hover:bg-white/20 active:scale-95 transition-all"
+                >Done</button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -115,8 +143,7 @@ export default function ExerciseCard({
           <div className="space-y-2">
             {exercise.sets.map((set, index) => {
               const displayIndex = exercise.sets.slice(0, index + 1).filter(s => s.type !== 'warmup').length;
-              // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-              return (
+                            return (
                 <SetRow
                   key={set.id}
                   index={displayIndex}

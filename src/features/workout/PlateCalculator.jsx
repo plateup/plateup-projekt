@@ -2,14 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { ModalPortal } from '../../components/ui';
 
 export default function PlateCalculator({ initialWeight, onClose }) {
-  // Stan przechowujący zmienną: targetWeight
-  const [targetWeight, setTargetWeight] = useState(initialWeight || '');
-  // Stan przechowujący zmienną: use25kg
-  const [use25kg, setUse25kg] = useState(false);
+    const [targetWeight, setTargetWeight] = useState(initialWeight || '');
+    const [use25kg, setUse25kg] = useState(false);
   const barbellWeight = 20;
   
-  // Funkcja pomocnicza: calculatePlates
-  
+    
   const calculatePlates = () => {
     const weightPerSide = (parseFloat(targetWeight || 0) - barbellWeight) / 2;
     if (isNaN(weightPerSide) || weightPerSide <= 0) return [];
@@ -31,8 +28,7 @@ export default function PlateCalculator({ initialWeight, onClose }) {
 
   const plates = calculatePlates();
 
-  // Funkcja pomocnicza: getPlateColor
-
+  
   const getPlateColor = (plate) => {
     if (plate === 25) return 'bg-red-500 text-white shadow-red-500/20';
     if (plate === 20) return 'bg-blue-500 text-white shadow-blue-500/20';
@@ -43,8 +39,7 @@ export default function PlateCalculator({ initialWeight, onClose }) {
     return 'bg-neutral-400 text-black shadow-black/10'; // 1.25
   };
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <ModalPortal>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[500] p-4 animate-in fade-in duration-200">

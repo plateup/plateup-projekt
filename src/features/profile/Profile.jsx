@@ -202,7 +202,7 @@ export default function Profile() {
 
       {stats.chartData && stats.chartData.length > 0 && (
         <div className="bg-[#1C1C1E] rounded-[32px] p-6 mb-10 border border-white/5 shadow-xl">
-          <h3 className="text-xs font-black text-[#8E8E93] uppercase tracking-widest mb-6 ml-2">Tonaż (Ostatnie 7 dni)</h3>
+          <h3 className="text-xs font-bold text-[#8E8E93] uppercase tracking-widest mb-6 ml-2">Volume (Last 7 Days)</h3>
           <div className="h-40 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={stats.chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>

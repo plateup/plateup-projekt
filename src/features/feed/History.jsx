@@ -6,25 +6,16 @@ import WorkoutRecap from '../workout/WorkoutRecap';
 import { ConfirmModal } from '../../components/ui';
 
 export default function Dashboard({ setActiveTab }) {
-  // Stan przechowujący zmienną: username
-  const [username, setUsername] = useState(() => localStorage.getItem('plateup_username') || 'Athlete');
-  // Stan przechowujący zmienną: avatarUrl
-  const [avatarUrl, setAvatarUrl] = useState(() => localStorage.getItem('plateup_avatar') || null);
-  // Stan przechowujący zmienną: selectedDate
-  const [selectedDate, setSelectedDate] = useState(startOfToday());
-  // Stan przechowujący zmienną: showProfileMenu
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  // Stan przechowujący zmienną: localWorkouts
-  const [localWorkouts, setLocalWorkouts] = useState([]);
-  // Stan przechowujący zmienną: selectedWorkoutRecap
-  const [selectedWorkoutRecap, setSelectedWorkoutRecap] = useState(null);
-  // Stan przechowujący zmienną: openMenuId
-  const [openMenuId, setOpenMenuId] = useState(null);
-  // Stan przechowujący zmienną: confirmModal
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
+    const [username, setUsername] = useState(() => localStorage.getItem('plateup_username') || 'Athlete');
+    const [avatarUrl, setAvatarUrl] = useState(() => localStorage.getItem('plateup_avatar') || null);
+    const [selectedDate, setSelectedDate] = useState(startOfToday());
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [localWorkouts, setLocalWorkouts] = useState([]);
+    const [selectedWorkoutRecap, setSelectedWorkoutRecap] = useState(null);
+    const [openMenuId, setOpenMenuId] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
 
-  // Funkcja pomocnicza: generateDates
-
+  
   const generateDates = () => {
     const today = startOfToday();
     // Generate dates for current month view
@@ -48,24 +39,19 @@ export default function Dashboard({ setActiveTab }) {
 
   const dates = generateDates();
 
-  // Funkcja pomocnicza: loadProfileFromStorage
-
+  
   const loadProfileFromStorage = () => {
     setUsername(localStorage.getItem('plateup_username') || 'Athlete');
     setAvatarUrl(localStorage.getItem('plateup_avatar') || null);
   };
 
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-
+  
   useEffect(() => {
-    // Asynchroniczna funkcja: fetchProfileAndWorkouts - odpowiada za operacje w tle (np. fetchowanie bazy)
-    const fetchProfileAndWorkouts = async () => {
-      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
-      const { data: { user } } = await supabase.auth.getUser();
+        const fetchProfileAndWorkouts = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         // 1. Fetch Profile
-        // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
-        const { data: profileData } = await supabase
+                const { data: profileData } = await supabase
           .from('profiles')
           .select('username, display_name, avatar_url')
           .eq('id', user.id)
@@ -83,8 +69,7 @@ export default function Dashboard({ setActiveTab }) {
         }
         
         // 2. Fetch User's Workouts (Posts)
-        // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
-        const { data: postsData } = await supabase
+                const { data: postsData } = await supabase
           .from('posts')
           .select('*')
           .eq('user_id', user.id)
@@ -115,8 +100,7 @@ export default function Dashboard({ setActiveTab }) {
     fetchProfileAndWorkouts();
   }, []);
 
-  // Funkcja pomocnicza: getWorkoutsForDate
-
+  
   const getWorkoutsForDate = (date) => {
     return localWorkouts.filter(w => {
       const wDate = new Date(w.created_at);
@@ -126,16 +110,14 @@ export default function Dashboard({ setActiveTab }) {
 
   const dayWorkouts = getWorkoutsForDate(selectedDate);
 
-  // Funkcja pomocnicza: handleDeleteClick
-
+  
   const handleDeleteClick = (id, e) => {
     e.stopPropagation();
     setOpenMenuId(null);
     setConfirmModal({ isOpen: true, id });
   };
 
-  // Asynchroniczna funkcja: executeDeleteWorkout - odpowiada za operacje w tle (np. fetchowanie bazy)
-
+  
   const executeDeleteWorkout = async () => {
     if (confirmModal.id) {
       const updatedWorkouts = localWorkouts.filter(w => w.id !== confirmModal.id);
@@ -152,8 +134,7 @@ export default function Dashboard({ setActiveTab }) {
     setConfirmModal({ isOpen: false, id: null });
   };
 
-  // Asynchroniczna funkcja: handleLogOut - odpowiada za operacje w tle (np. fetchowanie bazy)
-
+  
   const handleLogOut = async () => {
     // Archiving is now handled by App.jsx on auth state change
     await supabase.auth.signOut();
@@ -161,16 +142,13 @@ export default function Dashboard({ setActiveTab }) {
   };
 
   // Close menus if clicked outside
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-  useEffect(() => {
+    useEffect(() => {
     const handleClickOutside = () => setOpenMenuId(null);
     document.addEventListener('click', handleClickOutside);
-    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-    return () => document.removeEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <div className="animate-in fade-in duration-700">
       {/* Header */}
@@ -325,8 +303,7 @@ export default function Dashboard({ setActiveTab }) {
                 {/* Exercise List Preview Section */}
                 {(() => {
                   const hasHiddenContent = workout.exercises?.length > 3 || workout.exercises?.slice(0, 3).some(ex => ex.setsList?.length > 3);
-                  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-                  return (
+                                    return (
                     <div className="bg-black/40 backdrop-blur-md rounded-[24px] border border-white/5 p-4 relative z-10 mt-2">
                       <div className={`relative ${hasHiddenContent ? 'max-h-[160px] overflow-hidden' : ''}`}>
                         <div className="space-y-4">

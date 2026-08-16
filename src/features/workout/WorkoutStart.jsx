@@ -6,29 +6,20 @@ import { ConfirmModal, ModalPortal } from '../../components/ui';
 import { landziPlan } from './landziPlan';
 
 export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
-  // Stan przechowujący zmienną: routines
-  const [routines, setRoutines] = useState([]);
-  // Stan przechowujący zmienną: loading
-  const [loading, setLoading] = useState(true);
-  // Stan przechowujący zmienną: showRoutineCreator
-  const [showRoutineCreator, setShowRoutineCreator] = useState(false);
-  // Stan przechowujący zmienną: editingRoutine
-  const [editingRoutine, setEditingRoutine] = useState(null);
-  // Stan przechowujący zmienną: selectedRoutine
-  const [selectedRoutine, setSelectedRoutine] = useState(null);
-  // Stan przechowujący zmienną: activeMenuId
-  const [activeMenuId, setActiveMenuId] = useState(null);
+    const [routines, setRoutines] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showRoutineCreator, setShowRoutineCreator] = useState(false);
+    const [editingRoutine, setEditingRoutine] = useState(null);
+    const [selectedRoutine, setSelectedRoutine] = useState(null);
+    const [activeMenuId, setActiveMenuId] = useState(null);
   
   // Confirm Modal state
-  // Stan przechowujący zmienną: confirmModal
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
 
-  // Asynchroniczna funkcja: fetchRoutines - odpowiada za operacje w tle (np. fetchowanie bazy)
-
+  
   const fetchRoutines = async () => {
     setLoading(true);
-    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
-    const { data, error } = await supabase
+        const { data, error } = await supabase
       .from('routines')
       .select('*')
       .order('created_at', { ascending: false });
@@ -37,16 +28,14 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
     setLoading(false);
   };
 
-  // Funkcja pomocnicza: confirmDeleteRoutine
-
+  
   const confirmDeleteRoutine = (id, e) => {
     e.stopPropagation();
     setActiveMenuId(null);
     setConfirmModal({ isOpen: true, id });
   };
 
-  // Asynchroniczna funkcja: executeDeleteRoutine - odpowiada za operacje w tle (np. fetchowanie bazy)
-
+  
   const executeDeleteRoutine = async () => {
     if (confirmModal.id) {
       await supabase.from('routines').delete().eq('id', confirmModal.id);
@@ -57,7 +46,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
 
   const handleInjectPlan = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return alert("Musisz być zalogowany!");
+    if (!user) return alert("You must be logged in!");
     
     setLoading(true);
     for (const routine of landziPlan) {
@@ -81,15 +70,14 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
     }
     await fetchRoutines();
     setLoading(false);
-    alert('Plan Landziego został wgrany!');
+    alert('Built-in plan has been imported!');
   };
 
   useEffect(() => {
     fetchRoutines();
   }, []);
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <div className="pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header className="mb-10">
@@ -121,7 +109,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
               onClick={handleInjectPlan}
               className="text-indigo-400 font-bold text-xs flex items-center gap-1 hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full"
             >
-              <Download size={14} /> Wgraj Plan
+              <Download size={14} /> Import Plan
             </button>
             <button 
               onClick={() => setShowRoutineCreator(true)}

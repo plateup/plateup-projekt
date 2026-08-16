@@ -40,14 +40,10 @@ function DraggableExerciseCard({ exercise, ...props }) {
 }
 
 export default function LiveWorkout({ isVisible = true, onRestore }) {
-  // Stan przechowujący zmienną: activeTab
-  const [activeTab, setActiveTab] = useState('workout');
-  // Stan przechowujący zmienną: showLibrary
-  const [showLibrary, setShowLibrary] = useState(false);
-  // Stan przechowujący zmienną: showRecap
-  const [showRecap, setShowRecap] = useState(false);
-  // Stan przechowujący zmienną: completedWorkoutSummary
-  const [completedWorkoutSummary, setCompletedWorkoutSummary] = useState(null);
+    const [activeTab, setActiveTab] = useState('workout');
+    const [showLibrary, setShowLibrary] = useState(false);
+    const [showRecap, setShowRecap] = useState(false);
+    const [completedWorkoutSummary, setCompletedWorkoutSummary] = useState(null);
   const {
     exercises,
     sessionStatus,
@@ -82,8 +78,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
   const [isTimerMinimized, setIsTimerMinimized] = useState(false);
   const [replacingExerciseId, setReplacingExerciseId] = useState(null);
 
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-
+  
   useEffect(() => {
     const pendingRoutine = localStorage.getItem('plateup_pending_routine');
     if (pendingRoutine && isVisible) {
@@ -100,8 +95,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
   const isIdle = sessionStatus === 'idle';
   const isActive = sessionStatus === 'active';
 
-  // Funkcja pomocnicza: handleComplete
-
+  
   const handleComplete = () => {
     let totalVolume = 0;
     const completedExercises = [];
@@ -181,8 +175,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     setShowRecap(true);
   };
 
-  // Funkcja pomocnicza: handleAddExercise
-
+  
   const handleAddExercise = (exercisesToAdd) => {
     if (Array.isArray(exercisesToAdd)) {
       exercisesToAdd.forEach(ex => addExerciseToSession(ex));
@@ -192,8 +185,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     setShowLibrary(false);
   };
 
-  // Funkcja pomocnicza: handleSkipRest
-
+  
   const handleSkipRest = () => {
     stopRest();
     setIsTimerMinimized(false);
@@ -201,8 +193,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   if (isIdle) {
     if (!isVisible) return null;
-    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-    return (
+        return (
       <div className="min-h-screen bg-black text-white antialiased flex flex-col items-center w-full px-4 pt-10 relative">
         <div className="w-full max-w-2xl">
           <WorkoutStart 
@@ -256,8 +247,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   if (!isVisible) return null;
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       

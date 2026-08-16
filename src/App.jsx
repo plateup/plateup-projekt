@@ -13,11 +13,9 @@ function App() {
   const [session, setSession] = useState(null);
   const [view, setView] = useState('landing');
   const [activeTab, setActiveTab] = useState('history');
-  // Stan przechowujący zmienną: isInitializing
-  const [isInitializing, setIsInitializing] = useState(true);
+    const [isInitializing, setIsInitializing] = useState(true);
 
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-
+  
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       handleSessionData(session);
@@ -27,18 +25,15 @@ function App() {
       handleSessionData(session);
     });
 
-    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+    
     return () => subscription.unsubscribe();
   }, []);
 
-  // Asynchroniczna funkcja: handleSessionData - odpowiada za operacje w tle (np. fetchowanie bazy)
-
+  
   const handleSessionData = async (session) => {
     const savedUserId = localStorage.getItem('plateup_last_user_id');
 
-    // Funkcja pomocnicza: archiveCurrentData
-
+    
     const archiveCurrentData = (userIdToArchive) => {
       if (!userIdToArchive) return;
       const oldUserData = {};
@@ -81,8 +76,7 @@ function App() {
       setSession(session);
 
       // Check if username is setup (for Google OAuth flow)
-      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
-      const { data: profile } = await supabase.from('profiles').select('username').eq('id', currentUserId).maybeSingle();
+            const { data: profile } = await supabase.from('profiles').select('username').eq('id', currentUserId).maybeSingle();
       
       if (!profile || !profile.username) {
         setView('onboarding');
@@ -104,8 +98,7 @@ function App() {
     }
   };
 
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-
+  
   useEffect(() => {
     let title = 'PlateUp';
     if (view === 'landing') title = 'PlateUp - Start';

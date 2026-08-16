@@ -7,14 +7,12 @@ export default function Navigation({ activeTab, setActiveTab }) {
     { id: 'profile', label: 'Profile' },
   ];
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-neutral-950 border border-neutral-900 rounded-full py-3 px-6 flex justify-around items-center z-50 shadow-2xl">
       {navItems.map((item) => {
         const isActive = activeTab === item.id;
-        // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-        return (
+                return (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}

@@ -1,40 +1,27 @@
 import { useState, useEffect } from 'react';
 
 export function useWorkoutSession() {
-  // Stan przechowujący zmienną: sessionStatus
-  const [sessionStatus, setSessionStatus] = useState(() => localStorage.getItem('plateup_status') || 'idle');
-  // Stan przechowujący zmienną: workoutTitle
-  const [workoutTitle, setWorkoutTitle] = useState(() => localStorage.getItem('plateup_workout_title') || 'Workout Session');
-  // Stan przechowujący zmienną: workoutTime
-  const [workoutTime, setWorkoutTime] = useState(() => parseInt(localStorage.getItem('plateup_time') || '0', 10));
+    const [sessionStatus, setSessionStatus] = useState(() => localStorage.getItem('plateup_status') || 'idle');
+    const [workoutTitle, setWorkoutTitle] = useState(() => localStorage.getItem('plateup_workout_title') || 'Workout Session');
+    const [workoutTime, setWorkoutTime] = useState(() => parseInt(localStorage.getItem('plateup_time') || '0', 10));
   const [exercises, setExercises] = useState(() => {
     const saved = localStorage.getItem('plateup_exercises');
     return saved ? JSON.parse(saved) : [];
   });
-  // Stan przechowujący zmienną: restTime
-  const [restTime, setRestTime] = useState(0);
-  // Stan przechowujący zmienną: initialRestTime
-  const [initialRestTime, setInitialRestTime] = useState(90);
-  // Stan przechowujący zmienną: isResting
-  const [isResting, setIsResting] = useState(false);
-  // Stan przechowujący zmienną: activeRestSetId
-  const [activeRestSetId, setActiveRestSetId] = useState(null);
-  // Stan przechowujący zmienną: restEndTime
-  const [restEndTime, setRestEndTime] = useState(null);
+    const [restTime, setRestTime] = useState(0);
+    const [initialRestTime, setInitialRestTime] = useState(90);
+    const [isResting, setIsResting] = useState(false);
+    const [activeRestSetId, setActiveRestSetId] = useState(null);
+    const [restEndTime, setRestEndTime] = useState(null);
 
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-
+  
   useEffect(() => { localStorage.setItem('plateup_status', sessionStatus); }, [sessionStatus]);
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-  useEffect(() => { localStorage.setItem('plateup_workout_title', workoutTitle); }, [workoutTitle]);
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-  useEffect(() => { localStorage.setItem('plateup_time', workoutTime.toString()); }, [workoutTime]);
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-  useEffect(() => { localStorage.setItem('plateup_exercises', JSON.stringify(exercises)); }, [exercises]);
+    useEffect(() => { localStorage.setItem('plateup_workout_title', workoutTitle); }, [workoutTitle]);
+    useEffect(() => { localStorage.setItem('plateup_time', workoutTime.toString()); }, [workoutTime]);
+    useEffect(() => { localStorage.setItem('plateup_exercises', JSON.stringify(exercises)); }, [exercises]);
 
   // Timer logic for workout duration with background catch-up
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-  useEffect(() => {
+    useEffect(() => {
     let interval = null;
     if (sessionStatus === 'active') {
       // 1. Initial catch up when component mounts/tab focuses
@@ -65,13 +52,11 @@ export function useWorkoutSession() {
     } else {
       localStorage.removeItem('plateup_last_tick');
     }
-    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-    return () => clearInterval(interval);
+        return () => clearInterval(interval);
   }, [sessionStatus]);
 
   // Rest Timer logic with background persistence
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-  useEffect(() => {
+    useEffect(() => {
     let interval = null;
     if (isResting && restEndTime) {
       interval = setInterval(() => {
@@ -97,12 +82,10 @@ export function useWorkoutSession() {
         }
       }, 1000);
     }
-    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-    return () => clearInterval(interval);
+        return () => clearInterval(interval);
   }, [isResting, restEndTime]);
 
-  // Funkcja pomocnicza: playTimerSound
-
+  
   const playTimerSound = () => {
     try {
       const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
@@ -112,8 +95,7 @@ export function useWorkoutSession() {
     }
   };
 
-  // Funkcja pomocnicza: stopRest
-
+  
   const stopRest = () => {
     setIsResting(false);
     setActiveRestSetId(null);
@@ -121,15 +103,16 @@ export function useWorkoutSession() {
     setRestTime(0);
   };
 
-  // Funkcja pomocnicza: startWorkout
-
+  
   const startWorkout = (routine = null) => {
     if (routine) {
       const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
+      const pinnedNotes = JSON.parse(localStorage.getItem('plateup_pinned_notes') || '{}');
       setWorkoutTitle(routine.name || 'Workout Session');
       
       const routineExercises = routine.exercises.map((ex, idx) => {
         const pastSets = history[ex.name] || [];
+        const pinnedNote = pinnedNotes[ex.name] || '';
         
         // Determine sets array
         let initialSets = [];
@@ -166,19 +149,19 @@ export function useWorkoutSession() {
             const allMaxed = pastSets.every(s => parseInt(s.reps, 10) >= ex.maxReps);
             if (allMaxed) {
               if (ex.progType === 'W') {
-                tip = `Ostatnio we wszystkich seriach wbiłeś ${ex.maxReps}+ powtórzeń. Zwiększ ciężar o 1.25kg!`;
+                tip = `Last time you hit ${ex.maxReps}+ reps in all sets. Increase weight by 1.25kg!`;
               } else if (ex.progType === 'I') {
-                tip = `Ostatnio zrealizowałeś górny limit we wszystkich seriach. Jeśli technika była idealna, dołóż ciężaru!`;
+                tip = `Last time you reached the rep cap in all sets. If form was perfect, increase weight!`;
               }
             } else {
               if (ex.progType === 'W') {
-                tip = `Celuj w przedział ${ex.minReps}-${ex.maxReps} powt. Zwiększysz ciężar, gdy we wszystkich seriach dobijesz do ${ex.maxReps}.`;
+                tip = `Aim for ${ex.minReps}-${ex.maxReps} reps. Increase weight when you hit ${ex.maxReps} in all sets.`;
               } else if (ex.progType === 'I') {
-                tip = `Izolacja: walcz o powtórzenia! Cel ${ex.minReps}-${ex.maxReps}. Dołóż ciężar dopiero gdy w każdej serii zrobisz ${ex.maxReps} z idealną techniką.`;
+                tip = `Isolation: fight for reps! Goal ${ex.minReps}-${ex.maxReps}. Increase weight only when you do ${ex.maxReps} with perfect form in all sets.`;
               }
             }
           } else if (ex.progType) {
-            tip = `Pierwszy raz! Ustal ciężar roboczy dla przedziału ${ex.minReps}-${ex.maxReps} powtórzeń.`;
+            tip = `First time! Set a working weight for ${ex.minReps}-${ex.maxReps} reps.`;
           }
         }
 
@@ -192,6 +175,7 @@ export function useWorkoutSession() {
           maxReps: ex.maxReps,
           pastSets: pastSets,
           sets: initialSets,
+          note: pinnedNote,
           assistantTip: tip
         };
       });
@@ -203,8 +187,7 @@ export function useWorkoutSession() {
     setSessionStatus('active');
   };
 
-  // Funkcja pomocnicza: addSetToExercise
-
+  
   const addSetToExercise = (exerciseId) => {
     setExercises(prev => prev.map(ex => {
       if (ex.id !== exerciseId) return ex;
@@ -227,8 +210,7 @@ export function useWorkoutSession() {
     }));
   };
 
-  // Funkcja pomocnicza: updateExerciseRestDuration
-
+  
   const updateExerciseRestDuration = (exerciseId, newDuration) => {
     setExercises(prev => prev.map(ex => 
       ex.id === exerciseId ? { ...ex, restDuration: newDuration } : ex
@@ -237,8 +219,7 @@ export function useWorkoutSession() {
 
   const pauseWorkout = () => setSessionStatus('paused');
   
-  // Funkcja pomocnicza: executeReset
-  
+    
   const executeReset = () => {
     setSessionStatus('idle');
     setWorkoutTime(0);
@@ -248,8 +229,7 @@ export function useWorkoutSession() {
     setRestEndTime(null);
   };
 
-  // Funkcja pomocnicza: completeAndSaveWorkout
-
+  
   const completeAndSaveWorkout = () => {
     const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
     exercises.forEach(ex => {
@@ -271,8 +251,7 @@ export function useWorkoutSession() {
     setRestEndTime(null);
   };
 
-  // Funkcja pomocnicza: cleanNumberInput
-
+  
   const cleanNumberInput = (value) => {
     if (value === '') return '';
     let clean = value.replace(/[^0-9.]/g, '');
@@ -280,8 +259,7 @@ export function useWorkoutSession() {
     return clean;
   };
 
-  // Funkcja pomocnicza: updateSet
-
+  
   const updateSet = (exerciseId, setId, field, value) => {
     const cleanedValue = field === 'kg' || field === 'reps' || field === 'rpe' ? cleanNumberInput(value) : value;
     setExercises((prev) =>
@@ -295,8 +273,7 @@ export function useWorkoutSession() {
     );
   };
 
-  // Funkcja pomocnicza: toggleSetType
-
+  
   const toggleSetType = (exerciseId, setId, type) => {
     setExercises((prev) =>
       prev.map((ex) => {
@@ -318,8 +295,7 @@ export function useWorkoutSession() {
     );
   };
 
-  // Funkcja pomocnicza: removeSetFromExercise
-
+  
   const removeSetFromExercise = (exerciseId, setId) => {
     if (setId === 'all') {
       setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
@@ -333,8 +309,7 @@ export function useWorkoutSession() {
     );
   };
 
-  // Funkcja pomocnicza: duplicateSetInExercise
-
+  
   const duplicateSetInExercise = (exerciseId, setId) => {
     setExercises((prev) =>
       prev.map((ex) => {
@@ -357,8 +332,7 @@ export function useWorkoutSession() {
     );
   };
 
-  // Funkcja pomocnicza: moveSet
-
+  
   const moveSet = (exerciseId, setId, direction) => {
     setExercises((prev) =>
       prev.map((ex) => {
@@ -378,8 +352,7 @@ export function useWorkoutSession() {
     );
   };
 
-  // Funkcja pomocnicza: toggleSetComplete
-
+  
   const toggleSetComplete = (exerciseId, setId) => {
     if (sessionStatus !== 'active') return;
     setExercises((prevExercises) =>
@@ -422,11 +395,12 @@ export function useWorkoutSession() {
     );
   };
 
-  // Funkcja pomocnicza: addExerciseToSession
-
+  
   const addExerciseToSession = (exercise) => {
     const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
+    const pinnedNotes = JSON.parse(localStorage.getItem('plateup_pinned_notes') || '{}');
     const pastSets = history[exercise.name] || [];
+    const pinnedNote = pinnedNotes[exercise.name] || '';
 
     const newExercise = {
       id: `ex-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
@@ -435,6 +409,7 @@ export function useWorkoutSession() {
       equipment: exercise.equipment || 'Unknown',
       restDuration: 90,
       pastSets: pastSets,
+      note: pinnedNote,
       sets: [
         { 
           id: `s-${Date.now()}-1`, 

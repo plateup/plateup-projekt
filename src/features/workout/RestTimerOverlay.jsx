@@ -3,26 +3,22 @@ import { FastForward, ChevronUp } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 
 export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimize }) {
-  // Stan przechowujący zmienną: progress
-  const [progress, setProgress] = useState(100);
+    const [progress, setProgress] = useState(100);
 
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
-
+  
   useEffect(() => {
     const baseDuration = duration || 90;
     setProgress((timeLeft / baseDuration) * 100);
   }, [timeLeft, duration]);
 
-  // Funkcja pomocnicza: formatTime
-
+  
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-
+  
   return (
     <ModalPortal>
       <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[500] w-[calc(100%-2rem)] max-w-sm pointer-events-none animate-in slide-in-from-top-8 duration-500">

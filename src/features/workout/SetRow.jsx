@@ -28,24 +28,21 @@ export default function SetRow({
 
   const currentType = types.find(t => t.id === set.type) || types[0];
 
-  // Funkcja pomocnicza: handleTypeSelect
-
+  
   const handleTypeSelect = (typeId) => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(20);
     toggleSetType(exerciseId, set.id, typeId);
     setShowTypeSelector(false);
   };
 
-  // Funkcja pomocnicza: handleRemove
-
+  
   const handleRemove = () => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
     removeSetFromExercise(exerciseId, set.id);
     setShowTypeSelector(false);
   };
 
-  // Funkcja pomocnicza: handleDragEnd
-
+  
   const handleDragEnd = (event, info) => {
     const threshold = 60;
     const velocity = info.velocity.x;
@@ -62,8 +59,7 @@ export default function SetRow({
     }
   };
 
-  // Funkcja pomocnicza: handleInputClick
-
+  
   const handleInputClick = (field) => {
     if (isDisabled || set.isCompleted) return;
     if (!set[field]) {
@@ -76,8 +72,7 @@ export default function SetRow({
     }
   };
 
-  // Funkcja pomocnicza: onCheck
-
+  
   const onCheck = () => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(!set.isCompleted ? 50 : 20);
