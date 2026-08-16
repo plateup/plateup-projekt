@@ -183,7 +183,7 @@ export default function ExerciseCard({
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddedWeightInfo(false)} />
             <div className="relative w-full max-w-sm bg-[#1C1C1E] rounded-[36px] shadow-2xl border border-white/10 overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300">
               <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5">
-                <h3 className="font-black text-xl text-white">Added Weight</h3>
+                <h3 className="font-bold text-xl text-white">Added Weight</h3>
                 <button onClick={() => setShowAddedWeightInfo(false)} className="text-[#8E8E93] hover:text-white transition-colors bg-white/5 p-2 rounded-full">
                   <X size={20} />
                 </button>
@@ -218,7 +218,7 @@ export default function ExerciseCard({
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowRpeInfo(false)} />
             <div className="relative w-full max-w-sm bg-[#1C1C1E] rounded-[36px] shadow-2xl border border-white/10 overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300">
               <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5">
-                <h3 className="font-black text-xl text-white">RPE Scale</h3>
+                <h3 className="font-bold text-xl text-white">RPE Scale</h3>
                 <button onClick={() => setShowRpeInfo(false)} className="text-[#8E8E93] hover:text-white transition-colors bg-white/5 p-2 rounded-full">
                   <X size={20} />
                 </button>
@@ -240,11 +240,11 @@ export default function ExerciseCard({
                   ].map((item, i) => (
                     <div key={i} className="flex gap-4 p-3 rounded-2xl bg-black/40 border border-white/5">
                       <div className="flex flex-col items-center justify-center shrink-0 w-12 gap-1">
-                        <span className="font-black text-white text-lg">{item.rpe}</span>
+                        <span className="font-bold text-white text-lg">{item.rpe}</span>
                         <div className={`w-8 h-1 rounded-full ${item.color}`} />
                       </div>
                       <div>
-                        <div className="text-xs font-black text-[#8E8E93] uppercase tracking-widest mb-1">Reps left: {item.reps}</div>
+                        <div className="text-xs font-bold text-[#8E8E93] uppercase tracking-widest mb-1">Reps left: {item.reps}</div>
                         <div className="text-sm text-white/90 leading-tight">{item.desc}</div>
                       </div>
                     </div>
@@ -264,7 +264,7 @@ export default function ExerciseCard({
               className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
               onClick={() => setShowOptions(false)}
             />
-            <div className="relative w-full bg-[#1C1C1E] rounded-t-[32px] p-6 pb-12 animate-in slide-in-from-bottom duration-[400ms] ease-out-ios border-t border-white/10">
+            <div className="relative w-full bg-[#1C1C1E] rounded-t-[32px] p-6 pb-12 animate-in slide-in-from-bottom-8 duration-300 ease-out-ios border-t border-white/10">
               <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" />
               
               <div className="flex flex-col gap-2">

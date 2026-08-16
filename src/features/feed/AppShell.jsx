@@ -34,7 +34,7 @@ export default function AppShell({ children, activeTab, setActiveTab, persistent
 
       {/* Unified Bottom Nav (Mobile & Desktop) */}
       <nav 
-        className="fixed bottom-0 left-0 w-full bg-[#000000]/80 backdrop-blur-3xl border-t border-white/10 flex items-center justify-around px-4 shadow-2xl z-[100]"
+        className="fixed bottom-0 left-0 w-full bg-[#121212]/70 backdrop-blur-3xl saturate-150 border-t border-white/5 flex items-center justify-around px-2 shadow-2xl z-[100]"
         style={{ paddingBottom: 'calc(1rem + var(--safe-bottom))', paddingTop: '0.75rem' }}
       >
         {tabs.map((tab) => {
@@ -47,12 +47,12 @@ export default function AppShell({ children, activeTab, setActiveTab, persistent
                 if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                 setActiveTab(tab.id);
               }}
-              className="flex flex-col items-center justify-center gap-1 w-full h-full relative"
+              className="flex flex-col items-center justify-center gap-1 w-full h-full relative transition-transform active:scale-95 ease-out-ios"
             >
-              <div className={`transition-all duration-300 ${isActive ? 'text-white scale-110' : 'text-[#8E8E93] hover:text-white/70'}`}>
+              <div className={`transition-colors duration-200 ${isActive ? 'text-white' : 'text-[#8E8E93] hover:text-white/70'}`}>
                 <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
               </div>
-              <span className={`text-[10px] font-bold tracking-wide transition-colors ${isActive ? 'text-white' : 'text-[#8E8E93]'}`}>
+              <span className={`text-[10px] font-medium tracking-wide transition-colors duration-200 ${isActive ? 'text-white' : 'text-[#8E8E93]'}`}>
                 {tab.label}
               </span>
             </button>

@@ -176,10 +176,10 @@ export default function Dashboard({ setActiveTab }) {
       {/* Header */}
       <header className="flex items-center justify-between mb-12 relative">
         <div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2">
             Hey, {username}
           </h1>
-          <p className="text-[#8E8E93] font-bold">Ready to crush your goals today?</p>
+          <p className="text-[#8E8E93] font-medium">Ready to crush your goals today?</p>
         </div>
         
         <div className="relative">
@@ -217,12 +217,12 @@ export default function Dashboard({ setActiveTab }) {
       {/* Monthly Grid Calendar */}
       <section className="mb-12">
         <div className="flex items-center justify-between mb-6 px-1">
-          <h2 className="text-2xl font-black text-white">{format(startOfToday(), 'MMMM yyyy')}</h2>
+          <h2 className="text-2xl font-bold text-white tracking-tight">{format(startOfToday(), 'MMMM yyyy')}</h2>
         </div>
         <div className="bg-[#1C1C1E] rounded-[32px] p-6 border border-white/5">
           <div className="grid grid-cols-7 gap-2 mb-4">
             {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
-              <div key={i} className="text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest">{day}</div>
+              <div key={i} className="text-center text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider">{day}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-2 gap-y-3">
@@ -261,19 +261,20 @@ export default function Dashboard({ setActiveTab }) {
 
       {/* Selected Day Workouts */}
       <section className="min-h-[400px]">
-        <div className="flex items-center justify-between mb-8 px-1">
-          <h2 className="text-2xl font-black tracking-tight">
+        <div className="flex items-center justify-between mb-6 px-1">
+          <h2 className="text-2xl font-bold tracking-tight">
             {isSameDay(selectedDate, startOfToday()) ? "Today's Session" : format(selectedDate, 'MMMM d, yyyy')}
           </h2>
         </div>
         
         {dayWorkouts.length > 0 ? (
           <div className="space-y-6">
-            {dayWorkouts.map((workout) => (
+            {dayWorkouts.map((workout, idx) => (
               <div 
                 key={workout.id} 
                 onClick={() => setSelectedWorkoutRecap(workout)}
-                className="bg-gradient-to-br from-[#1C1C1E] to-[#121212] border border-white/10 p-6 rounded-[36px] shadow-2xl hover:scale-[1.02] hover:border-white/20 transition-all duration-300 group w-full cursor-pointer relative overflow-hidden flex flex-col gap-4"
+                className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both bg-gradient-to-br from-[#1C1C1E] to-[#121212] border border-white/10 p-6 rounded-3xl shadow-2xl active:scale-[0.98] transition-all duration-300 group w-full cursor-pointer relative overflow-hidden flex flex-col gap-4 ease-out-ios"
+                style={{ animationDelay: `${idx * 60}ms` }}
               >
                 {/* Decorative background glow */}
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors pointer-events-none" />
@@ -285,7 +286,7 @@ export default function Dashboard({ setActiveTab }) {
                       <Dumbbell size={24} strokeWidth={2.5} />
                     </div>
                     <div>
-                      <h3 className="font-black text-xl tracking-tight text-white mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/60 transition-all">{workout.title}</h3>
+                      <h3 className="font-bold text-xl tracking-tight text-white mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/60 transition-all">{workout.title}</h3>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-[#8E8E93] font-bold">
                         <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.volume || '0 kg'}</span>
                         <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.time || workout.timeAgo}</span>
@@ -333,7 +334,7 @@ export default function Dashboard({ setActiveTab }) {
                             workout.exercises.slice(0, 3).map((ex, idx) => (
                               <div key={idx} className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-sm font-black text-white">{ex.name}</span>
+                                  <span className="text-sm font-semibold text-white">{ex.name}</span>
                                 </div>
                                 <div className="pl-2 border-l-2 border-white/10 ml-1 space-y-1">
                                   {ex.setsList && ex.setsList.length > 0 ? (
