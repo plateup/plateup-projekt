@@ -251,7 +251,7 @@ export default function Dashboard({ setActiveTab }) {
               <div 
                 key={workout.id} 
                 onClick={() => setSelectedWorkoutRecap(workout)}
-                className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both bg-gradient-to-br from-[#1C1C1E] to-[#121212] border border-white/10 p-6 rounded-3xl shadow-2xl active:scale-[0.98] transition-all duration-300 group w-full cursor-pointer relative overflow-hidden flex flex-col gap-4 ease-out-ios"
+                className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both bg-gradient-to-br from-[#1C1C1E] to-[#121212] border border-white/10 p-6 rounded-3xl shadow-2xl active:scale-[0.97] ease-out-ios transition-all duration-300 group w-full cursor-pointer relative overflow-hidden flex flex-col gap-4 ease-out-ios"
                 style={{ animationDelay: `${idx * 60}ms` }}
               >
                 {/* Decorative background glow */}
@@ -359,7 +359,7 @@ export default function Dashboard({ setActiveTab }) {
             {isSameDay(selectedDate, startOfToday()) && (
                <button 
                  onClick={() => setActiveTab('workout')}
-                 className="flex items-center gap-2 bg-indigo-500 text-white px-8 py-3.5 rounded-full font-bold shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 active:scale-95 transition-all"
+                 className="flex items-center gap-2 bg-indigo-500 text-white px-8 py-3.5 rounded-full font-bold shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 active:scale-[0.97] ease-out-ios transition-all"
                >
                  <Plus size={20} strokeWidth={3} />
                  Start an Empty Workout

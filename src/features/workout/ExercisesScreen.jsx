@@ -6,7 +6,7 @@ export default function ExercisesScreen() {
   return (
     <div className="pt-8 pb-32">
       <div className="px-6 mb-8">
-        <h1 className="text-3xl font-black text-white">Exercises</h1>
+        <h1 className="text-3xl font-bold text-white">Exercises</h1>
         <p className="text-[#8E8E93] mt-2 font-medium">Browse and manage your exercise database.</p>
       </div>
       
@@ -67,7 +67,7 @@ function ExerciseLibraryScreen() {
       <div className="flex-1 overflow-y-auto px-6 pb-24">
         <button 
           onClick={() => setShowAddCustom(true)}
-          className="w-full flex items-center justify-center gap-2 py-4 bg-white text-black rounded-xl mb-6 font-bold shadow-lg shadow-white/10 active:scale-[0.98] transition-all"
+          className="w-full flex items-center justify-center gap-2 py-4 bg-white text-black rounded-xl mb-6 font-bold shadow-lg shadow-white/10 active:scale-[0.97] ease-out-ios transition-all"
         >
           <Plus size={20} strokeWidth={3} />
           New Custom Exercise
@@ -81,7 +81,7 @@ function ExerciseLibraryScreen() {
           <div className="space-y-6">
             {Object.keys(groupedExercises).sort().map(muscle => (
               <div key={muscle}>
-                <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-wider mb-3 ml-1">{muscle}</h3>
+                <h3 className="text-sm font-bold text-[#8E8E93] uppercase tracking-wider mb-3 ml-1">{muscle}</h3>
                 <div className="bg-[#1C1C1E] rounded-2xl overflow-hidden divide-y divide-white/5 border border-white/5">
                   {groupedExercises[muscle].map((ex) => (
                     <div key={ex.id} className="w-full flex items-center p-4 text-left border-b border-white/5 last:border-0">
@@ -90,9 +90,9 @@ function ExerciseLibraryScreen() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-black text-white text-[16px]">{ex.name}</h4>
+                          <h4 className="font-bold text-white text-[16px]">{ex.name}</h4>
                           {ex.isCustom && (
-                            <span className="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest">Custom</span>
+                            <span className="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Custom</span>
                           )}
                         </div>
                         <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mt-1 block">{ex.muscle_group}</span>
@@ -109,10 +109,10 @@ function ExerciseLibraryScreen() {
       {showAddCustom && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-6 z-[700] animate-in fade-in duration-200">
           <div className="bg-[#1C1C1E] w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl">
-            <h3 className="text-xl font-black text-white mb-6">Create Exercise</h3>
+            <h3 className="text-xl font-bold text-white mb-6">Create Exercise</h3>
             <div className="space-y-5">
               <div>
-                <label className="text-xs font-black text-[#8E8E93] uppercase mb-2 block ml-1">Name</label>
+                <label className="text-xs font-bold text-[#8E8E93] uppercase mb-2 block ml-1">Name</label>
                 <input 
                   type="text"
                   placeholder="e.g. Incline Dumbbell Press"
@@ -123,7 +123,7 @@ function ExerciseLibraryScreen() {
                 />
               </div>
               <div>
-                <label className="text-xs font-black text-[#8E8E93] uppercase mb-2 block ml-1">Muscle Group</label>
+                <label className="text-xs font-bold text-[#8E8E93] uppercase mb-2 block ml-1">Muscle Group</label>
                 <select 
                   className="w-full bg-black text-white h-12 rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-white/50 transition-all appearance-none"
                   value={newExMuscle}
@@ -137,14 +137,14 @@ function ExerciseLibraryScreen() {
               <div className="flex gap-3 pt-4">
                 <button 
                   onClick={() => setShowAddCustom(false)}
-                  className="flex-1 bg-white/10 text-white py-3.5 rounded-xl font-bold hover:bg-white/20 active:scale-[0.98] transition-all"
+                  className="flex-1 bg-white/10 text-white py-3.5 rounded-xl font-bold hover:bg-white/20 active:scale-[0.97] ease-out-ios transition-all"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleAddCustom}
                   disabled={!newExName.trim()}
-                  className="flex-1 bg-white disabled:opacity-50 text-black py-3.5 rounded-xl font-black shadow-lg shadow-white/10 active:scale-[0.98] transition-all"
+                  className="flex-1 bg-white disabled:opacity-50 text-black py-3.5 rounded-xl font-bold shadow-lg shadow-white/10 active:scale-[0.97] ease-out-ios transition-all"
                 >
                   Create
                 </button>

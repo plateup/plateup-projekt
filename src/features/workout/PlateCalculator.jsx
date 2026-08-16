@@ -48,12 +48,12 @@ export default function PlateCalculator({ initialWeight, onClose }) {
         {/* Header */}
         <div className="flex justify-between items-center text-left">
           <div className="space-y-0.5">
-            <h4 className="text-xl font-black tracking-tight text-white">Plate Calculator</h4>
+            <h4 className="text-xl font-bold tracking-tight text-white">Plate Calculator</h4>
             <p className="text-xs font-bold text-[#8E8E93] uppercase tracking-wider">Standard Barbell (20kg)</p>
           </div>
           <button 
             onClick={onClose} 
-            className="w-10 h-10 rounded-full bg-black border border-white/10 flex items-center justify-center text-sm font-bold text-[#8E8E93] hover:text-white hover:bg-white/5 transition-all active:scale-95"
+            className="w-10 h-10 rounded-full bg-black border border-white/10 flex items-center justify-center text-sm font-bold text-[#8E8E93] hover:text-white hover:bg-white/5 transition-all active:scale-[0.97] ease-out-ios"
           >
             ✕
           </button>
@@ -61,17 +61,17 @@ export default function PlateCalculator({ initialWeight, onClose }) {
         
         {/* Weight Input */}
         <div className="bg-black rounded-3xl p-6 flex flex-col items-center justify-center border border-[#2C2C2E] relative">
-          <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mb-2">Target Weight</span>
+          <span className="text-[10px] text-[#8E8E93] font-bold uppercase tracking-widest mb-2">Target Weight</span>
           <div className="flex items-baseline gap-2">
             <input 
               type="number" 
               value={targetWeight}
               onChange={(e) => setTargetWeight(e.target.value)}
               placeholder="0"
-              className="w-24 bg-transparent text-center text-5xl font-black focus:outline-none placeholder:text-white/20 text-white"
+              className="w-24 bg-transparent text-center text-5xl font-bold focus:outline-none placeholder:text-white/20 text-white"
               autoFocus
             />
-            <span className="text-xl font-black text-[#8E8E93]">kg</span>
+            <span className="text-xl font-bold text-[#8E8E93]">kg</span>
           </div>
         </div>
 
@@ -90,12 +90,12 @@ export default function PlateCalculator({ initialWeight, onClose }) {
         <div className="space-y-3 pt-2">
           {plates.length > 0 ? (
             <>
-              <span className="text-[10px] font-black text-[#8E8E93] uppercase tracking-widest block ml-2 text-left">Plates Per Side</span>
+              <span className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-widest block ml-2 text-left">Plates Per Side</span>
               <div className="flex flex-wrap gap-2 justify-center py-4 bg-black/40 rounded-2xl p-4 border border-white/5 shadow-inner">
                 {plates.map((plate, index) => (
                   <div 
                     key={index} 
-                    className={`flex items-center justify-center w-14 h-14 rounded-full font-black text-sm shadow-xl ${getPlateColor(plate)}`}
+                    className={`flex items-center justify-center w-14 h-14 rounded-full font-bold text-sm shadow-xl ${getPlateColor(plate)}`}
                   >
                     {plate}
                   </div>

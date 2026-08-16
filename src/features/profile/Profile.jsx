@@ -139,7 +139,7 @@ export default function Profile() {
     <div className="animate-in fade-in duration-700 pt-8 pb-32">
       <header className="mb-12 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black tracking-tighter mb-2 text-white">Profile</h1>
+          <h1 className="text-3xl font-bold tracking-tighter mb-2 text-white">Profile</h1>
           <p className="text-[#8E8E93] font-bold mt-2">Manage your account</p>
         </div>
       </header>
@@ -152,14 +152,14 @@ export default function Profile() {
 
       <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] p-8 mb-10 flex flex-col items-center gap-8 shadow-xl relative overflow-hidden group">
         <div className="flex flex-col md:flex-row items-center gap-8 w-full z-10">
-          <div className="relative w-24 h-24 rounded-[20px] bg-black border border-white/10 flex items-center justify-center text-3xl font-black shadow-2xl overflow-hidden group-hover:border-white/20 transition-all shrink-0">
+          <div className="relative w-24 h-24 rounded-[20px] bg-black border border-white/10 flex items-center justify-center text-3xl font-bold shadow-2xl overflow-hidden group-hover:border-white/20 transition-all shrink-0">
             {profile?.avatar_url ? (
                <img src={profile?.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
                <span className="text-white">{editName?.charAt(0).toUpperCase() || 'U'}</span>
             )}
             <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-              <span className="text-[10px] font-black uppercase tracking-widest text-white">Upload</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white">Upload</span>
               <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
             </label>
           </div>
@@ -170,14 +170,14 @@ export default function Profile() {
                     type="text" 
                     value={editName}
                     onChange={e => setEditName(e.target.value)}
-                    className="bg-black border border-white/10 rounded-xl px-4 py-2 font-black text-xl text-white outline-none focus:border-white/40 w-full md:w-auto text-center md:text-left"
+                    className="bg-black border border-white/10 rounded-xl px-4 py-2 font-bold text-xl text-white outline-none focus:border-white/40 w-full md:w-auto text-center md:text-left"
                   />
                   <button onClick={handleSaveProfile} className="bg-white text-black px-6 py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-neutral-200">
                     Save
                   </button>
                </div>
             ) : (
-              <h2 className="text-3xl font-black mb-1 text-white flex items-center justify-center md:justify-start gap-3">
+              <h2 className="text-3xl font-bold mb-1 text-white flex items-center justify-center md:justify-start gap-3">
                  {editName}
                  <button onClick={() => setIsEditing(true)} className="text-[#8E8E93] hover:text-white transition-colors">
                     <Edit3 size={18} />
@@ -191,12 +191,12 @@ export default function Profile() {
 
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="bg-[#1C1C1E] rounded-3xl p-6 border border-white/5 flex flex-col items-center justify-center text-center">
-          <div className="text-3xl font-black text-white">{stats.workoutsCount}</div>
-          <div className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mt-1">Workouts</div>
+          <div className="text-3xl font-bold text-white">{stats.workoutsCount}</div>
+          <div className="text-[10px] text-[#8E8E93] font-bold uppercase tracking-widest mt-1">Workouts</div>
         </div>
         <div className="bg-[#1C1C1E] rounded-3xl p-6 border border-white/5 flex flex-col items-center justify-center text-center">
-          <div className="text-3xl font-black text-white">{stats.totalVolume > 0 ? (stats.totalVolume / 1000).toFixed(1) + 't' : '0'}</div>
-          <div className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mt-1">Volume</div>
+          <div className="text-3xl font-bold text-white">{stats.totalVolume > 0 ? (stats.totalVolume / 1000).toFixed(1) + 't' : '0'}</div>
+          <div className="text-[10px] text-[#8E8E93] font-bold uppercase tracking-widest mt-1">Volume</div>
         </div>
       </div>
 
@@ -234,14 +234,14 @@ export default function Profile() {
         <div className="pt-6">
           <button 
             onClick={() => supabase.auth.signOut()}
-            className="w-full bg-[#1C1C1E] border border-white/10 text-white/60 py-6 rounded-[32px] font-black flex items-center justify-center gap-3 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+            className="w-full bg-[#1C1C1E] border border-white/10 text-white/60 py-6 rounded-[32px] font-bold flex items-center justify-center gap-3 hover:bg-white/10 hover:text-white transition-all active:scale-[0.97] ease-out-ios"
           >
             <LogOut size={20} />
             SIGN OUT
           </button>
         </div>
         
-        <div className="text-center mt-12 mb-6 text-[#8E8E93] text-xs font-black uppercase tracking-widest opacity-50">
+        <div className="text-center mt-12 mb-6 text-[#8E8E93] text-xs font-bold uppercase tracking-widest opacity-50">
           made by landzi
         </div>
       </div>
@@ -256,7 +256,7 @@ function SettingsView({ title, onBack, children }) {
         <button onClick={onBack} className="w-12 h-12 bg-white/5 rounded-[20px] flex items-center justify-center text-white hover:bg-white/10 transition-colors border border-white/10">
           <ChevronLeft size={24} />
         </button>
-        <h1 className="text-3xl font-black text-white">{title}</h1>
+        <h1 className="text-3xl font-bold text-white">{title}</h1>
       </header>
       <div className="space-y-4">
         {children}
@@ -290,7 +290,7 @@ function ToggleRow({ label, value, toggleState, locked, onToggle }) {
 }
 
 function SectionHeader({ title }) {
-  return <h3 className="text-xs font-black text-[#8E8E93] uppercase tracking-[0.2em] ml-4 mt-8 mb-4">{title}</h3>;
+  return <h3 className="text-xs font-bold text-[#8E8E93] uppercase tracking-[0.2em] ml-4 mt-8 mb-4">{title}</h3>;
 }
 
 function MenuLink({ icon, label, border, onClick }) {

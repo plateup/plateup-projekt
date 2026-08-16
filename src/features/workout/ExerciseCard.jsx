@@ -107,7 +107,7 @@ export default function ExerciseCard({
                      setIsEditingNote(false);
                      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(20);
                   }}
-                  className="text-xs flex items-center gap-1.5 text-indigo-400 font-bold hover:text-indigo-300 bg-indigo-500/10 px-2.5 py-1.5 rounded-lg active:scale-95 transition-all"
+                  className="text-xs flex items-center gap-1.5 text-indigo-400 font-bold hover:text-indigo-300 bg-indigo-500/10 px-2.5 py-1.5 rounded-lg active:scale-[0.97] ease-out-ios transition-all"
                 >
                   <Pin size={12} fill="currentColor" /> Pin to Exercise
                 </button>
@@ -116,7 +116,7 @@ export default function ExerciseCard({
                     setIsEditingNote(false);
                     if (updateExerciseNote) updateExerciseNote(exercise.id, localNote);
                   }}
-                  className="text-xs text-white font-bold bg-white/10 px-3 py-1.5 rounded-lg hover:bg-white/20 active:scale-95 transition-all"
+                  className="text-xs text-white font-bold bg-white/10 px-3 py-1.5 rounded-lg hover:bg-white/20 active:scale-[0.97] ease-out-ios transition-all"
                 >Done</button>
               </div>
             </div>

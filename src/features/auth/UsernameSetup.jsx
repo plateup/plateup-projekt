@@ -50,7 +50,7 @@ export default function UsernameSetup({ onComplete }) {
         <div className="w-20 h-20 bg-white rounded-[24px] flex items-center justify-center mb-8 shadow-[0_0_80px_rgba(255,255,255,0.2)] mx-auto">
           <User className="text-black" size={40} strokeWidth={2.5} />
         </div>
-        <h1 className="text-4xl font-black mb-3 text-center tracking-tight">Pick a username</h1>
+        <h1 className="text-4xl font-bold mb-3 text-center tracking-tight">Pick a username</h1>
         <p className="text-[#8E8E93] mb-10 font-bold text-center">This is how your friends will find you on PlateUp.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,7 +69,7 @@ export default function UsernameSetup({ onComplete }) {
 
           {error && <p className="text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl py-3 px-4 text-sm font-bold text-center">{error}</p>}
 
-          <button type="submit" disabled={loading || !username.trim()} className="w-full h-16 rounded-[20px] font-black text-lg bg-white text-black hover:bg-neutral-200 transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50">
+          <button type="submit" disabled={loading || !username.trim()} className="w-full h-16 rounded-[20px] font-bold text-lg bg-white text-black hover:bg-neutral-200 transition-all active:scale-[0.97] ease-out-ios shadow-lg flex items-center justify-center gap-2 disabled:opacity-50">
             {loading ? <Loader2 className="animate-spin" /> : <>Complete Setup <ArrowRight size={20} strokeWidth={3} /></>}
           </button>
         </form>

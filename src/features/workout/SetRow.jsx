@@ -109,7 +109,7 @@ export default function SetRow({
       <div className="relative flex justify-center">
         <button 
           onClick={() => setShowTypeSelector(!showTypeSelector)}
-          className={`w-7 h-7 rounded-md flex items-center justify-center font-bold text-xs transition-all active:scale-95 ${
+          className={`w-7 h-7 rounded-md flex items-center justify-center font-bold text-xs transition-all active:scale-[0.97] ease-out-ios ${
             set.type !== 'normal' ? 'bg-white/20 text-white' : 'text-[#8E8E93] hover:text-white'
           }`}
         >

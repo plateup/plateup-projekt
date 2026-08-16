@@ -105,7 +105,7 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
       <div className="fixed inset-0 bg-black z-[500] flex flex-col animate-in slide-in-from-bottom duration-300">
         <header className="p-6 flex items-center justify-between border-b border-[#1C1C1E]">
         <button onClick={onClose} className="text-[#8E8E93] font-bold hover:text-white transition-colors">Cancel</button>
-        <h2 className="text-xl font-black text-white">New Routine</h2>
+        <h2 className="text-xl font-bold text-white">New Routine</h2>
         <button 
           onClick={handleSave} 
           disabled={saving || !name.trim() || selectedExercises.length === 0}
@@ -119,7 +119,7 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
         <input 
           type="text"
           placeholder="Routine Name (e.g. Upper Body)"
-          className="w-full bg-transparent text-white text-3xl font-black outline-none mb-10 placeholder:text-[#2C2C2E]"
+          className="w-full bg-transparent text-white text-3xl font-bold outline-none mb-10 placeholder:text-[#2C2C2E]"
           value={name}
           onChange={(e) => setName(e.target.value)}
           autoFocus
@@ -130,7 +130,7 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
             <div key={ex.tempId} className="flex flex-col p-5 bg-[#1C1C1E] rounded-3xl border border-[#2C2C2E] gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-black text-white text-lg leading-tight">{ex.name}</h4>
+                  <h4 className="font-bold text-white text-lg leading-tight">{ex.name}</h4>
                   <p className="text-xs text-[#8E8E93] font-bold uppercase mt-1">{ex.muscle_group}</p>
                 </div>
                 <button onClick={() => removeExercise(ex.tempId)} className="text-[#8E8E93] hover:text-red-500 transition-colors p-2 -mr-2 bg-white/5 rounded-full">
@@ -143,12 +143,12 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
                   <div className="flex items-center gap-2 bg-black border border-white/10 rounded-xl overflow-hidden p-1">
                     <button 
                       onClick={() => updateExerciseSets(ex.tempId, Math.max(1, (ex.targetSets || 3) - 1))}
-                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-black transition-colors"
+                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-bold transition-colors"
                     >-</button>
-                    <span className="w-8 text-center font-black text-white">{ex.targetSets || 3}</span>
+                    <span className="w-8 text-center font-bold text-white">{ex.targetSets || 3}</span>
                     <button 
                       onClick={() => updateExerciseSets(ex.tempId, (ex.targetSets || 3) + 1)}
-                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-black transition-colors"
+                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-bold transition-colors"
                     >+</button>
                   </div>
                 </div>
@@ -158,12 +158,12 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
                   <div className="flex items-center gap-2 bg-black border border-white/10 rounded-xl overflow-hidden p-1">
                     <button 
                       onClick={() => updateExerciseRest(ex.tempId, (ex.restDuration || 90) - 30)}
-                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-black transition-colors"
+                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-bold transition-colors"
                     >-</button>
-                    <span className="w-12 text-center font-black text-white">{formatRest(ex.restDuration || 90)}</span>
+                    <span className="w-12 text-center font-bold text-white">{formatRest(ex.restDuration || 90)}</span>
                     <button 
                       onClick={() => updateExerciseRest(ex.tempId, (ex.restDuration || 90) + 30)}
-                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-black transition-colors"
+                      className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-bold transition-colors"
                     >+</button>
                   </div>
                 </div>
@@ -173,7 +173,7 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
 
           <button 
             onClick={() => setShowLibrary(true)}
-            className="w-full py-6 rounded-3xl bg-white/5 flex items-center justify-center gap-2 text-white font-black hover:bg-white/10 active:scale-[0.98] transition-all border border-white/10 shadow-sm"
+            className="w-full py-6 rounded-3xl bg-white/5 flex items-center justify-center gap-2 text-white font-bold hover:bg-white/10 active:scale-[0.97] ease-out-ios transition-all border border-white/10 shadow-sm"
           >
             <Plus size={24} />
             Add Exercise

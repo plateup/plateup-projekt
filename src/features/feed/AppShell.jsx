@@ -46,7 +46,7 @@ export default function AppShell({ children, activeTab, setActiveTab, persistent
                 if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                 setActiveTab(tab.id);
               }}
-              className="flex flex-col items-center justify-center gap-1 w-full h-full relative transition-transform active:scale-95 ease-out-ios"
+              className="flex flex-col items-center justify-center gap-1 w-full h-full relative transition-transform active:scale-[0.97] ease-out-ios"
             >
               <div className={`transition-colors duration-200 ${isActive ? 'text-white' : 'text-[#8E8E93] hover:text-white/70'}`}>
                 <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />

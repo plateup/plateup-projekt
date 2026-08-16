@@ -93,7 +93,7 @@ export default function Auth({ onBack }) {
       </button>
 
       <div className="max-w-md mx-auto w-full">
-        <h1 className="text-4xl font-black mb-2">{isRegister ? 'Create Account' : 'Welcome Back'}</h1>
+        <h1 className="text-4xl font-bold mb-2">{isRegister ? 'Create Account' : 'Welcome Back'}</h1>
         <p className="text-[#8E8E93] mb-8 font-medium">
           {isRegister ? 'Start your fitness journey today.' : 'Enter your details to continue.'}
         </p>
@@ -139,7 +139,7 @@ export default function Auth({ onBack }) {
 
           {error && <p className="text-white/60 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold">{error}</p>}
 
-          <button type="submit" disabled={loading} className="w-full h-16 rounded-[20px] font-black text-lg bg-white text-black hover:bg-neutral-200 transition-all active:scale-95 shadow-lg flex items-center justify-center">
+          <button type="submit" disabled={loading} className="w-full h-16 rounded-[20px] font-bold text-lg bg-white text-black hover:bg-neutral-200 transition-all active:scale-[0.97] ease-out-ios shadow-lg flex items-center justify-center">
             {loading ? <Loader2 className="animate-spin" /> : (isRegister ? 'Sign Up' : 'Sign In')}
           </button>
         </form>
@@ -169,7 +169,7 @@ export default function Auth({ onBack }) {
               }
             });
           }}
-          className="w-full h-16 rounded-[20px] font-black text-lg bg-white/5 text-white hover:bg-white/10 border border-white/10 flex items-center justify-center gap-3 transition-all active:scale-95 shadow-md"
+          className="w-full h-16 rounded-[20px] font-bold text-lg bg-white/5 text-white hover:bg-white/10 border border-white/10 flex items-center justify-center gap-3 transition-all active:scale-[0.97] ease-out-ios shadow-md"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

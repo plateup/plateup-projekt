@@ -237,13 +237,13 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
       <ModalPortal>
         <div 
           onClick={onRestore}
-          className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg p-4 rounded-[20px] z-[90] flex items-center justify-between shadow-2xl cursor-pointer active:scale-[0.98] transition-all duration-300 ${
+          className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg p-4 rounded-[20px] z-[90] flex items-center justify-between shadow-2xl cursor-pointer active:scale-[0.97] ease-out-ios transition-all duration-300 ${
             isRestingNow ? 'bg-indigo-500 text-white' : 'bg-green-500 text-black'
           }`}
           style={{ bottom: 'calc(4.5rem + var(--safe-bottom))' }}
         >
           <div className="flex flex-col">
-            <span className="font-black text-sm tracking-tight">
+            <span className="font-bold text-sm tracking-tight">
               {isRestingNow ? 'Rest Timer' : 'Workout in Progress'}
             </span>
             <span className={`text-xs font-bold ${isRestingNow ? 'text-indigo-200' : 'text-black/70'}`}>
@@ -254,7 +254,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
             {isRestingNow && (
               <button 
                 onClick={(e) => { e.stopPropagation(); stopRest(); }}
-                className="bg-black/20 hover:bg-black/30 text-white px-3 py-1.5 rounded-full text-xs font-black transition-colors"
+                className="bg-black/20 hover:bg-black/30 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-colors"
               >
                 Skip
               </button>
@@ -365,7 +365,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
           <div className="flex flex-col gap-4 mt-8">
             <button 
               onClick={() => setShowLibrary(true)}
-              className="w-full py-4 rounded-xl bg-indigo-500/10 text-indigo-400 font-bold text-base flex items-center justify-center gap-2 hover:bg-indigo-500/20 active:scale-[0.98] transition-all"
+              className="w-full py-4 rounded-xl bg-indigo-500/10 text-indigo-400 font-bold text-base flex items-center justify-center gap-2 hover:bg-indigo-500/20 active:scale-[0.97] ease-out-ios transition-all"
             >
               <Plus size={20} strokeWidth={3} />
               Add Exercise
@@ -400,13 +400,13 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
         <ModalPortal>
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[500] p-4">
             <div className="bg-[#1C1C1E] border border-[#2C2C2E] w-full max-w-sm rounded-[40px] p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
-              <h3 className="text-xl font-black text-white tracking-tight">Reset training?</h3>
+              <h3 className="text-xl font-bold text-white tracking-tight">Reset training?</h3>
               <p className="text-[#8E8E93] font-bold">This action cannot be undone.</p>
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => setShowResetModal(false)} className="bg-black text-[#8E8E93] font-black py-4 rounded-2xl text-xs hover:bg-white/5 transition-all">
+                <button onClick={() => setShowResetModal(false)} className="bg-black text-[#8E8E93] font-bold py-4 rounded-2xl text-xs hover:bg-white/5 transition-all">
                   CANCEL
                 </button>
-                <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-white text-black font-black py-4 rounded-2xl text-xs hover:bg-neutral-200 transition-all">
+                <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-white text-black font-bold py-4 rounded-2xl text-xs hover:bg-neutral-200 transition-all">
                   RESET
                 </button>
               </div>

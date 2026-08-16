@@ -19,7 +19,7 @@ export default function Navigation({ activeTab, setActiveTab }) {
             className="flex flex-col items-center justify-center py-1 px-4 transition-all"
           >
             <span className={`text-xs font-bold tracking-wide transition-colors ${
-              isActive ? 'text-white font-black' : 'text-neutral-600 hover:text-neutral-400'
+              isActive ? 'text-white font-bold' : 'text-neutral-600 hover:text-neutral-400'
             }`}>
               {item.label}
             </span>

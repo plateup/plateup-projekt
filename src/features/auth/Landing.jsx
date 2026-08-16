@@ -12,7 +12,7 @@ export default function Landing({ onGetStarted }) {
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <Dumbbell className="text-black" size={16} strokeWidth={3} />
           </div>
-          <span className="font-black tracking-tight text-xl text-white">PlateUp</span>
+          <span className="font-bold tracking-tight text-xl text-white">PlateUp</span>
         </div>
         <button onClick={onGetStarted} className="pointer-events-auto text-sm font-bold text-white hover:opacity-70 transition-opacity">
           Sign In
@@ -29,7 +29,7 @@ export default function Landing({ onGetStarted }) {
           viewport={{ once: false, amount: 0.5 }}
           className="text-center px-4"
         >
-          <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-black tracking-tighter leading-[0.9] mb-6">
+          <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter leading-[0.9] mb-6">
             Pro. <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20">
               Without compromise.
@@ -54,7 +54,7 @@ export default function Landing({ onGetStarted }) {
             <div className="w-16 h-16 rounded-[24px] bg-white/10 flex items-center justify-center mb-8 shadow-2xl">
               <Activity size={32} className="text-white" />
             </div>
-            <h2 className="text-5xl md:text-7xl font-black tracking-tight mb-6">Log with<br/>precision.</h2>
+            <h2 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">Log with<br/>precision.</h2>
             <p className="text-xl text-white/50 font-bold">
               Instant auto-fill. Smart rest timers. RPE tracking. Everything you need to focus purely on the lift, not the app.
             </p>
@@ -74,7 +74,7 @@ export default function Landing({ onGetStarted }) {
                   <div key={i} className="h-16 w-full bg-white/5 rounded-2xl flex items-center px-4 gap-4">
                     <div className="w-8 h-8 rounded-full bg-white/10" />
                     <div className="h-4 w-1/3 bg-white/10 rounded" />
-                    <div className="h-8 w-8 rounded-lg bg-white text-black ml-auto flex items-center justify-center text-xs font-black">✓</div>
+                    <div className="h-8 w-8 rounded-lg bg-white text-black ml-auto flex items-center justify-center text-xs font-bold">✓</div>
                   </div>
                 ))}
               </div>
@@ -125,7 +125,7 @@ export default function Landing({ onGetStarted }) {
             <div className="w-16 h-16 rounded-[24px] bg-white text-black flex items-center justify-center mb-8 shadow-2xl">
               <Users size={32} />
             </div>
-            <h2 className="text-5xl md:text-7xl font-black tracking-tight mb-6">Train together.</h2>
+            <h2 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">Train together.</h2>
             <p className="text-xl text-white/50 font-bold">
               Follow your friends, copy their routines with one tap, and celebrate every PR as a team.
             </p>
@@ -145,12 +145,12 @@ export default function Landing({ onGetStarted }) {
           <div className="w-24 h-24 mx-auto bg-white rounded-[32px] flex items-center justify-center mb-8 shadow-[0_0_80px_rgba(255,255,255,0.4)]">
             <Dumbbell className="text-black" size={48} strokeWidth={3} />
           </div>
-          <h2 className="text-6xl md:text-8xl font-black tracking-tighter mb-8">
+          <h2 className="text-6xl md:text-8xl font-bold tracking-tighter mb-8">
             Ready to lift?
           </h2>
           <button 
             onClick={onGetStarted}
-            className="bg-white text-black px-10 py-5 rounded-[24px] font-black text-xl flex items-center justify-center gap-3 mx-auto hover:scale-105 active:scale-95 transition-transform shadow-2xl"
+            className="bg-white text-black px-10 py-5 rounded-[24px] font-bold text-xl flex items-center justify-center gap-3 mx-auto hover:scale-105 active:scale-[0.97] ease-out-ios transition-transform shadow-2xl"
           >
             Start for free <ArrowRight size={24} strokeWidth={3} />
           </button>

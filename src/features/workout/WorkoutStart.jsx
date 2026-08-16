@@ -81,7 +81,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
   return (
     <div className="pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header className="mb-10">
-        <h1 className="text-4xl font-black tracking-tight mb-2">Workout</h1>
+        <h1 className="text-4xl font-bold tracking-tight mb-2">Workout</h1>
         <p className="text-[#8E8E93] font-medium">Choose a routine or start fresh</p>
       </header>
 
@@ -89,21 +89,21 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
         {/* Quick Start Card */}
         <button 
           onClick={onStartBlank}
-          className="w-full bg-white text-black p-6 rounded-[32px] flex items-center justify-between group active:scale-95 transition-all shadow-lg shadow-white/10"
+          className="w-full bg-white text-black p-6 rounded-[32px] flex items-center justify-between group active:scale-[0.97] ease-out-ios transition-all shadow-lg shadow-white/10"
         >
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center text-white shadow-lg">
               <Plus size={32} strokeWidth={3} />
             </div>
             <div className="text-left">
-              <h3 className="text-xl font-black">Empty Workout</h3>
+              <h3 className="text-xl font-bold">Empty Workout</h3>
               <p className="text-black/60 font-bold text-sm">Start from scratch</p>
             </div>
           </div>
         </button>
 
         <div className="mt-8 mb-4 flex items-center justify-between px-2">
-          <h2 className="text-2xl font-black text-white">My Routines</h2>
+          <h2 className="text-2xl font-bold text-white">My Routines</h2>
           <div className="flex items-center gap-4">
             <button 
               onClick={handleInjectPlan}
@@ -141,7 +141,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
               className="bg-[#1C1C1E] p-6 rounded-[32px] border border-white/5 shadow-sm hover:border-white/20 transition-all cursor-pointer group relative"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-black text-white group-hover:text-white transition-colors">{routine.name}</h3>
+                <h3 className="text-xl font-bold text-white group-hover:text-white transition-colors">{routine.name}</h3>
                 <div className="relative" onClick={e => e.stopPropagation()}>
                   <button 
                     onClick={() => setActiveMenuId(activeMenuId === routine.id ? null : routine.id)}
@@ -177,7 +177,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
               </p>
               <button 
                 onClick={(e) => { e.stopPropagation(); onStartRoutine(routine); }}
-                className="w-full bg-white/5 py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-white hover:bg-white hover:text-black transition-all"
+                className="w-full bg-white/5 py-4 rounded-2xl flex items-center justify-center gap-2 font-bold text-white hover:bg-white hover:text-black transition-all"
               >
                 <Play size={18} fill="currentColor" />
                 Start Routine
@@ -189,7 +189,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
              <p className="text-[#8E8E93] font-medium mb-6">No routines found.</p>
              <button 
                 onClick={() => setShowRoutineCreator(true)}
-                className="bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 px-8 py-3.5 rounded-full font-bold active:scale-95 transition-all"
+                className="bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 px-8 py-3.5 rounded-full font-bold active:scale-[0.97] ease-out-ios transition-all"
              >
                Create First Routine
              </button>
@@ -214,7 +214,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
           <div className="fixed inset-0 z-[500] bg-black/90 backdrop-blur-md flex flex-col justify-end animate-in fade-in duration-200">
             <div className="w-full max-w-lg mx-auto bg-[#1C1C1E] h-[85vh] rounded-t-[40px] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
             <header className="p-6 pb-0 flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-black text-white truncate pr-4">{selectedRoutine.name}</h2>
+              <h2 className="text-2xl font-bold text-white truncate pr-4">{selectedRoutine.name}</h2>
               <button onClick={() => setSelectedRoutine(null)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all shrink-0 text-white">
                 <X size={20} strokeWidth={3} />
               </button>
@@ -223,7 +223,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
             <div className="flex-1 overflow-y-auto px-6 pb-24 space-y-4">
               {selectedRoutine.exercises.map((ex, i) => (
                 <div key={i} className="bg-black rounded-2xl p-4 border border-[#2C2C2E] flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center font-black text-white">
+                   <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center font-bold text-white">
                      {ex.name[0]}
                    </div>
                    <div>
@@ -240,7 +240,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
                   onStartRoutine(selectedRoutine);
                   setSelectedRoutine(null);
                 }}
-                className="flex-1 bg-white text-black py-4 rounded-2xl font-black shadow-lg shadow-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="flex-1 bg-white text-black py-4 rounded-2xl font-bold shadow-lg shadow-white/10 active:scale-[0.97] ease-out-ios transition-all flex items-center justify-center gap-2"
               >
                 <Play size={20} fill="currentColor" /> Start Workout
               </button>
@@ -251,7 +251,7 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
                   btn.innerHTML = '<span class="text-xs">Copied!</span>';
                   setTimeout(() => { btn.innerHTML = originalHtml; setSelectedRoutine(null); }, 1000);
                 }}
-                className="w-16 bg-neutral-800 text-white py-4 rounded-2xl font-black shadow-lg shadow-black/50 active:scale-[0.98] transition-all flex items-center justify-center border border-neutral-700"
+                className="w-16 bg-neutral-800 text-white py-4 rounded-2xl font-bold shadow-lg shadow-black/50 active:scale-[0.97] ease-out-ios transition-all flex items-center justify-center border border-neutral-700"
               >
                 <Copy size={20} />
               </button>
