@@ -113,10 +113,16 @@ export default function Profile() {
   if (loading && !profile) return null;
 
   if (activeView === 'general') {
+    const initialTipsState = localStorage.getItem('plateup_show_assistant_tips') === 'true';
     return <SettingsView title="General Settings" onBack={() => setActiveView('main')}>
       <ToggleRow label="Weight Units" value="Kilograms (kg)" />
       <ToggleRow label="Theme" value="Dark Mode (Forced)" locked />
       <ToggleRow label="Rest Timer Sound" toggleState={true} />
+      <ToggleRow 
+        label="Progression Tips (I / W)" 
+        toggleState={initialTipsState} 
+        onToggle={(state) => localStorage.setItem('plateup_show_assistant_tips', state.toString())} 
+      />
     </SettingsView>;
   }
 
@@ -259,19 +265,24 @@ function SettingsView({ title, onBack, children }) {
   );
 }
 
-function ToggleRow({ label, value, toggleState, locked }) {
+function ToggleRow({ label, value, toggleState, locked, onToggle }) {
   const [isOn, setIsOn] = useState(toggleState);
   return (
     <div className="flex items-center justify-between p-6 bg-[#1C1C1E] rounded-[32px] border border-white/5">
       <span className="font-bold text-white text-lg">{label}</span>
       {value ? (
-        <span className={`font-black ${locked ? 'text-[#8E8E93]' : 'text-white'}`}>{value}</span>
+        <span className={`font-bold ${locked ? 'text-[#8E8E93]' : 'text-white'}`}>{value}</span>
       ) : (
         <button 
-          onClick={() => !locked && setIsOn(!isOn)}
-          className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 border border-white/5 ${isOn ? 'bg-white' : 'bg-[#2C2C2E]'}`}
+          onClick={() => {
+            if (locked) return;
+            const newState = !isOn;
+            setIsOn(newState);
+            if (onToggle) onToggle(newState);
+          }}
+          className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 border border-white/5 ${isOn ? 'bg-indigo-500' : 'bg-[#2C2C2E]'}`}
         >
-          <div className={`w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${isOn ? 'translate-x-6 bg-black' : 'translate-x-0 bg-[#8E8E93]'}`} />
+          <div className={`w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${isOn ? 'translate-x-6 bg-white' : 'translate-x-0 bg-[#8E8E93]'}`} />
         </button>
       )}
     </div>
