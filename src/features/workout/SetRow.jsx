@@ -21,7 +21,6 @@ export default function SetRow({
   isDisabled,
   isBodyweight
 }) {
-  // Stan przechowujący zmienną: showTypeSelector
   const [showTypeSelector, setShowTypeSelector] = useState(false);
   const controls = useAnimation();
 
@@ -35,23 +34,17 @@ export default function SetRow({
 
   const currentType = types.find(t => t.id === set.type) || types[0];
 
-  // Funkcja pomocnicza: handleTypeSelect
-
   const handleTypeSelect = (typeId) => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(20);
     toggleSetType(exerciseId, set.id, typeId);
     setShowTypeSelector(false);
   };
 
-  // Funkcja pomocnicza: handleRemove
-
   const handleRemove = () => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
     removeSetFromExercise(exerciseId, set.id);
     setShowTypeSelector(false);
   };
-
-  // Funkcja pomocnicza: handleDragEnd
 
   const handleDragEnd = (event, info) => {
     const threshold = 60;
@@ -61,13 +54,11 @@ export default function SetRow({
     } else if (info.offset.x > threshold) {
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(30);
       if (duplicateSetInExercise) duplicateSetInExercise(exerciseId, set.id);
-      controls.start({ x: 0 }); // snap back
+      controls.start({ x: 0 });
     } else {
-      controls.start({ x: 0 }); // snap back
+      controls.start({ x: 0 });
     }
   };
-
-  // Funkcja pomocnicza: handleInputClick
 
   const handleInputClick = (field) => {
     if (isDisabled || set.isCompleted) return;
@@ -81,8 +72,6 @@ export default function SetRow({
     }
   };
 
-  // Funkcja pomocnicza: onCheck
-
   const onCheck = () => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(!set.isCompleted ? 50 : 20);
@@ -90,7 +79,8 @@ export default function SetRow({
     toggleSetComplete(exerciseId, set.id);
   };
 
-  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+  // Mock previous string if available
+  const prevString = (set.prevKg || set.prevReps) ? `${set.prevKg || '0'}kg x ${set.prevReps || '0'}` : '-';
 
   return (
     <motion.div 
@@ -99,17 +89,17 @@ export default function SetRow({
       dragElastic={0.4}
       onDragEnd={handleDragEnd}
       animate={controls}
-      className={`relative grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 items-center p-2 rounded-2xl transition-all ${
-        set.isCompleted ? 'bg-white/5' : ''
+      className={`relative grid grid-cols-[40px_1fr_60px_60px_50px_40px] gap-2 items-center p-1 rounded-xl transition-all ${
+        set.isCompleted ? 'bg-emerald-500/10' : ''
       }`}
     >
       
-      {/* Set Number / Type Trigger */}
-      <div className="relative">
+      {/* Set Number / Type */}
+      <div className="relative flex justify-center">
         <button 
           onClick={() => setShowTypeSelector(!showTypeSelector)}
-          className={`w-full aspect-square rounded-xl flex items-center justify-center font-black transition-all ${
-            set.type !== 'normal' ? 'bg-white/10 text-white' : 'text-[#8E8E93] hover:text-white'
+          className={`w-7 h-7 rounded-md flex items-center justify-center font-black text-sm transition-all ${
+            set.type !== 'normal' ? 'bg-amber-500 text-black' : 'bg-white/10 text-white'
           }`}
         >
           {currentType.short}
@@ -139,17 +129,21 @@ export default function SetRow({
         )}
       </div>
 
+      {/* Previous Data */}
+      <div className="text-left text-xs font-semibold text-[#8E8E93] truncate pl-1">
+        {prevString}
+      </div>
+
       {/* Weight KG */}
       <div className="relative flex items-center justify-center">
-        {isBodyweight && (
-          <span className="absolute left-3 text-[#8E8E93] font-black text-sm pointer-events-none">+</span>
-        )}
         <input
           type="text"
           inputMode="decimal"
-          placeholder={set.prevKg || "0"}
-          className={`w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E] ${isBodyweight ? 'pl-6 pr-2' : ''}`}
-          value={set.kg}
+          placeholder="-"
+          className={`w-full bg-white/10 text-white text-center font-bold py-2 rounded-lg border-none outline-none transition-all placeholder:text-[#8E8E93] ${
+            set.isCompleted ? 'bg-transparent text-white/80' : 'focus:bg-white/20'
+          }`}
+          value={set.kg || ''}
           onClick={() => handleInputClick('kg')}
           onChange={(e) => {
             let val = e.target.value.replace('+', '');
@@ -164,9 +158,11 @@ export default function SetRow({
         <input
           type="text"
           inputMode="numeric"
-          placeholder={set.prevReps || "0"}
-          className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
-          value={set.reps}
+          placeholder="-"
+          className={`w-full bg-white/10 text-white text-center font-bold py-2 rounded-lg border-none outline-none transition-all placeholder:text-[#8E8E93] ${
+            set.isCompleted ? 'bg-transparent text-white/80' : 'focus:bg-white/20'
+          }`}
+          value={set.reps || ''}
           onClick={() => handleInputClick('reps')}
           onChange={(e) => updateSet(exerciseId, set.id, 'reps', e.target.value)}
           disabled={isDisabled || set.isCompleted}
@@ -178,9 +174,11 @@ export default function SetRow({
         <input
           type="text"
           inputMode="decimal"
-          placeholder={set.prevRpe || "-"}
-          className="w-full bg-black text-white text-center font-black py-4 rounded-xl border border-[#2C2C2E] focus:border-white/40 outline-none transition-all placeholder:text-[#3C3C3E]"
-          value={set.rpe}
+          placeholder="-"
+          className={`w-full bg-white/10 text-white text-center font-bold py-2 rounded-lg border-none outline-none transition-all placeholder:text-[#8E8E93] ${
+            set.isCompleted ? 'bg-transparent text-white/80' : 'focus:bg-white/20'
+          }`}
+          value={set.rpe || ''}
           onClick={() => handleInputClick('rpe')}
           onChange={(e) => updateSet(exerciseId, set.id, 'rpe', e.target.value)}
           disabled={isDisabled || set.isCompleted}
@@ -192,13 +190,13 @@ export default function SetRow({
         <button
           onClick={onCheck}
           disabled={isDisabled}
-          className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
             set.isCompleted 
-              ? 'bg-white text-black shadow-lg shadow-white/10' 
-              : 'bg-black border border-[#2C2C2E] text-transparent hover:border-white/20'
+              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+              : 'bg-white/10 text-transparent hover:bg-white/20'
           }`}
         >
-          <Check size={24} strokeWidth={4} className={set.isCompleted ? 'scale-100' : 'scale-0'} />
+          <Check size={16} strokeWidth={4} className={set.isCompleted ? 'scale-100' : 'scale-0'} />
         </button>
       </div>
     </motion.div>

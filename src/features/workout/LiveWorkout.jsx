@@ -50,6 +50,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     removeSetFromExercise,
     duplicateSetInExercise,
     updateExerciseRestDuration,
+    updateExerciseNotes,
     setRestTime
   } = useWorkoutSession();
 
@@ -252,12 +253,13 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
             timeLeft={restTime} 
             onClose={handleSkipRest}
             onMinimize={() => setIsTimerMinimized(true)}
+            onAdd={(secs) => setRestTime(r => Math.max(0, r + secs))}
           />
         ) : (
           <ModalPortal>
             <div 
               onClick={() => setIsTimerMinimized(false)}
-              className="fixed top-6 left-1/2 -translate-x-1/2 z-[500] bg-black border border-white/20 text-white px-6 py-3 rounded-full flex items-center gap-3 font-black shadow-[0_10px_40px_rgba(0,0,0,0.5)] animate-in slide-in-from-top duration-300 cursor-pointer active:scale-95 backdrop-blur-3xl"
+              className="fixed bottom-32 left-1/2 -translate-x-1/2 z-[500] bg-black border border-white/20 text-white px-6 py-3 rounded-full flex items-center gap-3 font-black shadow-[0_10px_40px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom duration-300 cursor-pointer active:scale-95 backdrop-blur-3xl"
             >
               <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
               <span>{Math.floor(restTime / 60)}:{(restTime % 60).toString().padStart(2, '0')}</span>
@@ -314,6 +316,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
                 removeSetFromExercise={removeSetFromExercise}
                 duplicateSetInExercise={duplicateSetInExercise}
                 updateExerciseRestDuration={updateExerciseRestDuration}
+                updateExerciseNotes={updateExerciseNotes}
                 isDisabled={!isActive}
                 activeRestSetId={activeRestSetId}
                 restTime={restTime}
@@ -348,14 +351,14 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
         <ModalPortal>
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[500] p-4">
             <div className="bg-[#1C1C1E] border border-[#2C2C2E] w-full max-w-sm rounded-[40px] p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
-              <h3 className="text-xl font-black text-white tracking-tight">Reset training?</h3>
+              <h3 className="text-xl font-black text-white tracking-tight">Discard Training?</h3>
               <p className="text-[#8E8E93] font-bold">This action cannot be undone.</p>
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={() => setShowResetModal(false)} className="bg-black text-[#8E8E93] font-black py-4 rounded-2xl text-xs hover:bg-white/5 transition-all">
                   CANCEL
                 </button>
-                <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-white text-black font-black py-4 rounded-2xl text-xs hover:bg-neutral-200 transition-all">
-                  RESET
+                <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-red-500 text-white font-black py-4 rounded-2xl text-xs hover:bg-red-600 transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                  DISCARD
                 </button>
               </div>
             </div>

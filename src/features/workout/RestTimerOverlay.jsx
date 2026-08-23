@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { FastForward, ChevronUp } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 
-export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimize }) {
+export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimize, onAdd }) {
   // Stan przechowujący zmienną: progress
   const [progress, setProgress] = useState(100);
 
@@ -46,7 +46,7 @@ export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimi
         </div>
 
         {/* Timer Circle */}
-        <div className="relative w-48 h-48 flex items-center justify-center mb-8">
+        <div className="relative w-48 h-48 flex items-center justify-center mb-6">
           <svg className="w-full h-full -rotate-90">
             <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-white/5" />
             <circle
@@ -65,6 +65,21 @@ export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimi
           <div className="absolute flex flex-col items-center">
             <span className="text-6xl font-black tabular-nums tracking-tighter text-white">{formatTime(timeLeft)}</span>
           </div>
+        </div>
+
+        <div className="flex gap-4 w-full mb-6">
+          <button 
+            onClick={() => onAdd(-15)}
+            className="flex-1 bg-white/10 text-white py-3 rounded-2xl font-black text-sm active:scale-95 transition-all hover:bg-white/20"
+          >
+            -15s
+          </button>
+          <button 
+            onClick={() => onAdd(15)}
+            className="flex-1 bg-white/10 text-white py-3 rounded-2xl font-black text-sm active:scale-95 transition-all hover:bg-white/20"
+          >
+            +15s
+          </button>
         </div>
 
         <button 

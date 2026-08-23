@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import SetRow from './SetRow';
-import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X } from 'lucide-react';
+import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X, Check, ArrowDownUp, RefreshCw, Link2 } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 import RestTimerModal from './RestTimerModal';
 import PlateCalculator from './PlateCalculator';
@@ -113,15 +113,21 @@ export default function ExerciseCard({
             </button>
             
             {showOptions && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-[#1C1C1E] border border-[#2C2C2E] rounded-2xl shadow-2xl z-[105] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                <button className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold">
-                  <Edit3 size={16} /> Edit Exercise
+              <div className="absolute right-0 top-full mt-2 w-56 bg-[#1C1C1E] border border-[#2C2C2E] rounded-2xl shadow-2xl z-[105] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <button onClick={() => setShowOptions(false)} className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold border-b border-white/5">
+                  <ArrowDownUp size={16} /> Reorder Exercises
+                </button>
+                <button onClick={() => setShowOptions(false)} className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold border-b border-white/5">
+                  <RefreshCw size={16} /> Replace Exercise
+                </button>
+                <button onClick={() => setShowOptions(false)} className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold border-b border-white/5">
+                  <Link2 size={16} /> Add to Superset
                 </button>
                 <button 
-                  onClick={() => removeSetFromExercise(exercise.id, 'all')}
+                  onClick={() => { setShowOptions(false); removeSetFromExercise(exercise.id, 'all'); }}
                   className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold text-red-500"
                 >
-                  <Trash2 size={16} /> Remove
+                  <Trash2 size={16} /> Remove Exercise
                 </button>
               </div>
             )}
@@ -129,21 +135,33 @@ export default function ExerciseCard({
         </div>
 
         <div className="space-y-4">
+          {/* Notes Ghost Field */}
+          <div className="px-2">
+            <input 
+              type="text"
+              placeholder="Add exercise notes..."
+              value={exercise.notes || ''}
+              onChange={(e) => updateExerciseNotes(exercise.id, e.target.value)}
+              className="w-full bg-transparent text-sm text-white/80 placeholder-[#8E8E93] outline-none border-b border-transparent focus:border-white/20 pb-1 transition-all"
+            />
+          </div>
+
           {/* Labels */}
-          <div className="grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-2">
+          <div className="grid grid-cols-[40px_1fr_60px_60px_50px_40px] gap-2 text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-2">
             <span>Set</span>
+            <span className="text-left">Previous</span>
             {isBodyweightExercise ? (
               <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowAddedWeightInfo(true)}>
-                + KG <Info size={10} className="text-white/60" />
+                + KG
               </span>
             ) : (
               <span>KG</span>
             )}
             <span>Reps</span>
             <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowRpeInfo(true)}>
-              RPE <Info size={10} className="text-white/60" />
+              RPE
             </span>
-            <span>Done</span>
+            <span><Check size={14} className="mx-auto" /></span>
           </div>
 
           {/* Sets */}
