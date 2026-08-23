@@ -91,16 +91,24 @@ export default function Profile() {
     setFriendsCount(fCount);
 
     // Workouts
-    const { data: postsData } = await supabase.from('posts').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+    const { data: postsData } = await supabase.from('posts').select('*, profiles!user_id(username, avatar_url)').eq('user_id', user.id).order('created_at', { ascending: false });
     if (postsData) {
       setWorkoutsCount(postsData.length);
-      const mappedWorkouts = postsData.map(p => ({
-        ...(p.workout_data || {}),
-        id: p.id,
-        db_id: p.id,
-        user_id: p.user_id,
-        created_at: p.created_at || (p.workout_data || {}).created_at
-      }));
+      const mappedWorkouts = postsData.map(p => {
+        const workoutData = p.workout_data || {};
+        if (p.profiles) {
+          if(!workoutData.user) workoutData.user = {};
+          workoutData.user.name = p.profiles.username;
+          workoutData.user.avatar = p.profiles.avatar_url;
+        }
+        return {
+          ...workoutData,
+          id: p.id,
+          db_id: p.id,
+          user_id: p.user_id,
+          created_at: p.created_at || (p.workout_data || {}).created_at
+        };
+      });
       setLocalWorkouts(mappedWorkouts);
     }
   };
@@ -110,6 +118,7 @@ export default function Profile() {
     setProfile(prev => ({ ...prev, username: editName, bio: editBio }));
     localStorage.setItem('plateup_username', editName);
     localStorage.setItem('plateup_bio', editBio);
+    window.dispatchEvent(new Event('profileUpdated'));
     setIsEditing(false);
 
     await supabase.from('profiles').update({ username: editName, display_name: editName, bio: editBio }).eq('id', profile.id);
@@ -132,6 +141,7 @@ export default function Profile() {
       
       setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
       localStorage.setItem('plateup_avatar', publicUrl);
+      window.dispatchEvent(new Event('profileUpdated'));
     } catch (error) {
       console.error(error);
     } finally {

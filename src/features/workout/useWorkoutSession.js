@@ -238,6 +238,10 @@ export function useWorkoutSession() {
     setIsResting(false);
     setActiveRestSetId(null);
     setRestEndTime(null);
+    localStorage.removeItem('plateup_exercises');
+    localStorage.removeItem('plateup_time');
+    localStorage.removeItem('plateup_title');
+    localStorage.removeItem('plateup_rest_end');
   };
 
   // Funkcja pomocnicza: completeAndSaveWorkout
@@ -258,9 +262,14 @@ export function useWorkoutSession() {
 
     setWorkoutTime(0);
     setSessionStatus('idle');
+    setExercises([]);
     setIsResting(false);
     setActiveRestSetId(null);
     setRestEndTime(null);
+    localStorage.removeItem('plateup_exercises');
+    localStorage.removeItem('plateup_time');
+    localStorage.removeItem('plateup_title');
+    localStorage.removeItem('plateup_rest_end');
   };
 
   // Funkcja pomocnicza: cleanNumberInput

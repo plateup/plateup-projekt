@@ -56,6 +56,14 @@ export default function Dashboard({ setActiveTab }) {
     setAvatarUrl(localStorage.getItem('plateup_avatar') || null);
   };
 
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      loadProfileFromStorage();
+    };
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, []);
+
   // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
@@ -95,13 +103,19 @@ export default function Dashboard({ setActiveTab }) {
 
         const { data: postsData } = await supabase
           .from('posts')
-          .select('*')
+          .select('*, profiles!user_id(username, avatar_url)')
           .in('user_id', friendIds)
           .order('created_at', { ascending: false });
           
         if (postsData && postsData.length > 0) {
           const mappedWorkouts = postsData.map(p => {
             const workoutData = p.workout_data || {};
+            // Sync dynamic profile data!
+            if (p.profiles) {
+              if(!workoutData.user) workoutData.user = {};
+              workoutData.user.name = p.profiles.username;
+              workoutData.user.avatar = p.profiles.avatar_url;
+            }
             return {
               ...workoutData,
               id: p.id,
@@ -165,9 +179,10 @@ export default function Dashboard({ setActiveTab }) {
       
       // Also delete from Supabase if it exists there
       try {
-        await supabase.from('posts').delete().eq('id', confirmModal.id);
+        const { error } = await supabase.from('posts').delete().eq('id', confirmModal.id);
+        if (error) console.error('Failed to delete from DB:', error);
       } catch (e) {
-        console.error('Failed to delete from DB:', e);
+        console.error('Exception during delete:', e);
       }
     }
     setConfirmModal({ isOpen: false, id: null });

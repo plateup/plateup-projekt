@@ -501,7 +501,7 @@ export default function SocialFeed() {
     }
 
     // Fetch global posts from Supabase
-    let query = supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(20);
+    let query = supabase.from('posts').select('*, profiles!user_id(username, avatar_url)').order('created_at', { ascending: false }).limit(20);
     
     if (user && friendIds.length > 0) {
       query = query.in('user_id', friendIds);
@@ -538,6 +538,11 @@ export default function SocialFeed() {
     if (data && data.length > 0) {
       const globalPosts = data.map(p => {
         const workoutData = p.workout_data || {};
+        if (p.profiles) {
+          if(!workoutData.user) workoutData.user = {};
+          workoutData.user.name = p.profiles.username;
+          workoutData.user.avatar = p.profiles.avatar_url;
+        }
         return {
           ...workoutData,
           user_id: p.user_id,
@@ -561,6 +566,13 @@ export default function SocialFeed() {
 
   useEffect(() => {
     fetchUserAndPosts();
+    
+    const handleProfileUpdate = () => {
+      setCurrentUsername(localStorage.getItem('plateup_username') || 'Athlete');
+      setCurrentUserAvatar(localStorage.getItem('plateup_avatar') || null);
+    };
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
   }, []);
 
   // Asynchroniczna funkcja: handleCopyRoutine - odpowiada za operacje w tle (np. fetchowanie bazy)
@@ -612,7 +624,8 @@ export default function SocialFeed() {
       localStorage.setItem('plateup_posts', JSON.stringify(updatedLocal));
 
       // Delete from Supabase
-      await supabase.from('posts').delete().eq('id', confirmModal.id);
+      const { error } = await supabase.from('posts').delete().eq('id', confirmModal.id);
+      if (error) console.error("Error deleting post:", error);
     }
     setConfirmModal({ isOpen: false, id: null });
   };
