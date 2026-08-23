@@ -1,6 +1,6 @@
 /**
  * Plik: Landing.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Moduł odpowiedzialny za logikę powiązaną z auth/Landing.jsx.
  * Technologia: React / JSX / Tailwind CSS
  */

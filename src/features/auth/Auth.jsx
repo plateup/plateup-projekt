@@ -1,6 +1,6 @@
 /**
  * Plik: Auth.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Odpowiada za logowanie, autoryzację i zarządzanie sesją użytkownika.
  * Technologia: React / JSX / Tailwind CSS
  */

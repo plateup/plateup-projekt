@@ -1,6 +1,6 @@
 /**
  * Plik: useExercises.js
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Moduł odpowiedzialny za logikę powiązaną z hooks/useExercises.js.
  * Technologia: React / JSX / Tailwind CSS
  */

@@ -1,6 +1,6 @@
 /**
  * Plik: Profile.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Zarządzanie profilem użytkownika. Oblicza poziom (Level) na podstawie EXP, pozwala na zmianę avatara i nazwy.
  * Technologia: React / JSX / Tailwind CSS
  */

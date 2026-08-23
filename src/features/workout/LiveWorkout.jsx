@@ -1,6 +1,6 @@
 /**
  * Plik: LiveWorkout.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Silnik treningowy. Rejestruje wykonywane ćwiczenia, serie, powtórzenia, czas przerw oraz przydziela EXP po zakończeniu.
  * Technologia: React / JSX / Tailwind CSS
  */

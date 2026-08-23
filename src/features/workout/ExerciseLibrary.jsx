@@ -1,6 +1,6 @@
 /**
  * Plik: ExerciseLibrary.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/ExerciseLibrary.jsx.
  * Technologia: React / JSX / Tailwind CSS
  */
@@ -18,14 +18,14 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
   const [showAddCustom, setShowAddCustom] = useState(false);
   // Stan przechowujący zmienną: newExName
   const [newExName, setNewExName] = useState('');
-  // Stan przechowujący zmienną: newExMuscle
   const [newExMuscle, setNewExMuscle] = useState('Chest');
-  // Stan przechowujący zmienną: selectedExercises
   const [selectedExercises, setSelectedExercises] = useState([]);
+  const [filterType, setFilterType] = useState('all'); // 'all', 'compound', 'isolation'
 
   const filteredExercises = exercises.filter(ex => 
-    ex.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ex.muscle_group.toLowerCase().includes(searchTerm.toLowerCase())
+    (ex.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    ex.muscle_group.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (filterType === 'all' || ex.mechanic === filterType)
   );
 
   // Group by muscle
@@ -95,7 +95,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
         </header>
 
         <div className="px-6 pb-4">
-          <div className="relative group">
+          <div className="relative group mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8E8E93] group-focus-within:text-white transition-colors" size={20} />
             <input 
               type="text"
@@ -104,6 +104,26 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setFilterType('all')}
+              className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${filterType === 'all' ? 'bg-white text-black' : 'bg-white/5 text-[#8E8E93]'}`}
+            >
+              All
+            </button>
+            <button 
+              onClick={() => setFilterType('compound')}
+              className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${filterType === 'compound' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-[#8E8E93]'}`}
+            >
+              Compound
+            </button>
+            <button 
+              onClick={() => setFilterType('isolation')}
+              className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${filterType === 'isolation' ? 'bg-emerald-500 text-white' : 'bg-white/5 text-[#8E8E93]'}`}
+            >
+              Isolation
+            </button>
           </div>
         </div>
 
@@ -143,6 +163,12 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
                               <h4 className="font-black text-white text-[16px]">{ex.name}</h4>
                               {ex.isCustom && (
                                 <span className="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-blue-500/20">Custom</span>
+                              )}
+                              {ex.mechanic === 'compound' && (
+                                <span className="text-[9px] bg-indigo-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20">Compound</span>
+                              )}
+                              {ex.mechanic === 'isolation' && (
+                                <span className="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">Isolation</span>
                               )}
                             </div>
                             <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mt-1 block">{ex.muscle_group}</span>

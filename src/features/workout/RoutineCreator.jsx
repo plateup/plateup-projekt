@@ -1,6 +1,6 @@
 /**
  * Plik: RoutineCreator.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/RoutineCreator.jsx.
  * Technologia: React / JSX / Tailwind CSS
  */

@@ -1,12 +1,12 @@
 /**
  * Plik: AppShell.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Moduł odpowiedzialny za logikę powiązaną z feed/AppShell.jsx.
  * Technologia: React / JSX / Tailwind CSS
  */
 
 import React, { useState } from 'react';
-import { Home, Dumbbell, User, BarChart2, Users, Bot } from 'lucide-react';
+import { Home, Dumbbell, User, BarChart2, Users } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function AppShell({ children, activeTab, setActiveTab, persistentComponent }) {
@@ -14,7 +14,6 @@ export default function AppShell({ children, activeTab, setActiveTab, persistent
     { id: 'feed', icon: Home, label: 'Feed' },
     { id: 'social', icon: Users, label: 'Social' },
     { id: 'workout', icon: Dumbbell, label: 'Workout' },
-    { id: 'chat', icon: Bot, label: 'AI Coach' },
     { id: 'profile', icon: User, label: 'Profile' },
   ];
 

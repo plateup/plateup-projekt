@@ -1,6 +1,6 @@
 /**
  * Plik: supabaseClient.js
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Konfiguracja i inicjalizacja połączenia z bazą danych Supabase. Exportuje instancję klienta używaną w całej aplikacji.
  * Technologia: React / JSX / Tailwind CSS
  */

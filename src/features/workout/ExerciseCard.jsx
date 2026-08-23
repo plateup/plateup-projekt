@@ -1,6 +1,6 @@
 /**
  * Plik: ExerciseCard.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/ExerciseCard.jsx.
  * Technologia: React / JSX / Tailwind CSS
  */
@@ -74,7 +74,15 @@ export default function ExerciseCard({
               {exercise.name[0]}
             </div>
             <div>
-              <h3 className="text-xl font-black tracking-tight text-white leading-none mb-2">{exercise.name}</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-xl font-black tracking-tight text-white leading-none">{exercise.name}</h3>
+                {exercise.mechanic === 'compound' && (
+                  <span className="text-[9px] bg-indigo-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20">Compound</span>
+                )}
+                {exercise.mechanic === 'isolation' && (
+                  <span className="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">Isolation</span>
+                )}
+              </div>
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => setShowTimerModal(true)}

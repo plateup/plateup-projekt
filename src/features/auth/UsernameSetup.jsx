@@ -1,6 +1,6 @@
 /**
  * Plik: UsernameSetup.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Moduł odpowiedzialny za logikę powiązaną z auth/UsernameSetup.jsx.
  * Technologia: React / JSX / Tailwind CSS
  */

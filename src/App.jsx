@@ -1,6 +1,6 @@
 /**
  * Plik: App.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Główny plik wejściowy (Router). Definiuje ścieżki i renderuje odpowiednie widoki na podstawie stanu autoryzacji.
  * Technologia: React / JSX / Tailwind CSS
  */
@@ -16,7 +16,6 @@ import Landing from './features/auth/Landing';
 import Auth from './features/auth/Auth';
 import UsernameSetup from './features/auth/UsernameSetup';
 import LiveWorkout from './features/workout/LiveWorkout';
-import AIChat from './features/ai/AIChat';
 
 function App() {
   // Stan przechowujący zmienną: session
@@ -127,7 +126,6 @@ function App() {
         feed: 'Dashboard',
         social: 'Social',
         workout: 'Workout',
-        chat: 'AI Coach',
         profile: 'Profile'
       };
       title = `PlateUp - ${tabNames[activeTab] || 'App'}`;
@@ -150,7 +148,6 @@ function App() {
     >
       {activeTab === 'feed' && <Dashboard setActiveTab={setActiveTab} />}
       {activeTab === 'social' && <SocialFeed />}
-      {activeTab === 'chat' && <AIChat onStartRoutine={() => setActiveTab('workout')} />}
       {activeTab === 'profile' && <Profile />}
     </AppShell>
   );

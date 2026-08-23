@@ -1,6 +1,6 @@
 /**
  * Plik: WorkoutRecap.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/WorkoutRecap.jsx.
  * Technologia: React / JSX / Tailwind CSS
  */

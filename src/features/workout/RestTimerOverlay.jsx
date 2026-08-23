@@ -1,6 +1,6 @@
 /**
  * Plik: RestTimerOverlay.jsx
- * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Autor: landzi
  * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/RestTimerOverlay.jsx.
  * Technologia: React / JSX / Tailwind CSS
  */
