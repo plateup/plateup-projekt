@@ -1,21 +1,35 @@
+/**
+ * Plik: App.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Główny plik wejściowy (Router). Definiuje ścieżki i renderuje odpowiednie widoki na podstawie stanu autoryzacji.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from './services/supabaseClient';
 import AppShell from './features/feed/AppShell';
-import History from './features/feed/History';
+import Dashboard from './features/feed/Dashboard';
+import SocialFeed from './features/feed/SocialFeed';
+import Stats from './features/stats/Stats';
 import Profile from './features/profile/Profile';
 import Landing from './features/auth/Landing';
 import Auth from './features/auth/Auth';
 import UsernameSetup from './features/auth/UsernameSetup';
 import LiveWorkout from './features/workout/LiveWorkout';
-import ExercisesScreen from './features/workout/ExercisesScreen';
+import AIChat from './features/ai/AIChat';
 
 function App() {
+  // Stan przechowujący zmienną: session
   const [session, setSession] = useState(null);
-  const [view, setView] = useState('landing');
-  const [activeTab, setActiveTab] = useState('history');
-    const [isInitializing, setIsInitializing] = useState(true);
+  // Stan przechowujący zmienną: view
+  const [view, setView] = useState('landing'); // landing, auth, onboarding, app
+  // Stan przechowujący zmienną: activeTab
+  const [activeTab, setActiveTab] = useState('feed');
+  // Stan przechowujący zmienną: isInitializing
+  const [isInitializing, setIsInitializing] = useState(true);
 
-  
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       handleSessionData(session);
@@ -25,15 +39,18 @@ function App() {
       handleSessionData(session);
     });
 
-    
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
     return () => subscription.unsubscribe();
   }, []);
 
-  
+  // Asynchroniczna funkcja: handleSessionData - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleSessionData = async (session) => {
     const savedUserId = localStorage.getItem('plateup_last_user_id');
 
-    
+    // Funkcja pomocnicza: archiveCurrentData
+
     const archiveCurrentData = (userIdToArchive) => {
       if (!userIdToArchive) return;
       const oldUserData = {};
@@ -76,7 +93,8 @@ function App() {
       setSession(session);
 
       // Check if username is setup (for Google OAuth flow)
-            const { data: profile } = await supabase.from('profiles').select('username').eq('id', currentUserId).maybeSingle();
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+      const { data: profile } = await supabase.from('profiles').select('username').eq('id', currentUserId).maybeSingle();
       
       if (!profile || !profile.username) {
         setView('onboarding');
@@ -98,16 +116,18 @@ function App() {
     }
   };
 
-  
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
   useEffect(() => {
     let title = 'PlateUp';
     if (view === 'landing') title = 'PlateUp - Start';
     else if (view === 'auth') title = 'PlateUp - Login';
     else if (view === 'app') {
       const tabNames = {
-        history: 'History',
+        feed: 'Dashboard',
+        social: 'Social',
         workout: 'Workout',
-        exercises: 'Exercises',
+        chat: 'AI Coach',
         profile: 'Profile'
       };
       title = `PlateUp - ${tabNames[activeTab] || 'App'}`;
@@ -120,14 +140,17 @@ function App() {
   if (view === 'auth' && !session) return <Auth onBack={() => setView('landing')} />;
   if (view === 'onboarding') return <UsernameSetup onComplete={() => setView('app')} />;
 
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
   return (
     <AppShell 
       activeTab={activeTab} 
       setActiveTab={setActiveTab}
       persistentComponent={<LiveWorkout isVisible={activeTab === 'workout'} onRestore={() => setActiveTab('workout')} />}
     >
-      {activeTab === 'history' && <History />}
-      {activeTab === 'exercises' && <ExercisesScreen />}
+      {activeTab === 'feed' && <Dashboard setActiveTab={setActiveTab} />}
+      {activeTab === 'social' && <SocialFeed />}
+      {activeTab === 'chat' && <AIChat onStartRoutine={() => setActiveTab('workout')} />}
       {activeTab === 'profile' && <Profile />}
     </AppShell>
   );

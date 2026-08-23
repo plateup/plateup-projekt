@@ -1,6 +1,13 @@
+/**
+ * Plik: ExerciseCard.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/ExerciseCard.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import SetRow from './SetRow';
-import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X, Check, Pin } from 'lucide-react';
+import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 import RestTimerModal from './RestTimerModal';
 import PlateCalculator from './PlateCalculator';
@@ -14,22 +21,25 @@ export default function ExerciseCard({
   removeSetFromExercise,
   duplicateSetInExercise,
   updateExerciseRestDuration,
-  updateExerciseNote,
-  onRequestReplace,
   isDisabled,
   activeRestSetId,
   restTime
 }) {
+  // Stan przechowujący zmienną: showTimerModal
   const [showTimerModal, setShowTimerModal] = useState(false);
+  // Stan przechowujący zmienną: showOptions
   const [showOptions, setShowOptions] = useState(false);
+  // Stan przechowujący zmienną: showPlateCalc
   const [showPlateCalc, setShowPlateCalc] = useState(false);
+  // Stan przechowujący zmienną: showHistory
   const [showHistory, setShowHistory] = useState(false);
+  // Stan przechowujący zmienną: showRpeInfo
   const [showRpeInfo, setShowRpeInfo] = useState(false);
+  // Stan przechowujący zmienną: showAddedWeightInfo
   const [showAddedWeightInfo, setShowAddedWeightInfo] = useState(false);
-  const [isEditingNote, setIsEditingNote] = useState(false);
-  const [localNote, setLocalNote] = useState(exercise.note || '');
 
-  
+  // Funkcja pomocnicza: formatRest
+
   const formatRest = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -51,99 +61,89 @@ export default function ExerciseCard({
                                exercise.name.toLowerCase().includes('push-up') ||
                                exercise.name.toLowerCase().includes('push up');
 
-  
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
   return (
-    <div className="bg-transparent mb-6 relative">
-      <div className="px-1 md:px-2">
+    <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] transition-all hover:border-white/10 shadow-lg relative">
+      <div className="p-6 md:p-8">
         
         {/* Header */}
-        <div className="flex justify-between items-center mb-4 pl-2 pr-1">
-          <div className="flex flex-col">
-            <h3 className="text-[17px] font-bold text-indigo-400 leading-tight">{exercise.name}</h3>
-          </div>
-          
-          <div>
-            <button 
-              onClick={() => setShowOptions(true)}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:bg-white/10 transition-colors"
-            >
-              <MoreHorizontal size={20} />
-            </button>
-          </div>
-        </div>
-
-        {/* Display Note */}
-        {!isEditingNote && exercise.note && (
-          <div className="mb-4 px-2 animate-in fade-in duration-300">
-             <div 
-                className="flex items-start gap-2 bg-[#2C2C2E]/30 rounded-xl p-3 cursor-pointer hover:bg-[#2C2C2E]/50 transition-colors"
-                onClick={() => setIsEditingNote(true)}
-             >
-                <div className="w-1 h-full min-h-[16px] bg-indigo-500 rounded-full shrink-0" />
-                <p className="text-xs text-[#8E8E93] font-medium leading-relaxed whitespace-pre-wrap">{exercise.note}</p>
-             </div>
-          </div>
-        )}
-
-        {/* Notes (Scratchpad) */}
-        {isEditingNote && (
-          <div className="mb-4 px-2 animate-in fade-in duration-300">
-            <div className="bg-[#1C1C1E] border border-white/10 rounded-xl overflow-hidden transition-all focus-within:border-indigo-500/50">
-              <textarea
-                className="w-full bg-transparent p-3 text-sm text-white/90 placeholder:text-white/30 outline-none resize-none"
-                placeholder="Add a note (e.g. seat at 4, machine settings)..."
-                value={localNote}
-                rows={2}
-                onChange={(e) => setLocalNote(e.target.value)}
-                autoFocus={isEditingNote}
-              />
-              <div className="px-3 pb-2 pt-1 flex justify-between items-center bg-[#1C1C1E]">
+        <div className="flex justify-between items-start mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white font-black text-lg border border-white/5">
+              {exercise.name[0]}
+            </div>
+            <div>
+              <h3 className="text-xl font-black tracking-tight text-white leading-none mb-2">{exercise.name}</h3>
+              <div className="flex items-center gap-4">
                 <button 
-                  onClick={() => {
-                     const pinned = JSON.parse(localStorage.getItem('plateup_pinned_notes') || '{}');
-                     pinned[exercise.name] = localNote;
-                     localStorage.setItem('plateup_pinned_notes', JSON.stringify(pinned));
-                     if (updateExerciseNote) updateExerciseNote(exercise.id, localNote);
-                     setIsEditingNote(false);
-                     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(20);
-                  }}
-                  className="text-xs flex items-center gap-1.5 text-indigo-400 font-bold hover:text-indigo-300 bg-indigo-500/10 px-2.5 py-1.5 rounded-lg active:scale-[0.97] ease-out-ios transition-all"
+                  onClick={() => setShowTimerModal(true)}
+                  className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#8E8E93] hover:text-white transition-colors"
                 >
-                  <Pin size={12} fill="currentColor" /> Pin to Exercise
+                  <Timer size={12} />
+                  Rest: {formatRest(exercise.restDuration || 90)}
                 </button>
-                <button 
-                  onClick={() => {
-                    setIsEditingNote(false);
-                    if (updateExerciseNote) updateExerciseNote(exercise.id, localNote);
-                  }}
-                  className="text-xs text-white font-bold bg-white/10 px-3 py-1.5 rounded-lg hover:bg-white/20 active:scale-[0.97] ease-out-ios transition-all"
-                >Done</button>
+                {isBarbellExercise && (
+                  <button 
+                    onClick={() => setShowPlateCalc(true)}
+                    className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#8E8E93] hover:text-white transition-colors"
+                  >
+                    <Dumbbell size={12} />
+                    Calc
+                  </button>
+                )}
               </div>
             </div>
           </div>
-        )}
+          
+          <div className="relative">
+            <button 
+              onClick={() => setShowOptions(!showOptions)}
+              className="p-2 text-[#8E8E93] hover:text-white transition-colors"
+            >
+              <MoreHorizontal size={24} />
+            </button>
+            
+            {showOptions && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-[#1C1C1E] border border-[#2C2C2E] rounded-2xl shadow-2xl z-[105] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <button className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold">
+                  <Edit3 size={16} /> Edit Exercise
+                </button>
+                <button 
+                  onClick={() => removeSetFromExercise(exercise.id, 'all')}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold text-red-500"
+                >
+                  <Trash2 size={16} /> Remove
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
-        <div className="space-y-2">
+        <div className="space-y-4">
           {/* Labels */}
-          <div className="grid grid-cols-[40px_1fr_70px_60px_40px] gap-2 text-center text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider px-1">
-            <span>SET</span>
-            <span className="text-left pl-2">PREVIOUS</span>
+          <div className="grid grid-cols-[60px_1fr_1fr_1fr_60px] gap-3 text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-2">
+            <span>Set</span>
             {isBodyweightExercise ? (
               <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowAddedWeightInfo(true)}>
-                + kg <Info size={10} className="text-white/60" />
+                + KG <Info size={10} className="text-white/60" />
               </span>
             ) : (
               <span>KG</span>
             )}
-            <span>REPS</span>
-            <span><Check size={14} className="mx-auto" /></span>
+            <span>Reps</span>
+            <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowRpeInfo(true)}>
+              RPE <Info size={10} className="text-white/60" />
+            </span>
+            <span>Done</span>
           </div>
 
           {/* Sets */}
           <div className="space-y-2">
             {exercise.sets.map((set, index) => {
               const displayIndex = exercise.sets.slice(0, index + 1).filter(s => s.type !== 'warmup').length;
-                            return (
+              // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+              return (
                 <SetRow
                   key={set.id}
                   index={displayIndex}
@@ -156,7 +156,6 @@ export default function ExerciseCard({
                   duplicateSetInExercise={duplicateSetInExercise}
                   isDisabled={isDisabled}
                   isBodyweight={isBodyweightExercise}
-                  maxReps={exercise.maxReps}
                 />
               );
             })}
@@ -165,23 +164,11 @@ export default function ExerciseCard({
           {/* Add Set Button */}
           <button 
             onClick={() => addSetToExercise(exercise.id)}
-            className="w-full py-2.5 mt-1 rounded-lg bg-transparent hover:bg-white/5 flex items-center justify-center gap-1.5 text-white/50 font-bold text-xs transition-all active:scale-[0.97] ease-out-ios"
+            className="w-full py-4 mt-2 rounded-2xl bg-black border border-[#2C2C2E] flex items-center justify-center gap-2 text-[#8E8E93] font-black text-xs hover:text-white hover:border-[#3C3C3E] transition-all"
           >
-            <Plus size={14} strokeWidth={3} />
-            Add Set
+            <Plus size={16} strokeWidth={3} />
+            ADD SET
           </button>
-
-          {/* Inline Stats (Volume & 1RM) */}
-          {exercise.sets.filter(s => s.isCompleted).length > 0 && (
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/5 text-xs font-bold text-[#8E8E93]">
-              <div>
-                Volume: <span className="text-white">{exercise.sets.filter(s => s.isCompleted).reduce((sum, s) => sum + (parseFloat(s.kg) || 0) * (parseInt(s.reps) || 0), 0)} kg</span>
-              </div>
-              <div>
-                Est. 1RM: <span className="text-white">{Math.round(Math.max(0, ...exercise.sets.filter(s => s.isCompleted).map(s => (parseFloat(s.kg) || 0) * (1 + (parseInt(s.reps) || 0) / 30))))} kg</span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -210,7 +197,7 @@ export default function ExerciseCard({
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddedWeightInfo(false)} />
             <div className="relative w-full max-w-sm bg-[#1C1C1E] rounded-[36px] shadow-2xl border border-white/10 overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300">
               <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5">
-                <h3 className="font-bold text-xl text-white">Added Weight</h3>
+                <h3 className="font-black text-xl text-white">Added Weight</h3>
                 <button onClick={() => setShowAddedWeightInfo(false)} className="text-[#8E8E93] hover:text-white transition-colors bg-white/5 p-2 rounded-full">
                   <X size={20} />
                 </button>
@@ -245,7 +232,7 @@ export default function ExerciseCard({
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowRpeInfo(false)} />
             <div className="relative w-full max-w-sm bg-[#1C1C1E] rounded-[36px] shadow-2xl border border-white/10 overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300">
               <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5">
-                <h3 className="font-bold text-xl text-white">RPE Scale</h3>
+                <h3 className="font-black text-xl text-white">RPE Scale</h3>
                 <button onClick={() => setShowRpeInfo(false)} className="text-[#8E8E93] hover:text-white transition-colors bg-white/5 p-2 rounded-full">
                   <X size={20} />
                 </button>
@@ -267,100 +254,16 @@ export default function ExerciseCard({
                   ].map((item, i) => (
                     <div key={i} className="flex gap-4 p-3 rounded-2xl bg-black/40 border border-white/5">
                       <div className="flex flex-col items-center justify-center shrink-0 w-12 gap-1">
-                        <span className="font-bold text-white text-lg">{item.rpe}</span>
+                        <span className="font-black text-white text-lg">{item.rpe}</span>
                         <div className={`w-8 h-1 rounded-full ${item.color}`} />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-[#8E8E93] uppercase tracking-widest mb-1">Reps left: {item.reps}</div>
+                        <div className="text-xs font-black text-[#8E8E93] uppercase tracking-widest mb-1">Reps left: {item.reps}</div>
                         <div className="text-sm text-white/90 leading-tight">{item.desc}</div>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-          </div>
-        </ModalPortal>
-      )}
-
-      {/* Options Bottom Sheet */}
-      {showOptions && (
-        <ModalPortal>
-          <div className="fixed inset-0 z-[700] flex flex-col justify-end">
-            <div 
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
-              onClick={() => setShowOptions(false)}
-            />
-            <div className="relative w-full bg-[#1C1C1E] rounded-t-[32px] p-6 pb-12 animate-in slide-in-from-bottom-8 duration-300 ease-out-ios border-t border-white/10">
-              <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" />
-              
-              <div className="flex flex-col gap-2">
-                <button 
-                  onClick={() => {
-                    setShowOptions(false);
-                    setShowTimerModal(true);
-                  }}
-                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-xl flex items-center justify-between text-white font-semibold transition-all active:scale-[0.97] ease-out-ios"
-                >
-                  <div className="flex items-center gap-3">
-                    <Timer size={20} className="text-white/70" />
-                    <span>Rest Timer ({formatRest(exercise.restDuration || 90)})</span>
-                  </div>
-                </button>
-
-                {isBarbellExercise && (
-                  <button 
-                    onClick={() => {
-                      setShowOptions(false);
-                      setShowPlateCalc(true);
-                    }}
-                    className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-xl flex items-center justify-between text-white font-semibold transition-all active:scale-[0.97] ease-out-ios"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Dumbbell size={20} className="text-white/70" />
-                      <span>Plate Calculator</span>
-                    </div>
-                  </button>
-                )}
-
-                <button 
-                  onClick={() => {
-                    setShowOptions(false);
-                    if (onRequestReplace) onRequestReplace();
-                  }}
-                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-xl flex items-center justify-between text-white font-semibold transition-all active:scale-[0.97] ease-out-ios"
-                >
-                  <div className="flex items-center gap-3">
-                    <Dumbbell size={20} className="text-indigo-400" />
-                    <span>Replace Exercise</span>
-                  </div>
-                </button>
-
-                <button 
-                  onClick={() => {
-                    setShowOptions(false);
-                    setIsEditingNote(true);
-                  }}
-                  className="w-full bg-white/5 hover:bg-white/10 p-5 rounded-xl flex items-center justify-between text-white font-semibold transition-all active:scale-[0.97] ease-out-ios"
-                >
-                  <div className="flex items-center gap-3">
-                    <Edit3 size={20} className="text-white/70" />
-                    <span>Add/Edit Note</span>
-                  </div>
-                </button>
-                
-                <button 
-                  onClick={() => {
-                    setShowOptions(false);
-                    removeSetFromExercise(exercise.id, 'all');
-                  }}
-                  className="w-full bg-red-500/10 hover:bg-red-500/20 p-5 rounded-xl flex items-center justify-between text-red-500 font-semibold transition-all active:scale-[0.97] ease-out-ios"
-                >
-                  <div className="flex items-center gap-3">
-                    <Trash2 size={20} />
-                    <span>Remove from workout</span>
-                  </div>
-                </button>
               </div>
             </div>
           </div>

@@ -1,57 +1,71 @@
+/**
+ * Plik: Dashboard.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Panel główny użytkownika. Wyświetla historię treningów pobraną z bazy Supabase oraz kalendarz aktywności.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { Dumbbell, Plus, MoreHorizontal, User, Trash2, LogOut } from 'lucide-react';
-import { format, addDays, subDays, isSameDay, startOfToday, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, getDay } from 'date-fns';
+import { format, addDays, subDays, isSameDay, startOfToday } from 'date-fns';
 import WorkoutRecap from '../workout/WorkoutRecap';
 import { ConfirmModal } from '../../components/ui';
 
 export default function Dashboard({ setActiveTab }) {
-    const [username, setUsername] = useState(() => localStorage.getItem('plateup_username') || 'Athlete');
-    const [avatarUrl, setAvatarUrl] = useState(() => localStorage.getItem('plateup_avatar') || null);
-    const [selectedDate, setSelectedDate] = useState(startOfToday());
-    const [showProfileMenu, setShowProfileMenu] = useState(false);
-    const [localWorkouts, setLocalWorkouts] = useState([]);
-    const [selectedWorkoutRecap, setSelectedWorkoutRecap] = useState(null);
-    const [openMenuId, setOpenMenuId] = useState(null);
-    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
+  // Stan przechowujący zmienną: username
+  const [username, setUsername] = useState(() => localStorage.getItem('plateup_username') || 'Athlete');
+  // Stan przechowujący zmienną: avatarUrl
+  const [avatarUrl, setAvatarUrl] = useState(() => localStorage.getItem('plateup_avatar') || null);
+  // Stan przechowujący zmienną: selectedDate
+  const [selectedDate, setSelectedDate] = useState(startOfToday());
+  // Stan przechowujący zmienną: showProfileMenu
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  // Stan przechowujący zmienną: localWorkouts
+  const [localWorkouts, setLocalWorkouts] = useState([]);
+  // Stan przechowujący zmienną: selectedWorkoutRecap
+  const [selectedWorkoutRecap, setSelectedWorkoutRecap] = useState(null);
+  // Stan przechowujący zmienną: openMenuId
+  const [openMenuId, setOpenMenuId] = useState(null);
+  // Stan przechowujący zmienną: confirmModal
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
+  const scrollRef = useRef(null);
 
-  
+  // Funkcja pomocnicza: generateDates
+
   const generateDates = () => {
+    const dates = [];
     const today = startOfToday();
-    // Generate dates for current month view
-    const start = startOfMonth(today);
-    const end = endOfMonth(today);
-    const daysInMonth = eachDayOfInterval({ start, end });
-    
-    // Add padding days for the first week (if month doesn't start on Monday)
-    // getDay() returns 0 for Sunday, 1 for Monday in some locales, but standard JS is 0=Sun, 1=Mon...6=Sat.
-    // We want Monday=0, Sunday=6
-    const firstDayIndex = (getDay(start) + 6) % 7; 
-    const paddedStart = Array.from({ length: firstDayIndex }).map((_, i) => subDays(start, firstDayIndex - i));
-    
-    // Add padding days for the last week
-    const lastDayIndex = (getDay(end) + 6) % 7;
-    const paddingEndLength = 6 - lastDayIndex;
-    const paddedEnd = Array.from({ length: paddingEndLength }).map((_, i) => addDays(end, i + 1));
-    
-    return [...paddedStart, ...daysInMonth, ...paddedEnd];
+    for (let i = 14; i > 0; i--) {
+      dates.push(subDays(today, i));
+    }
+    dates.push(today);
+    for (let i = 1; i <= 7; i++) {
+      dates.push(addDays(today, i));
+    }
+    return dates;
   };
 
   const dates = generateDates();
 
-  
+  // Funkcja pomocnicza: loadProfileFromStorage
+
   const loadProfileFromStorage = () => {
     setUsername(localStorage.getItem('plateup_username') || 'Athlete');
     setAvatarUrl(localStorage.getItem('plateup_avatar') || null);
   };
 
-  
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
   useEffect(() => {
-        const fetchProfileAndWorkouts = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
+    // Asynchroniczna funkcja: fetchProfileAndWorkouts - odpowiada za operacje w tle (np. fetchowanie bazy)
+    const fetchProfileAndWorkouts = async () => {
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         // 1. Fetch Profile
-                const { data: profileData } = await supabase
+        // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+        const { data: profileData } = await supabase
           .from('profiles')
           .select('username, display_name, avatar_url')
           .eq('id', user.id)
@@ -69,7 +83,8 @@ export default function Dashboard({ setActiveTab }) {
         }
         
         // 2. Fetch User's Workouts (Posts)
-                const { data: postsData } = await supabase
+        // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+        const { data: postsData } = await supabase
           .from('posts')
           .select('*')
           .eq('user_id', user.id)
@@ -100,7 +115,19 @@ export default function Dashboard({ setActiveTab }) {
     fetchProfileAndWorkouts();
   }, []);
 
-  
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      const todayElement = scrollRef.current.querySelector('[data-istoday="true"]');
+      if (todayElement) {
+        todayElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, []);
+
+  // Funkcja pomocnicza: getWorkoutsForDate
+
   const getWorkoutsForDate = (date) => {
     return localWorkouts.filter(w => {
       const wDate = new Date(w.created_at);
@@ -110,14 +137,16 @@ export default function Dashboard({ setActiveTab }) {
 
   const dayWorkouts = getWorkoutsForDate(selectedDate);
 
-  
+  // Funkcja pomocnicza: handleDeleteClick
+
   const handleDeleteClick = (id, e) => {
     e.stopPropagation();
     setOpenMenuId(null);
     setConfirmModal({ isOpen: true, id });
   };
 
-  
+  // Asynchroniczna funkcja: executeDeleteWorkout - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const executeDeleteWorkout = async () => {
     if (confirmModal.id) {
       const updatedWorkouts = localWorkouts.filter(w => w.id !== confirmModal.id);
@@ -134,7 +163,8 @@ export default function Dashboard({ setActiveTab }) {
     setConfirmModal({ isOpen: false, id: null });
   };
 
-  
+  // Asynchroniczna funkcja: handleLogOut - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleLogOut = async () => {
     // Archiving is now handled by App.jsx on auth state change
     await supabase.auth.signOut();
@@ -142,22 +172,25 @@ export default function Dashboard({ setActiveTab }) {
   };
 
   // Close menus if clicked outside
-    useEffect(() => {
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+  useEffect(() => {
     const handleClickOutside = () => setOpenMenuId(null);
     document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
   return (
     <div className="animate-in fade-in duration-700">
       {/* Header */}
       <header className="flex items-center justify-between mb-12 relative">
         <div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2">
             Hey, {username}
           </h1>
-          <p className="text-[#8E8E93] font-medium">Ready to crush your goals today?</p>
+          <p className="text-[#8E8E93] font-bold">Ready to crush your goals today?</p>
         </div>
         
         <div className="relative">
@@ -192,67 +225,63 @@ export default function Dashboard({ setActiveTab }) {
         </div>
       </header>
 
-      {/* Monthly Grid Calendar */}
+      {/* Horizontal Calendar */}
       <section className="mb-12">
         <div className="flex items-center justify-between mb-6 px-1">
-          <h2 className="text-2xl font-bold text-white tracking-tight">{format(startOfToday(), 'MMMM yyyy')}</h2>
+          <h2 className="text-xl font-black">Calendar</h2>
         </div>
-        <div className="bg-[#1C1C1E] rounded-[32px] p-6 border border-white/5">
-          <div className="grid grid-cols-7 gap-2 mb-4">
-            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
-              <div key={i} className="text-center text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider">{day}</div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-2 gap-y-3">
-            {dates.map((date, index) => {
-              const isSelected = isSameDay(date, selectedDate);
-              const isToday = isSameDay(date, startOfToday());
-              const hasWorkout = getWorkoutsForDate(date).length > 0;
-              const isCurrentMonth = isSameMonth(date, startOfToday());
-              
-              return (
-                <button
-                  key={index}
-                  onClick={() => setSelectedDate(date)}
-                  className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-full transition-all active:scale-[0.90] ${
-                    isSelected 
-                      ? 'bg-white text-black shadow-lg shadow-white/20 scale-105' 
-                      : isToday
-                      ? 'bg-[#2C2C2E] text-white border border-white/20'
-                      : isCurrentMonth
-                      ? 'text-white/80 hover:bg-white/5'
-                      : 'text-white/20'
-                  }`}
-                >
-                  <span className={`text-sm font-bold ${isSelected ? 'text-black' : ''}`}>
-                    {format(date, 'd')}
-                  </span>
-                  {hasWorkout && (
-                    <div className={`absolute bottom-1.5 w-1 h-1 rounded-full ${isSelected ? 'bg-black' : 'bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]'}`} />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+        <div 
+          ref={scrollRef}
+          className="flex gap-4 overflow-x-auto no-scrollbar py-4 -mx-6 px-6 md:mx-0 md:px-0 snap-x scroll-smooth"
+        >
+          {dates.map((date, index) => {
+            const isSelected = isSameDay(date, selectedDate);
+            const isToday = isSameDay(date, startOfToday());
+            const hasWorkout = getWorkoutsForDate(date).length > 0;
+            
+            // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+            
+            return (
+              <button
+                key={index}
+                data-istoday={isToday}
+                onClick={() => setSelectedDate(date)}
+                className={`snap-center flex flex-col items-center justify-center min-w-[72px] h-[100px] rounded-[32px] transition-all relative shrink-0 ${
+                  isSelected 
+                    ? 'bg-white text-black scale-105 shadow-[0_20px_40px_rgba(255,255,255,0.15)]' 
+                    : 'bg-[#1C1C1E] text-[#8E8E93] border border-[#2C2C2E] hover:border-white/20'
+                }`}
+              >
+                <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isSelected ? 'text-black/60' : 'text-[#8E8E93]'}`}>
+                  {format(date, 'EEE')}
+                </span>
+                <span className="text-2xl font-black tabular-nums">
+                  {format(date, 'd')}
+                </span>
+                {hasWorkout && (
+                  <div className={`absolute bottom-2 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-black' : 'bg-white'}`} />
+                )}
+              </button>
+            );
+          })}
         </div>
       </section>
 
       {/* Selected Day Workouts */}
       <section className="min-h-[400px]">
-        <div className="flex items-center justify-between mb-6 px-1">
-          <h2 className="text-2xl font-bold tracking-tight">
+        <div className="flex items-center justify-between mb-8 px-1">
+          <h2 className="text-2xl font-black tracking-tight">
             {isSameDay(selectedDate, startOfToday()) ? "Today's Session" : format(selectedDate, 'MMMM d, yyyy')}
           </h2>
         </div>
         
         {dayWorkouts.length > 0 ? (
           <div className="space-y-6">
-            {dayWorkouts.map((workout, idx) => (
+            {dayWorkouts.map((workout) => (
               <div 
                 key={workout.id} 
                 onClick={() => setSelectedWorkoutRecap(workout)}
-                className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both bg-gradient-to-br from-[#1C1C1E] to-[#121212] border border-white/10 p-6 rounded-3xl shadow-2xl active:scale-[0.97] ease-out-ios transition-all duration-300 group w-full cursor-pointer relative overflow-hidden flex flex-col gap-4 ease-out-ios"
-                style={{ animationDelay: `${idx * 60}ms` }}
+                className="bg-gradient-to-br from-[#1C1C1E] to-[#121212] border border-white/10 p-6 rounded-[36px] shadow-2xl hover:scale-[1.02] hover:border-white/20 transition-all duration-300 group w-full cursor-pointer relative overflow-hidden flex flex-col gap-4"
               >
                 {/* Decorative background glow */}
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors pointer-events-none" />
@@ -264,7 +293,7 @@ export default function Dashboard({ setActiveTab }) {
                       <Dumbbell size={24} strokeWidth={2.5} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-xl tracking-tight text-white mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/60 transition-all">{workout.title}</h3>
+                      <h3 className="font-black text-xl tracking-tight text-white mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/60 transition-all">{workout.title}</h3>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-[#8E8E93] font-bold">
                         <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.volume || '0 kg'}</span>
                         <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.time || workout.timeAgo}</span>
@@ -303,7 +332,8 @@ export default function Dashboard({ setActiveTab }) {
                 {/* Exercise List Preview Section */}
                 {(() => {
                   const hasHiddenContent = workout.exercises?.length > 3 || workout.exercises?.slice(0, 3).some(ex => ex.setsList?.length > 3);
-                                    return (
+                  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+                  return (
                     <div className="bg-black/40 backdrop-blur-md rounded-[24px] border border-white/5 p-4 relative z-10 mt-2">
                       <div className={`relative ${hasHiddenContent ? 'max-h-[160px] overflow-hidden' : ''}`}>
                         <div className="space-y-4">
@@ -311,7 +341,7 @@ export default function Dashboard({ setActiveTab }) {
                             workout.exercises.slice(0, 3).map((ex, idx) => (
                               <div key={idx} className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-sm font-semibold text-white">{ex.name}</span>
+                                  <span className="text-sm font-black text-white">{ex.name}</span>
                                 </div>
                                 <div className="pl-2 border-l-2 border-white/10 ml-1 space-y-1">
                                   {ex.setsList && ex.setsList.length > 0 ? (
@@ -354,15 +384,18 @@ export default function Dashboard({ setActiveTab }) {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center text-center py-16 px-4">
-            <p className="text-[#8E8E93] font-medium text-base mb-6">No activity recorded for this day.</p>
+          <div className="bg-[#1C1C1E] border border-[#2C2C2E] border-dashed border-2 p-16 rounded-[40px] flex flex-col items-center justify-center text-center h-[300px]">
+            <div className="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mb-6 shadow-2xl border border-white/5">
+              <Dumbbell className="text-white/20" size={32} />
+            </div>
+            <p className="text-[#8E8E93] font-bold text-lg mb-8">No activity recorded for this day.</p>
             {isSameDay(selectedDate, startOfToday()) && (
                <button 
                  onClick={() => setActiveTab('workout')}
-                 className="flex items-center gap-2 bg-indigo-500 text-white px-8 py-3.5 rounded-full font-bold shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 active:scale-[0.97] ease-out-ios transition-all"
+                 className="flex items-center gap-3 bg-white text-black px-10 py-5 rounded-[24px] font-black shadow-xl hover:scale-105 active:scale-95 transition-all"
                >
-                 <Plus size={20} strokeWidth={3} />
-                 Start an Empty Workout
+                 <Plus size={24} strokeWidth={3} />
+                 Start Training
                </button>
             )}
           </div>

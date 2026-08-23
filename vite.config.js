@@ -9,13 +9,12 @@ export default defineConfig({
       registerType: 'autoUpdate',
       devOptions: { enabled: true },
       manifest: {
-        name: 'PlateUp',
-        short_name: 'PlateUp',
-        description: 'Elite workout tracker',
+        name: 'GymBlox',
+        short_name: 'GymBlox',
+        description: 'Elite workout tracker and social platform',
         theme_color: '#000000',
         background_color: '#000000',
-        display: 'standalone',
-        orientation: 'portrait'
+        display: 'standalone'
       }
     })
   ],

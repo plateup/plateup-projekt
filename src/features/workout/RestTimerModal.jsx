@@ -1,8 +1,16 @@
+/**
+ * Plik: RestTimerModal.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/RestTimerModal.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import { ModalPortal } from '../../components/ui';
 
 export default function RestTimerModal({ currentDuration, exerciseName, onSave, onClose }) {
-    const [customSeconds, setCustomSeconds] = useState(currentDuration);
+  // Stan przechowujący zmienną: customSeconds
+  const [customSeconds, setCustomSeconds] = useState(currentDuration);
 
   const quickTimes = [
     { label: '1:00', value: 60 },
@@ -12,21 +20,24 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
     { label: '5:00', value: 300 },
   ];
 
-  
+  // Funkcja pomocnicza: handleMinutesChange
+
   const handleMinutesChange = (mins) => {
     const currentSecs = customSeconds % 60;
     const newTotal = (parseInt(mins || 0, 10) * 60) + currentSecs;
     setCustomSeconds(newTotal);
   };
 
-  
+  // Funkcja pomocnicza: handleSecondsChange
+
   const handleSecondsChange = (secs) => {
     const currentMins = Math.floor(customSeconds / 60);
     const newTotal = (currentMins * 60) + parseInt(secs || 0, 10);
     setCustomSeconds(newTotal);
   };
 
-  
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
   return (
     <ModalPortal>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[500] p-4 animate-in fade-in duration-200">
@@ -35,12 +46,12 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
         {/* Header */}
         <div className="flex justify-between items-center text-left">
           <div className="space-y-0.5">
-            <h4 className="text-xl font-bold tracking-tight text-white">Rest Time</h4>
+            <h4 className="text-xl font-black tracking-tight text-white">Rest Time</h4>
             <p className="text-xs font-bold text-[#8E8E93] truncate max-w-[240px] uppercase tracking-wider">{exerciseName}</p>
           </div>
           <button 
             onClick={onClose} 
-            className="w-10 h-10 rounded-full bg-black border border-white/10 flex items-center justify-center text-sm font-bold text-[#8E8E93] hover:text-white hover:bg-white/5 transition-all active:scale-[0.97] ease-out-ios"
+            className="w-10 h-10 rounded-full bg-black border border-white/10 flex items-center justify-center text-sm font-bold text-[#8E8E93] hover:text-white hover:bg-white/5 transition-all active:scale-95"
           >
             ✕
           </button>
@@ -55,11 +66,11 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
               max="60"
               value={Math.floor(customSeconds / 60)}
               onChange={(e) => handleMinutesChange(e.target.value)}
-              className="w-20 bg-transparent text-center text-5xl font-bold focus:outline-none placeholder:text-white/20"
+              className="w-20 bg-transparent text-center text-5xl font-black focus:outline-none placeholder:text-white/20"
             />
-            <span className="text-[10px] text-[#8E8E93] font-bold uppercase tracking-widest mt-2">Min</span>
+            <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mt-2">Min</span>
           </div>
-          <span className="text-4xl font-bold text-[#2C2C2E] mb-6">:</span>
+          <span className="text-4xl font-black text-[#2C2C2E] mb-6">:</span>
           <div className="flex flex-col items-center">
             <input 
               type="number" 
@@ -67,21 +78,21 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
               max="59"
               value={customSeconds % 60}
               onChange={(e) => handleSecondsChange(e.target.value)}
-              className="w-20 bg-transparent text-center text-5xl font-bold focus:outline-none placeholder:text-white/20"
+              className="w-20 bg-transparent text-center text-5xl font-black focus:outline-none placeholder:text-white/20"
             />
-            <span className="text-[10px] text-[#8E8E93] font-bold uppercase tracking-widest mt-2">Sec</span>
+            <span className="text-[10px] text-[#8E8E93] font-black uppercase tracking-widest mt-2">Sec</span>
           </div>
         </div>
 
         {/* Quick Select */}
         <div className="space-y-3 text-left">
-          <span className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-widest block ml-2">Quick Select</span>
+          <span className="text-[10px] font-black text-[#8E8E93] uppercase tracking-widest block ml-2">Quick Select</span>
           <div className="flex flex-wrap gap-2">
             {quickTimes.map((t) => (
               <button
                 key={t.value}
                 onClick={() => setCustomSeconds(t.value)}
-                className={`flex-1 py-3 px-2 rounded-2xl text-xs font-bold transition-all active:scale-[0.97] ease-out-ios border ${
+                className={`flex-1 py-3 px-2 rounded-2xl text-xs font-black transition-all active:scale-95 border ${
                   customSeconds === t.value 
                     ? 'bg-white text-black border-white shadow-lg shadow-white/10' 
                     : 'bg-black text-[#8E8E93] border-[#2C2C2E] hover:border-white/20 hover:text-white'
@@ -96,7 +107,7 @@ export default function RestTimerModal({ currentDuration, exerciseName, onSave, 
         {/* Save */}
         <button 
           onClick={() => onSave(customSeconds)}
-          className="w-full bg-white text-black font-bold py-5 rounded-[24px] text-sm transition-all hover:bg-neutral-200 active:scale-[0.97] ease-out-ios shadow-xl shadow-white/10"
+          className="w-full bg-white text-black font-black py-5 rounded-[24px] text-sm transition-all hover:bg-neutral-200 active:scale-95 shadow-xl shadow-white/10"
         >
           Save & Set
         </button>

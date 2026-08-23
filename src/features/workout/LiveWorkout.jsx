@@ -1,3 +1,10 @@
+/**
+ * Plik: LiveWorkout.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Silnik treningowy. Rejestruje wykonywane ćwiczenia, serie, powtórzenia, czas przerw oraz przydziela EXP po zakończeniu.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useWorkoutSession } from './useWorkoutSession';
 import ExerciseCard from './ExerciseCard';
@@ -7,64 +14,18 @@ import ExerciseLibrary from './ExerciseLibrary';
 import RestTimerOverlay from './RestTimerOverlay';
 import WorkoutRecap from './WorkoutRecap';
 import { Plus, ChevronUp } from 'lucide-react';
-import { useDragControls, Reorder } from 'framer-motion';
 import { ModalPortal } from '../../components/ui';
 import { supabase } from '../../services/supabaseClient';
 
-const SUPERSET_COLORS = ['bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-orange-500', 'bg-green-500'];
-const getSupersetColor = (groupId) => {
-  if (!groupId) return null;
-  // Simple hash to consistently pick a color based on string
-  let hash = 0;
-  for (let i = 0; i < groupId.length; i++) {
-    hash = groupId.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return SUPERSET_COLORS[Math.abs(hash) % SUPERSET_COLORS.length];
-};
-
-function DraggableExerciseCard({ exercise, isSuperset, nextIsSameSuperset, prevIsSameSuperset, supersetColor, ...props }) {
-  const controls = useDragControls();
-
-  return (
-    <Reorder.Item 
-      value={exercise} 
-      dragListener={false} 
-      dragControls={controls}
-      className="relative"
-    >
-      <div 
-        className="absolute right-0 top-0 p-4 cursor-grab active:cursor-grabbing z-20 opacity-30 hover:opacity-100"
-        onPointerDown={(e) => controls.start(e)}
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="8" y1="6" x2="21" y2="6"></line>
-          <line x1="8" y1="12" x2="21" y2="12"></line>
-          <line x1="8" y1="18" x2="21" y2="18"></line>
-          <line x1="3" y1="6" x2="3.01" y2="6"></line>
-          <line x1="3" y1="12" x2="3.01" y2="12"></line>
-          <line x1="3" y1="18" x2="3.01" y2="18"></line>
-        </svg>
-      </div>
-
-      {isSuperset && (
-        <div className="absolute -left-3 md:-left-4 top-0 bottom-0 w-1 flex flex-col items-center">
-          <div className={`w-full ${supersetColor} ${!prevIsSameSuperset ? 'rounded-t-full mt-4 h-[calc(100%-1rem)]' : nextIsSameSuperset ? 'h-full' : 'rounded-b-full mb-4 h-[calc(100%-1rem)]'} ${nextIsSameSuperset && prevIsSameSuperset ? 'h-[120%]' : ''}`} />
-          {nextIsSameSuperset && (
-            <div className={`absolute -bottom-6 w-full h-6 ${supersetColor}`} />
-          )}
-        </div>
-      )}
-
-      <ExerciseCard exercise={exercise} {...props} />
-    </Reorder.Item>
-  );
-}
-
 export default function LiveWorkout({ isVisible = true, onRestore }) {
-    const [activeTab, setActiveTab] = useState('workout');
-    const [showLibrary, setShowLibrary] = useState(false);
-    const [showRecap, setShowRecap] = useState(false);
-    const [completedWorkoutSummary, setCompletedWorkoutSummary] = useState(null);
+  // Stan przechowujący zmienną: activeTab
+  const [activeTab, setActiveTab] = useState('workout');
+  // Stan przechowujący zmienną: showLibrary
+  const [showLibrary, setShowLibrary] = useState(false);
+  // Stan przechowujący zmienną: showRecap
+  const [showRecap, setShowRecap] = useState(false);
+  // Stan przechowujący zmienną: completedWorkoutSummary
+  const [completedWorkoutSummary, setCompletedWorkoutSummary] = useState(null);
   const {
     exercises,
     sessionStatus,
@@ -89,17 +50,17 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     removeSetFromExercise,
     duplicateSetInExercise,
     updateExerciseRestDuration,
-    updateExerciseNote,
-    replaceExerciseInSession,
-    reorderExercises,
     setRestTime
   } = useWorkoutSession();
 
-  const [showResetModal, setShowResetModal] = useState(false);
-  const [isTimerMinimized, setIsTimerMinimized] = useState(false);
-  const [replacingExerciseId, setReplacingExerciseId] = useState(null);
+  // Stan przechowujący zmienną: showResetModal
 
-  
+  const [showResetModal, setShowResetModal] = useState(false);
+  // Stan przechowujący zmienną: isTimerMinimized
+  const [isTimerMinimized, setIsTimerMinimized] = useState(false);
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
   useEffect(() => {
     const pendingRoutine = localStorage.getItem('plateup_pending_routine');
     if (pendingRoutine && isVisible) {
@@ -116,7 +77,8 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
   const isIdle = sessionStatus === 'idle';
   const isActive = sessionStatus === 'active';
 
-  
+  // Funkcja pomocnicza: handleComplete
+
   const handleComplete = () => {
     let totalVolume = 0;
     const completedExercises = [];
@@ -181,11 +143,32 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
       normalizedMuscleStats[muscle] = Math.round((muscleStats[muscle] / maxMuscleVolume) * 100);
     });
 
+    // EXP Calculation
+    const durationMinutes = workoutTime / 60;
+    let baseExp = (totalVolume * 0.01) + (durationMinutes * 2) + (newPrs * 50); // 50 EXP per PR
+    const hasLegs = Object.keys(muscleStats).some(m => m.toLowerCase().includes('leg'));
+    if (hasLegs) baseExp *= 1.2;
+    
+    const totalExpEarned = Math.round(baseExp);
+
+    // Save EXP globally
+    const currentExp = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
+    const newExp = currentExp + totalExpEarned;
+    localStorage.setItem('plateup_exp', newExp.toString());
+
+    // Sync EXP to Supabase profiles (fire and forget)
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase.from('profiles').update({ exp: newExp }).eq('id', user.id).then();
+      }
+    });
+
     const summary = {
       name: workoutTitle,
       duration: workoutTimeFormatted,
       volume: totalVolume > 0 ? `${totalVolume.toLocaleString()} kg` : '0 kg',
       prs: newPrs,
+      expEarned: totalExpEarned,
       exercises: completedExercises,
       muscleStats: normalizedMuscleStats,
       rawStats: { time: workoutTimeFormatted, volume: `${totalVolume.toLocaleString()} kg`, sets: completedExercises.reduce((acc, ex) => acc + ex.sets, 0), prs: newPrs }
@@ -196,7 +179,8 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     setShowRecap(true);
   };
 
-  
+  // Funkcja pomocnicza: handleAddExercise
+
   const handleAddExercise = (exercisesToAdd) => {
     if (Array.isArray(exercisesToAdd)) {
       exercisesToAdd.forEach(ex => addExerciseToSession(ex));
@@ -206,7 +190,8 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     setShowLibrary(false);
   };
 
-  
+  // Funkcja pomocnicza: handleSkipRest
+
   const handleSkipRest = () => {
     stopRest();
     setIsTimerMinimized(false);
@@ -214,7 +199,8 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   if (isIdle) {
     if (!isVisible) return null;
-        return (
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+    return (
       <div className="min-h-screen bg-black text-white antialiased flex flex-col items-center w-full px-4 pt-10 relative">
         <div className="w-full max-w-2xl">
           <WorkoutStart 
@@ -231,35 +217,20 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   // Active workout minimized view
   if (!isVisible && isActive) {
-    const isRestingNow = isResting && restTime > 0;
-    
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
     return (
       <ModalPortal>
         <div 
           onClick={onRestore}
-          className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg p-4 rounded-[20px] z-[90] flex items-center justify-between shadow-2xl cursor-pointer active:scale-[0.97] ease-out-ios transition-all duration-300 ${
-            isRestingNow ? 'bg-indigo-500 text-white' : 'bg-green-500 text-black'
-          }`}
-          style={{ bottom: 'calc(4.5rem + var(--safe-bottom))' }}
+          className="fixed bottom-[120px] left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-lg bg-white text-black p-4 rounded-[24px] z-[500] flex items-center justify-between shadow-2xl cursor-pointer hover:bg-neutral-200 active:scale-95 transition-all animate-in slide-in-from-bottom-8 duration-300"
         >
-          <div className="flex flex-col">
-            <span className="font-bold text-sm tracking-tight">
-              {isRestingNow ? 'Rest Timer' : 'Workout in Progress'}
-            </span>
-            <span className={`text-xs font-bold ${isRestingNow ? 'text-indigo-200' : 'text-black/70'}`}>
-              {isRestingNow ? `${Math.floor(restTime / 60)}:${(restTime % 60).toString().padStart(2, '0')}` : workoutTimeFormatted}
-            </span>
-          </div>
           <div className="flex items-center gap-3">
-            {isRestingNow && (
-              <button 
-                onClick={(e) => { e.stopPropagation(); stopRest(); }}
-                className="bg-black/20 hover:bg-black/30 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-colors"
-              >
-                Skip
-              </button>
-            )}
-            <ChevronUp size={24} strokeWidth={3} className={isRestingNow ? 'text-white/50' : 'text-black/50'} />
+            <div className="w-2 h-2 rounded-full bg-black animate-pulse" />
+            <span className="font-black text-sm uppercase tracking-widest">Active Workout</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="font-mono font-black">{workoutTimeFormatted}</span>
+            <ChevronUp size={20} />
           </div>
         </div>
       </ModalPortal>
@@ -268,7 +239,8 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
 
   if (!isVisible) return null;
 
-  
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       
@@ -285,9 +257,9 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
           <ModalPortal>
             <div 
               onClick={() => setIsTimerMinimized(false)}
-              className="fixed top-6 left-1/2 -translate-x-1/2 z-[500] bg-[#1C1C1E]/80 backdrop-blur-2xl border border-white/10 text-white px-6 py-3 rounded-full flex items-center gap-3 font-bold shadow-2xl animate-in slide-in-from-top duration-300 cursor-pointer active:scale-[0.97] transition-all ease-out-ios"
+              className="fixed top-6 left-1/2 -translate-x-1/2 z-[500] bg-black border border-white/20 text-white px-6 py-3 rounded-full flex items-center gap-3 font-black shadow-[0_10px_40px_rgba(0,0,0,0.5)] animate-in slide-in-from-top duration-300 cursor-pointer active:scale-95 backdrop-blur-3xl"
             >
-              <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
               <span>{Math.floor(restTime / 60)}:{(restTime % 60).toString().padStart(2, '0')}</span>
             </div>
           </ModalPortal>
@@ -298,20 +270,20 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
       <div className="max-w-4xl mx-auto px-2 sm:px-0">
         
         {/* iOS-like Sticky Header */}
-        <header className="sticky top-0 z-[100] bg-black/60 backdrop-blur-2xl pt-4 pb-4 border-b border-white/5 mb-6 flex items-center justify-between px-2 -mx-2 sm:mx-0 sm:px-4 sm:rounded-b-3xl transition-all">
+        <header className="sticky top-0 z-[100] bg-black/90 backdrop-blur-md pt-4 pb-4 border-b border-white/5 mb-6 flex items-center justify-between px-2 -mx-2 sm:mx-0 sm:px-4 sm:rounded-b-3xl">
           <button 
             onClick={() => setShowResetModal(true)} 
-            className="text-white/60 font-medium px-4 py-2.5 bg-white/5 rounded-xl text-sm active:scale-[0.97] hover:text-white hover:bg-white/10 transition-all ease-out-ios duration-200"
+            className="text-white/60 font-bold px-4 py-2.5 bg-white/5 rounded-2xl text-sm active:scale-95 hover:text-white hover:bg-white/10 transition-all"
           >
             Discard
           </button>
           <div className="flex flex-col items-center">
-            <span className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider mb-0.5">Live</span>
-            <div className="font-mono text-xl font-bold tabular-nums text-white tracking-tight">{workoutTimeFormatted}</div>
+            <span className="text-[10px] font-black text-[#8E8E93] uppercase tracking-widest mb-0.5">Live</span>
+            <div className="font-mono text-xl font-black tabular-nums text-white">{workoutTimeFormatted}</div>
           </div>
           <button 
             onClick={handleComplete} 
-            className="text-black font-semibold px-5 py-2.5 bg-white rounded-xl text-sm active:scale-[0.97] hover:bg-neutral-200 transition-all ease-out-ios duration-200"
+            className="text-black font-black px-5 py-2.5 bg-white rounded-2xl text-sm active:scale-95 hover:bg-neutral-200 transition-all"
           >
             Finish
           </button>
@@ -324,50 +296,37 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
             value={workoutTitle}
             onChange={(e) => setWorkoutTitle(e.target.value)}
             placeholder="Workout Title"
-            className="w-full bg-transparent text-3xl md:text-4xl font-bold tracking-tight outline-none placeholder:text-white/20 focus:text-white transition-colors"
+            className="w-full bg-transparent text-4xl md:text-5xl font-black tracking-tighter outline-none placeholder:text-white/20 focus:text-white transition-colors"
           />
         </div>
 
         {/* Exercises List */}
-        <main className="space-y-6 pb-32 min-h-[60vh] pl-4 md:pl-6 pr-1">
-          <Reorder.Group axis="y" values={exercises} onReorder={reorderExercises} className="grid grid-cols-1 gap-6 relative">
-            {exercises.map((exercise, index) => {
-              const isSuperset = exercise.supersetGroupId != null;
-              const nextIsSameSuperset = isSuperset && exercises[index + 1]?.supersetGroupId === exercise.supersetGroupId;
-              const prevIsSameSuperset = isSuperset && exercises[index - 1]?.supersetGroupId === exercise.supersetGroupId;
-              const supersetColor = isSuperset ? getSupersetColor(exercise.supersetGroupId) : null;
-
-              return (
-                <DraggableExerciseCard
-                  key={exercise.id}
-                  exercise={exercise}
-                  updateSet={updateSet}
-                  toggleSetComplete={toggleSetComplete}
-                  toggleSetType={toggleSetType}
-                  addSetToExercise={addSetToExercise}
-                  removeSetFromExercise={removeSetFromExercise}
-                  duplicateSetInExercise={duplicateSetInExercise}
-                  updateExerciseRestDuration={updateExerciseRestDuration}
-                  updateExerciseNote={updateExerciseNote}
-                  onRequestReplace={() => setReplacingExerciseId(exercise.id)}
-                  isDisabled={!isActive}
-                  activeRestSetId={activeRestSetId}
-                  restTime={restTime}
-                  isSuperset={isSuperset}
-                  nextIsSameSuperset={nextIsSameSuperset}
-                  prevIsSameSuperset={prevIsSameSuperset}
-                  supersetColor={supersetColor}
-                />
-              );
-            })}
-          </Reorder.Group>
+        <main className="space-y-6 pb-32 min-h-[60vh]">
+          <div className="grid grid-cols-1 gap-8">
+            {exercises.map((exercise) => (
+              <ExerciseCard
+                key={exercise.id}
+                exercise={exercise}
+                updateSet={updateSet}
+                toggleSetComplete={toggleSetComplete}
+                toggleSetType={toggleSetType}
+                addSetToExercise={addSetToExercise}
+                removeSetFromExercise={removeSetFromExercise}
+                duplicateSetInExercise={duplicateSetInExercise}
+                updateExerciseRestDuration={updateExerciseRestDuration}
+                isDisabled={!isActive}
+                activeRestSetId={activeRestSetId}
+                restTime={restTime}
+              />
+            ))}
+          </div>
 
           <div className="flex flex-col gap-4 mt-8">
             <button 
               onClick={() => setShowLibrary(true)}
-              className="w-full py-4 rounded-xl bg-indigo-500/10 text-indigo-400 font-bold text-base flex items-center justify-center gap-2 hover:bg-indigo-500/20 active:scale-[0.97] ease-out-ios transition-all"
+              className="w-full py-5 rounded-2xl bg-white/5 text-white font-bold text-lg flex items-center justify-center gap-2 hover:bg-white/10 active:scale-[0.98] transition-all border border-white/10 shadow-sm"
             >
-              <Plus size={20} strokeWidth={3} />
+              <Plus size={24} strokeWidth={3} />
               Add Exercise
             </button>
           </div>
@@ -378,21 +337,10 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
         <WorkoutRecap workout={completedWorkoutSummary} onClose={() => setShowRecap(false)} />
       )}
 
-      {(showLibrary || replacingExerciseId) && (
+      {showLibrary && (
         <ExerciseLibrary 
-          onSelect={(ex) => {
-            if (replacingExerciseId) {
-              const selectedEx = Array.isArray(ex) ? ex[0] : ex;
-              replaceExerciseInSession(replacingExerciseId, selectedEx);
-              setReplacingExerciseId(null);
-            } else {
-              handleAddExercise(ex);
-            }
-          }}
-          onClose={() => {
-            setShowLibrary(false);
-            setReplacingExerciseId(null);
-          }}
+          onSelect={handleAddExercise}
+          onClose={() => setShowLibrary(false)}
         />
       )}
 
@@ -400,13 +348,13 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
         <ModalPortal>
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[500] p-4">
             <div className="bg-[#1C1C1E] border border-[#2C2C2E] w-full max-w-sm rounded-[40px] p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
-              <h3 className="text-xl font-bold text-white tracking-tight">Reset training?</h3>
+              <h3 className="text-xl font-black text-white tracking-tight">Reset training?</h3>
               <p className="text-[#8E8E93] font-bold">This action cannot be undone.</p>
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => setShowResetModal(false)} className="bg-black text-[#8E8E93] font-bold py-4 rounded-2xl text-xs hover:bg-white/5 transition-all">
+                <button onClick={() => setShowResetModal(false)} className="bg-black text-[#8E8E93] font-black py-4 rounded-2xl text-xs hover:bg-white/5 transition-all">
                   CANCEL
                 </button>
-                <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-white text-black font-bold py-4 rounded-2xl text-xs hover:bg-neutral-200 transition-all">
+                <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-white text-black font-black py-4 rounded-2xl text-xs hover:bg-neutral-200 transition-all">
                   RESET
                 </button>
               </div>

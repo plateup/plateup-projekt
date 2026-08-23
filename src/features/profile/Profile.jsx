@@ -1,55 +1,57 @@
+/**
+ * Plik: Profile.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Zarządzanie profilem użytkownika. Oblicza poziom (Level) na podstawie EXP, pozwala na zmianę avatara i nazwy.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabaseClient';
-import { User, Settings, LogOut, Shield, ChevronRight, ChevronLeft, Target, Edit3 } from 'lucide-react';
-import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from 'recharts';
-import { format, subDays, startOfToday } from 'date-fns';
+import { User, Mail, Settings, LogOut, Shield, Bell, ChevronRight, ChevronLeft, Award, Zap, Flame, Target, Edit3, Check, BarChart2 } from 'lucide-react';
+import Stats from '../stats/Stats';
 
 export default function Profile() {
+  // Stan przechowujący zmienną: profile
   const [profile, setProfile] = useState(null);
+  // Stan przechowujący zmienną: loading
   const [loading, setLoading] = useState(true);
+  // Stan przechowujący zmienną: isEditing
   const [isEditing, setIsEditing] = useState(false);
+  // Stan przechowujący zmienną: editName
   const [editName, setEditName] = useState('');
+  // Stan przechowujący zmienną: activeView
   const [activeView, setActiveView] = useState('main');
+  // Stan przechowujący zmienną: exp
+  const [exp, setExp] = useState(0);
+  // Stan przechowujący zmienną: errorMsg
   const [errorMsg, setErrorMsg] = useState(null);
-  
-  const [stats, setStats] = useState({ workoutsCount: 0, totalVolume: 0, chartData: [] });
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
     fetchProfile();
-    calculateStats();
+    setExp(parseInt(localStorage.getItem('plateup_exp') || '0', 10));
   }, []);
 
-  const calculateStats = () => {
-    const posts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');
-    let volume = 0;
-    
-    // Calculate total volume
-    posts.forEach(post => {
-      if (post.stats?.volume) {
-        volume += parseFloat(post.stats.volume.replace(' kg', '').replace(',', '')) || 0;
-      }
-    });
+  // Funkcja pomocnicza: getLevelInfo
 
-    // Calculate daily volume for the last 7 days for the chart
-    const today = startOfToday();
-    const chartData = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = subDays(today, i);
-      const dateStr = format(date, 'MMM dd');
-      const dailyPosts = posts.filter(p => new Date(p.created_at).toDateString() === date.toDateString());
-      let dailyVol = 0;
-      dailyPosts.forEach(post => {
-        if (post.stats?.volume) dailyVol += parseFloat(post.stats.volume.replace(' kg', '').replace(',', '')) || 0;
-      });
-      chartData.push({ name: dateStr, volume: dailyVol });
-    }
-
-    setStats({ workoutsCount: posts.length, totalVolume: volume, chartData });
+  const getLevelInfo = (exp) => {
+    if (exp < 1000) return { level: 1, rank: 'Beginner', current: exp, max: 1000, progress: (exp/1000)*100 };
+    if (exp < 3000) return { level: 2, rank: 'Novice', current: exp-1000, max: 2000, progress: ((exp-1000)/2000)*100 };
+    if (exp < 6000) return { level: 3, rank: 'Iron Lifter', current: exp-3000, max: 3000, progress: ((exp-3000)/3000)*100 };
+    if (exp < 10000) return { level: 4, rank: 'Gym Rat', current: exp-6000, max: 4000, progress: ((exp-6000)/4000)*100 };
+    return { level: 5, rank: 'Titan', current: exp-10000, max: 10000, progress: Math.min(((exp-10000)/10000)*100, 100) };
   };
 
+  const levelInfo = getLevelInfo(exp);
+
+  // Asynchroniczna funkcja: fetchProfile - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const fetchProfile = async () => {
+    // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
+      // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -62,12 +64,27 @@ export default function Profile() {
       setProfile({ ...user, ...data, avatar_url: fetchedAvatar });
       setEditName(fetchedName);
       
+      // Sync EXP from DB if available and higher than local
+      const localExp = parseInt(localStorage.getItem('plateup_exp') || '0', 10);
+      const dbExp = data?.exp || 0;
+      const bestExp = Math.max(localExp, dbExp);
+      
+      setExp(bestExp);
+      if (bestExp > localExp) {
+        localStorage.setItem('plateup_exp', bestExp.toString());
+      } else if (localExp > dbExp) {
+        // Sync local to DB
+        supabase.from('profiles').update({ exp: localExp }).eq('id', user.id).then();
+      }
+      
       localStorage.setItem('plateup_username', fetchedName);
       if (fetchedAvatar) localStorage.setItem('plateup_avatar', fetchedAvatar);
       window.dispatchEvent(new Event('profileUpdated'));
     }
     setLoading(false);
   };
+
+  // Asynchroniczna funkcja: handleSaveProfile - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const handleSaveProfile = async () => {
     if (!profile) return;
@@ -83,6 +100,8 @@ export default function Profile() {
     
     if (error) setErrorMsg("Failed to save to database. Make sure 'profiles' table exists.");
   };
+
+  // Asynchroniczna funkcja: handleAvatarUpload - odpowiada za operacje w tle (np. fetchowanie bazy)
 
   const handleAvatarUpload = async (event) => {
     try {
@@ -113,34 +132,126 @@ export default function Profile() {
   if (loading && !profile) return null;
 
   if (activeView === 'general') {
-    const initialTipsState = localStorage.getItem('plateup_show_assistant_tips') === 'true';
     return <SettingsView title="General Settings" onBack={() => setActiveView('main')}>
       <ToggleRow label="Weight Units" value="Kilograms (kg)" />
       <ToggleRow label="Theme" value="Dark Mode (Forced)" locked />
       <ToggleRow label="Rest Timer Sound" toggleState={true} />
-      <ToggleRow 
-        label="Progression Tips (I / W)" 
-        toggleState={initialTipsState} 
-        onToggle={(state) => localStorage.setItem('plateup_show_assistant_tips', state.toString())} 
-      />
+      <ToggleRow label="Haptic Feedback" toggleState={true} />
     </SettingsView>;
   }
 
   if (activeView === 'privacy') {
     return <SettingsView title="Privacy & Security" onBack={() => setActiveView('main')}>
-      <ToggleRow label="Public Profile" toggleState={false} />
+      <ToggleRow label="Public Profile" toggleState={true} />
+      <ToggleRow label="Show Activity on Feed" toggleState={true} />
+      <ToggleRow label="Hide Weights from Friends" toggleState={false} />
       <button className="w-full mt-8 bg-white/5 text-white font-bold py-4 rounded-[20px] hover:bg-white/10 transition-colors border border-white/10">
         Change Password
       </button>
     </SettingsView>;
   }
 
+  if (activeView === 'notifications') {
+    return <SettingsView title="Notifications" onBack={() => setActiveView('main')}>
+      <ToggleRow label="Workout Reminders" toggleState={true} />
+      <ToggleRow label="Friend Requests" toggleState={true} />
+      <ToggleRow label="Likes & Comments" toggleState={true} />
+      <ToggleRow label="Weekly Summary Email" toggleState={false} />
+    </SettingsView>;
+  }
+
+  if (activeView === 'badges') {
+    return <SettingsView title="My Badges" onBack={() => setActiveView('main')}>
+      <div className="grid grid-cols-2 gap-4">
+        <BadgeCard icon={<Flame size={32} />} title="Consistency" desc="3 days streak" active />
+        <BadgeCard icon={<Zap size={32} />} title="Early Bird" desc="Workout before 6AM" active />
+        <BadgeCard icon={<Target size={32} />} title="Sniper" desc="Hit all reps perfectly" active={false} />
+        <BadgeCard icon={<Award size={32} />} title="Century Club" desc="100 workouts" active={false} />
+      </div>
+    </SettingsView>;
+  }
+
+  if (activeView === 'prs') {
+    const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
+    
+    // Main lifts we want to track
+    const mainLifts = [
+      { id: 'bench', names: ['Bench Press', 'Wyciskanie na klatkę', 'Wyciskanie sztangi leżąc'], label: 'Bench Press' },
+      { id: 'squat', names: ['Squat', 'Przysiady', 'Barbell Squat'], label: 'Squat' },
+      { id: 'deadlift', names: ['Deadlift', 'Martwy ciąg'], label: 'Deadlift' },
+      { id: 'pullups', names: ['Pull-ups', 'Pull ups', 'Podciąganie'], label: 'Pull-ups' },
+      { id: 'dips', names: ['Dips', 'Pompki na poręczach'], label: 'Dips' },
+    ];
+
+    const prs = mainLifts.map(lift => {
+      let bestWeight = 0;
+      let bestReps = 0;
+      
+      // Look through all history keys to find a match for the main lift names
+      Object.keys(history).forEach(exName => {
+        if (lift.names.some(name => exName.toLowerCase().includes(name.toLowerCase()))) {
+          history[exName].forEach(set => {
+            const weight = parseFloat(set.kg) || 0;
+            const reps = parseInt(set.reps, 10) || 0;
+            if (weight > bestWeight || (weight === bestWeight && reps > bestReps)) {
+              bestWeight = weight;
+              bestReps = reps;
+            }
+          });
+        }
+      });
+
+      return {
+        exercise: lift.label,
+        weight: bestWeight > 0 ? `${bestWeight} kg` : '---',
+        reps: bestReps > 0 ? bestReps : 0,
+      };
+    });
+
+    return <SettingsView title="Main Lifts PRs" onBack={() => setActiveView('main')}>
+      <div className="space-y-4">
+        <p className="text-sm text-[#8E8E93] font-bold mb-6 text-center">Your top records for the main compound movements.</p>
+        {prs.map((pr, i) => (
+          <div key={i} className="flex items-center justify-between p-5 bg-[#1C1C1E] border border-white/5 rounded-[24px] hover:border-white/20 transition-colors">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/5 rounded-[16px] flex items-center justify-center text-white/50 border border-white/5 shadow-inner">
+                <Award size={20} className={pr.reps > 0 ? 'text-amber-400' : ''} />
+              </div>
+              <div>
+                <h4 className="font-black text-lg text-white">{pr.exercise}</h4>
+                {pr.reps > 0 && <p className="text-xs font-bold text-[#8E8E93] uppercase tracking-widest mt-1">Best performance</p>}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-black text-2xl text-white">{pr.weight}</div>
+              {pr.reps > 0 && <div className="text-sm font-bold text-[#8E8E93] mt-0.5">{pr.reps} reps</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </SettingsView>;
+  }
+
+  if (activeView === 'stats') {
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+    return (
+      <div className="animate-in fade-in duration-300">
+        <button onClick={() => setActiveView('main')} className="mb-8 flex items-center gap-2 font-bold text-[#8E8E93]">
+          <ChevronLeft /> Back to Profile
+        </button>
+        <Stats />
+      </div>
+    );
+  }
+
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
   return (
-    <div className="animate-in fade-in duration-700 pt-8 pb-32">
+    <div className="animate-in fade-in duration-700 pb-32">
       <header className="mb-12 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tighter mb-2 text-white">Profile</h1>
-          <p className="text-[#8E8E93] font-bold mt-2">Manage your account</p>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2 text-white">Profile</h1>
+          <p className="text-[#8E8E93] font-bold">Manage your account</p>
         </div>
       </header>
 
@@ -152,14 +263,14 @@ export default function Profile() {
 
       <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] p-8 mb-10 flex flex-col items-center gap-8 shadow-xl relative overflow-hidden group">
         <div className="flex flex-col md:flex-row items-center gap-8 w-full z-10">
-          <div className="relative w-24 h-24 rounded-[20px] bg-black border border-white/10 flex items-center justify-center text-3xl font-bold shadow-2xl overflow-hidden group-hover:border-white/20 transition-all shrink-0">
+          <div className="relative w-24 h-24 rounded-[20px] bg-black border border-white/10 flex items-center justify-center text-3xl font-black shadow-2xl overflow-hidden group-hover:border-white/20 transition-all shrink-0">
             {profile?.avatar_url ? (
                <img src={profile?.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
                <span className="text-white">{editName?.charAt(0).toUpperCase() || 'U'}</span>
             )}
             <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-white">Upload</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-white">Upload</span>
               <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
             </label>
           </div>
@@ -170,14 +281,14 @@ export default function Profile() {
                     type="text" 
                     value={editName}
                     onChange={e => setEditName(e.target.value)}
-                    className="bg-black border border-white/10 rounded-xl px-4 py-2 font-bold text-xl text-white outline-none focus:border-white/40 w-full md:w-auto text-center md:text-left"
+                    className="bg-black border border-white/10 rounded-xl px-4 py-2 font-black text-xl text-white outline-none focus:border-white/40 w-full md:w-auto text-center md:text-left"
                   />
                   <button onClick={handleSaveProfile} className="bg-white text-black px-6 py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-neutral-200">
                     Save
                   </button>
                </div>
             ) : (
-              <h2 className="text-3xl font-bold mb-1 text-white flex items-center justify-center md:justify-start gap-3">
+              <h2 className="text-3xl font-black mb-1 text-white flex items-center justify-center md:justify-start gap-3">
                  {editName}
                  <button onClick={() => setIsEditing(true)} className="text-[#8E8E93] hover:text-white transition-colors">
                     <Edit3 size={18} />
@@ -187,62 +298,53 @@ export default function Profile() {
             <p className="text-[#8E8E93] font-bold mt-2">{profile?.email}</p>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-[#1C1C1E] rounded-3xl p-6 border border-white/5 flex flex-col items-center justify-center text-center">
-          <div className="text-3xl font-bold text-white">{stats.workoutsCount}</div>
-          <div className="text-[10px] text-[#8E8E93] font-bold uppercase tracking-widest mt-1">Workouts</div>
-        </div>
-        <div className="bg-[#1C1C1E] rounded-3xl p-6 border border-white/5 flex flex-col items-center justify-center text-center">
-          <div className="text-3xl font-bold text-white">{stats.totalVolume > 0 ? (stats.totalVolume / 1000).toFixed(1) + 't' : '0'}</div>
-          <div className="text-[10px] text-[#8E8E93] font-bold uppercase tracking-widest mt-1">Volume</div>
-        </div>
-      </div>
-
-      {stats.chartData && stats.chartData.length > 0 && (
-        <div className="bg-[#1C1C1E] rounded-[32px] p-6 mb-10 border border-white/5 shadow-xl">
-          <h3 className="text-xs font-bold text-[#8E8E93] uppercase tracking-widest mb-6 ml-2">Volume (Last 7 Days)</h3>
-          <div className="h-40 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={stats.chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#000', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', fontWeight: 900 }}
-                  itemStyle={{ color: '#fff' }}
-                  cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2, strokeDasharray: '4 4' }}
-                />
-                <Area type="monotone" dataKey="volume" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorVolume)" />
-              </AreaChart>
-            </ResponsiveContainer>
+        {/* Level Bar */}
+        <div className="w-full bg-black/40 rounded-[24px] p-5 border border-white/5 z-10 mt-2">
+          <div className="flex justify-between items-end mb-3">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#8E8E93] mb-1">Level {levelInfo.level}</div>
+              <div className="text-lg font-black text-white">{levelInfo.rank}</div>
+            </div>
+            <div className="text-right">
+              <span className="text-white font-black">{Math.floor(levelInfo.current)}</span>
+              <span className="text-[#8E8E93] text-xs font-bold ml-1">/ {levelInfo.max} EXP</span>
+            </div>
+          </div>
+          <div className="h-3 w-full bg-black rounded-full overflow-hidden border border-white/10">
+            <div 
+              className="h-full bg-white transition-all duration-1000 ease-out" 
+              style={{ width: `${Math.max(2, levelInfo.progress)}%` }}
+            />
           </div>
         </div>
-      )}
+        
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-white/[0.02] rounded-full blur-3xl pointer-events-none" />
+      </div>
 
       <div className="space-y-4">
-        <SectionHeader title="Settings" />
+        <SectionHeader title="Account" />
         <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] overflow-hidden">
           <MenuLink icon={<Settings size={20} />} label="General Settings" onClick={() => setActiveView('general')} />
           <MenuLink icon={<Shield size={20} />} label="Privacy & Security" border onClick={() => setActiveView('privacy')} />
+          <MenuLink icon={<Bell size={20} />} label="Notifications" border onClick={() => setActiveView('notifications')} />
+        </div>
+
+        <SectionHeader title="Achievements" />
+        <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] overflow-hidden">
+          <MenuLink icon={<BarChart2 size={20} />} label="Full Statistics" onClick={() => setActiveView('stats')} />
+          <MenuLink icon={<Award size={20} />} label="My Badges" border onClick={() => setActiveView('badges')} />
+          <MenuLink icon={<Target size={20} />} label="Personal Records" border onClick={() => setActiveView('prs')} />
         </div>
 
         <div className="pt-6">
           <button 
             onClick={() => supabase.auth.signOut()}
-            className="w-full bg-[#1C1C1E] border border-white/10 text-white/60 py-6 rounded-[32px] font-bold flex items-center justify-center gap-3 hover:bg-white/10 hover:text-white transition-all active:scale-[0.97] ease-out-ios"
+            className="w-full bg-[#1C1C1E] border border-white/10 text-white/60 py-6 rounded-[32px] font-black flex items-center justify-center gap-3 hover:bg-white/10 hover:text-white transition-all active:scale-95"
           >
             <LogOut size={20} />
             SIGN OUT
           </button>
-        </div>
-        
-        <div className="text-center mt-12 mb-6 text-[#8E8E93] text-xs font-bold uppercase tracking-widest opacity-50">
-          made by landzi
         </div>
       </div>
     </div>
@@ -250,13 +352,14 @@ export default function Profile() {
 }
 
 function SettingsView({ title, onBack, children }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
-    <div className="animate-in slide-in-from-right-8 duration-300 pt-8 pb-32">
+    <div className="animate-in slide-in-from-right-8 duration-300 pb-32">
       <header className="flex items-center gap-4 mb-10">
         <button onClick={onBack} className="w-12 h-12 bg-white/5 rounded-[20px] flex items-center justify-center text-white hover:bg-white/10 transition-colors border border-white/10">
           <ChevronLeft size={24} />
         </button>
-        <h1 className="text-3xl font-bold text-white">{title}</h1>
+        <h1 className="text-3xl font-black text-white">{title}</h1>
       </header>
       <div className="space-y-4">
         {children}
@@ -265,35 +368,64 @@ function SettingsView({ title, onBack, children }) {
   );
 }
 
-function ToggleRow({ label, value, toggleState, locked, onToggle }) {
+function ToggleRow({ label, value, toggleState, locked }) {
+  // Stan przechowujący zmienną: isOn
   const [isOn, setIsOn] = useState(toggleState);
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
     <div className="flex items-center justify-between p-6 bg-[#1C1C1E] rounded-[32px] border border-white/5">
       <span className="font-bold text-white text-lg">{label}</span>
       {value ? (
-        <span className={`font-bold ${locked ? 'text-[#8E8E93]' : 'text-white'}`}>{value}</span>
+        <span className={`font-black ${locked ? 'text-[#8E8E93]' : 'text-white'}`}>{value}</span>
       ) : (
         <button 
-          onClick={() => {
-            if (locked) return;
-            const newState = !isOn;
-            setIsOn(newState);
-            if (onToggle) onToggle(newState);
-          }}
-          className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 border border-white/5 ${isOn ? 'bg-indigo-500' : 'bg-[#2C2C2E]'}`}
+          onClick={() => !locked && setIsOn(!isOn)}
+          className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 border border-white/5 ${isOn ? 'bg-white' : 'bg-[#2C2C2E]'}`}
         >
-          <div className={`w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${isOn ? 'translate-x-6 bg-white' : 'translate-x-0 bg-[#8E8E93]'}`} />
+          <div className={`w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${isOn ? 'translate-x-6 bg-black' : 'translate-x-0 bg-[#8E8E93]'}`} />
         </button>
       )}
     </div>
   );
 }
 
+function BadgeCard({ icon, title, desc, active }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+  return (
+    <div className={`p-6 rounded-[32px] border ${active ? 'bg-[#1C1C1E] border-white/20' : 'bg-transparent border-white/5 opacity-40'} flex flex-col items-center text-center gap-3`}>
+      <div className={`w-16 h-16 rounded-[20px] flex items-center justify-center ${active ? 'bg-white text-black' : 'bg-[#2C2C2E] text-[#8E8E93]'}`}>
+        {icon}
+      </div>
+      <div>
+        <h4 className="font-black text-white">{title}</h4>
+        <p className="text-[10px] text-[#8E8E93] font-bold uppercase tracking-widest mt-1">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function PRRow({ exercise, weight, reps, date }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+  return (
+    <div className="flex items-center justify-between p-6 bg-[#1C1C1E] rounded-[32px] border border-white/5">
+      <div>
+        <h4 className="font-black text-white text-lg">{exercise}</h4>
+        <p className="text-xs font-bold text-[#8E8E93] mt-1">{date}</p>
+      </div>
+      <div className="text-right">
+        <span className="font-black text-2xl text-white">{weight}</span>
+        <span className="text-xs font-bold text-[#8E8E93] ml-2">x {reps}</span>
+      </div>
+    </div>
+  );
+}
+
 function SectionHeader({ title }) {
-  return <h3 className="text-xs font-bold text-[#8E8E93] uppercase tracking-[0.2em] ml-4 mt-8 mb-4">{title}</h3>;
+  return <h3 className="text-xs font-black text-[#8E8E93] uppercase tracking-[0.2em] ml-4 mt-8 mb-4">{title}</h3>;
 }
 
 function MenuLink({ icon, label, border, onClick }) {
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
   return (
     <button onClick={onClick} className={`w-full flex items-center justify-between p-6 hover:bg-white/5 transition-all group ${border ? 'border-t border-white/5' : ''}`}>
       <div className="flex items-center gap-4">

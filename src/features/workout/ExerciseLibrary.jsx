@@ -1,3 +1,10 @@
+/**
+ * Plik: ExerciseLibrary.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/ExerciseLibrary.jsx.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import { useExercises } from '../../hooks/useExercises';
 import { Search, Plus, X, ChevronRight, Dumbbell, CheckSquare, Square } from 'lucide-react';
@@ -5,11 +12,16 @@ import { ModalPortal } from '../../components/ui';
 
 export default function ExerciseLibrary({ onSelect, onClose }) {
   const { exercises, loading, addCustomExercise } = useExercises();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [showAddCustom, setShowAddCustom] = useState(false);
-    const [newExName, setNewExName] = useState('');
-    const [newExMuscle, setNewExMuscle] = useState('Chest');
-    const [selectedExercises, setSelectedExercises] = useState([]);
+  // Stan przechowujący zmienną: searchTerm
+  const [searchTerm, setSearchTerm] = useState('');
+  // Stan przechowujący zmienną: showAddCustom
+  const [showAddCustom, setShowAddCustom] = useState(false);
+  // Stan przechowujący zmienną: newExName
+  const [newExName, setNewExName] = useState('');
+  // Stan przechowujący zmienną: newExMuscle
+  const [newExMuscle, setNewExMuscle] = useState('Chest');
+  // Stan przechowujący zmienną: selectedExercises
+  const [selectedExercises, setSelectedExercises] = useState([]);
 
   const filteredExercises = exercises.filter(ex => 
     ex.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -23,7 +35,8 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
     return acc;
   }, {});
 
-  
+  // Funkcja pomocnicza: handleAddCustom
+
   const handleAddCustom = () => {
     if (newExName.trim()) {
       addCustomExercise({ name: newExName, muscle_group: newExMuscle });
@@ -32,7 +45,8 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
     }
   };
 
-  
+  // Funkcja pomocnicza: toggleSelection
+
   const toggleSelection = (ex) => {
     if (selectedExercises.find(s => s.id === ex.id)) {
       setSelectedExercises(selectedExercises.filter(s => s.id !== ex.id));
@@ -41,7 +55,8 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
     }
   };
 
-  
+  // Funkcja pomocnicza: handleConfirmSelection
+
   const handleConfirmSelection = (isSuperset = false) => {
     if (isSuperset) {
       // Create superset group ID
@@ -53,7 +68,8 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
     }
   };
 
-  
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
   return (
     <ModalPortal>
       <div className="fixed inset-0 z-[600] flex flex-col justify-end">
@@ -72,7 +88,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
         </div>
 
         <header className="px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white">Exercises</h2>
+          <h2 className="text-2xl font-black text-white">Exercises</h2>
           <button onClick={onClose} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors">
             <X size={20} strokeWidth={3} />
           </button>
@@ -94,7 +110,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
         <div className="flex-1 overflow-y-auto px-6 pb-24">
           <button 
             onClick={() => setShowAddCustom(true)}
-            className="w-full flex items-center justify-center gap-2 py-4 bg-white text-black rounded-xl mb-6 font-bold shadow-lg shadow-white/10 active:scale-[0.97] ease-out-ios transition-all"
+            className="w-full flex items-center justify-center gap-2 py-4 bg-white text-black rounded-xl mb-6 font-bold shadow-lg shadow-white/10 active:scale-[0.98] transition-all"
           >
             <Plus size={20} strokeWidth={3} />
             New Custom Exercise
@@ -108,11 +124,12 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
             <div className="space-y-6">
               {Object.keys(groupedExercises).sort().map(muscle => (
                 <div key={muscle}>
-                  <h3 className="text-sm font-bold text-[#8E8E93] uppercase tracking-wider mb-3 ml-1">{muscle}</h3>
+                  <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-wider mb-3 ml-1">{muscle}</h3>
                   <div className="bg-[#1C1C1E] rounded-2xl overflow-hidden divide-y divide-white/5 border border-white/5">
                     {groupedExercises[muscle].map((ex) => {
                       const isSelected = selectedExercises.some(s => s.id === ex.id);
-                                            return (
+                      // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+                      return (
                         <button
                           key={ex.id}
                           onClick={() => toggleSelection(ex)}
@@ -123,9 +140,9 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h4 className="font-bold text-white text-[16px]">{ex.name}</h4>
+                              <h4 className="font-black text-white text-[16px]">{ex.name}</h4>
                               {ex.isCustom && (
-                                <span className="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-widest shadow-lg shadow-blue-500/20">Custom</span>
+                                <span className="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-blue-500/20">Custom</span>
                               )}
                             </div>
                             <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mt-1 block">{ex.muscle_group}</span>
@@ -157,14 +174,14 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
             <div className="flex gap-3">
               <button 
                 onClick={() => handleConfirmSelection(false)}
-                className="flex-1 bg-white text-black py-4 rounded-2xl font-bold shadow-lg shadow-white/10 active:scale-[0.97] ease-out-ios transition-all"
+                className="flex-1 bg-white text-black py-4 rounded-2xl font-black shadow-lg shadow-white/10 active:scale-[0.98] transition-all"
               >
                 Add {selectedExercises.length} {selectedExercises.length === 1 ? 'Exercise' : 'Exercises'}
               </button>
               {selectedExercises.length > 1 && (
                 <button 
                   onClick={() => handleConfirmSelection(true)}
-                  className="flex-1 bg-neutral-800 text-white py-4 rounded-2xl font-bold shadow-lg shadow-black/50 active:scale-[0.97] ease-out-ios transition-all border border-neutral-700"
+                  className="flex-1 bg-neutral-800 text-white py-4 rounded-2xl font-black shadow-lg shadow-black/50 active:scale-[0.98] transition-all border border-neutral-700"
                 >
                   Create Superset
                 </button>
@@ -177,10 +194,10 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
       {showAddCustom && (
         <div className="absolute inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-6 z-[700] animate-in fade-in duration-200">
           <div className="bg-[#1C1C1E] w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-6">Create Exercise</h3>
+            <h3 className="text-xl font-black text-white mb-6">Create Exercise</h3>
             <div className="space-y-5">
               <div>
-                <label className="text-xs font-bold text-[#8E8E93] uppercase mb-2 block ml-1">Name</label>
+                <label className="text-xs font-black text-[#8E8E93] uppercase mb-2 block ml-1">Name</label>
                 <input 
                   type="text"
                   placeholder="e.g. Incline Dumbbell Press"
@@ -191,7 +208,7 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-[#8E8E93] uppercase mb-2 block ml-1">Muscle Group</label>
+                <label className="text-xs font-black text-[#8E8E93] uppercase mb-2 block ml-1">Muscle Group</label>
                 <div className="relative">
                   <select 
                     className="w-full bg-black text-white h-12 rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-white/50 transition-all appearance-none"
@@ -208,14 +225,14 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
               <div className="flex gap-3 pt-4">
                 <button 
                   onClick={() => setShowAddCustom(false)}
-                  className="flex-1 bg-white/10 text-white py-3.5 rounded-xl font-bold hover:bg-white/20 active:scale-[0.97] ease-out-ios transition-all"
+                  className="flex-1 bg-white/10 text-white py-3.5 rounded-xl font-bold hover:bg-white/20 active:scale-[0.98] transition-all"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleAddCustom}
                   disabled={!newExName.trim()}
-                  className="flex-1 bg-white disabled:opacity-50 text-black py-3.5 rounded-xl font-bold shadow-lg shadow-white/10 active:scale-[0.97] ease-out-ios transition-all"
+                  className="flex-1 bg-white disabled:opacity-50 text-black py-3.5 rounded-xl font-black shadow-lg shadow-white/10 active:scale-[0.98] transition-all"
                 >
                   Create
                 </button>

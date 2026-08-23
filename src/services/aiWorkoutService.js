@@ -1,3 +1,10 @@
+/**
+ * Plik: aiWorkoutService.js
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z services/aiWorkoutService.js.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import Groq from "groq-sdk";
 
 const groq = new Groq({

@@ -1,17 +1,31 @@
+/**
+ * Plik: Auth.jsx
+ * Autorzy: Langier, Mietła, Jadwiszczok, Bogdański
+ * Opis: Odpowiada za logowanie, autoryzację i zarządzanie sesją użytkownika.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
 import React, { useState } from 'react';
 import { Button, Card } from '../../components/ui';
 import { supabase } from '../../services/supabaseClient';
 import { Mail, Lock, Loader2, ChevronLeft, User } from 'lucide-react';
 
 export default function Auth({ onBack }) {
-    const [loading, setLoading] = useState(false);
-    const [isRegister, setIsRegister] = useState(false);
-    const [email, setEmail] = useState('');
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
+  // Stan przechowujący zmienną: loading
+  const [loading, setLoading] = useState(false);
+  // Stan przechowujący zmienną: isRegister
+  const [isRegister, setIsRegister] = useState(false);
+  // Stan przechowujący zmienną: email
+  const [email, setEmail] = useState('');
+  // Stan przechowujący zmienną: username
+  const [username, setUsername] = useState('');
+  // Stan przechowujący zmienną: password
+  const [password, setPassword] = useState('');
+  // Stan przechowujący zmienną: error
+  const [error, setError] = useState(null);
 
-  
+  // Asynchroniczna funkcja: requestNotificationPermission - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const requestNotificationPermission = async () => {
     if ('Notification' in window) {
       try {
@@ -24,7 +38,8 @@ export default function Auth({ onBack }) {
     }
   };
 
-  
+  // Asynchroniczna funkcja: handleAuth - odpowiada za operacje w tle (np. fetchowanie bazy)
+
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -36,7 +51,8 @@ export default function Auth({ onBack }) {
     try {
       if (isRegister) {
         // 1. Sign up user
-                const { data, error: signUpError } = await supabase.auth.signUp({ 
+        // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+        const { data, error: signUpError } = await supabase.auth.signUp({ 
           email, 
           password,
           options: {
@@ -63,7 +79,8 @@ export default function Auth({ onBack }) {
 
         // If 'email' doesn't look like an email, assume it's a username
         if (!email.includes('@')) {
-                    const { data: profile, error: profileError } = await supabase
+          // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('email')
             .eq('username', email)
@@ -85,7 +102,8 @@ export default function Auth({ onBack }) {
     }
   };
 
-  
+  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+
   return (
     <div className="min-h-screen bg-[#F2F2F7] dark:bg-black px-4 py-12 flex flex-col">
       <button onClick={onBack} className="mb-8 flex items-center gap-2 font-bold text-[#8E8E93] w-fit">
@@ -93,7 +111,7 @@ export default function Auth({ onBack }) {
       </button>
 
       <div className="max-w-md mx-auto w-full">
-        <h1 className="text-4xl font-bold mb-2">{isRegister ? 'Create Account' : 'Welcome Back'}</h1>
+        <h1 className="text-4xl font-black mb-2">{isRegister ? 'Create Account' : 'Welcome Back'}</h1>
         <p className="text-[#8E8E93] mb-8 font-medium">
           {isRegister ? 'Start your fitness journey today.' : 'Enter your details to continue.'}
         </p>
@@ -139,7 +157,7 @@ export default function Auth({ onBack }) {
 
           {error && <p className="text-white/60 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold">{error}</p>}
 
-          <button type="submit" disabled={loading} className="w-full h-16 rounded-[20px] font-bold text-lg bg-white text-black hover:bg-neutral-200 transition-all active:scale-[0.97] ease-out-ios shadow-lg flex items-center justify-center">
+          <button type="submit" disabled={loading} className="w-full h-16 rounded-[20px] font-black text-lg bg-white text-black hover:bg-neutral-200 transition-all active:scale-95 shadow-lg flex items-center justify-center">
             {loading ? <Loader2 className="animate-spin" /> : (isRegister ? 'Sign Up' : 'Sign In')}
           </button>
         </form>
@@ -169,7 +187,7 @@ export default function Auth({ onBack }) {
               }
             });
           }}
-          className="w-full h-16 rounded-[20px] font-bold text-lg bg-white/5 text-white hover:bg-white/10 border border-white/10 flex items-center justify-center gap-3 transition-all active:scale-[0.97] ease-out-ios shadow-md"
+          className="w-full h-16 rounded-[20px] font-black text-lg bg-white/5 text-white hover:bg-white/10 border border-white/10 flex items-center justify-center gap-3 transition-all active:scale-95 shadow-md"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
