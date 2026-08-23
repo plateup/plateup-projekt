@@ -329,7 +329,7 @@ const StatBox = ({ label, value, highlight }) => (
 
 export default function SocialFeed() {
   // Stan przechowujący zmienną: activeSubTab
-  const [activeSubTab, setActiveSubTab] = useState('feed');
+  const [activeSubTab, setActiveSubTab] = useState('friends');
   // Stan przechowujący zmienną: posts
   const [posts, setPosts] = useState([]);
   // Stan przechowujący zmienną: currentUsername
@@ -908,12 +908,6 @@ export default function SocialFeed() {
         {/* Top Sub-Navigation */}
         <div className="flex gap-2 p-1 bg-[#1C1C1E] rounded-2xl border border-white/5">
           <button 
-            onClick={() => setActiveSubTab('feed')}
-            className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${activeSubTab === 'feed' ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-[#8E8E93] hover:text-white'}`}
-          >
-            Feed
-          </button>
-          <button 
             onClick={() => setActiveSubTab('friends')}
             className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 ${activeSubTab === 'friends' ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-[#8E8E93] hover:text-white'}`}
           >
@@ -934,25 +928,6 @@ export default function SocialFeed() {
         </div>
       </header>
       
-      {activeSubTab === 'feed' && (
-        <div className="grid grid-cols-1 gap-4">
-          {posts.map(post => (
-            <WorkoutPost 
-              key={post.id} 
-              post={post} 
-              currentUsername={currentUsername}
-              currentUserAvatar={currentUserAvatar}
-              onCopy={handleCopyRoutine}
-              onDelete={handleDeletePost}
-              onViewSummary={setSelectedWorkoutRecap}
-            />
-          ))}
-          {posts.length === 0 && (
-            <div className="text-center py-20 text-[#8E8E93]">No posts yet. Follow friends to see their activity.</div>
-          )}
-        </div>
-      )}
-
       {activeSubTab === 'friends' && (
         <div className="animate-in fade-in duration-300">
           <div className="relative mb-8">
