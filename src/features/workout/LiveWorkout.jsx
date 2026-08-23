@@ -51,6 +51,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     duplicateSetInExercise,
     updateExerciseRestDuration,
     updateExerciseNotes,
+    addRestTime,
     setRestTime
   } = useWorkoutSession();
 
@@ -176,7 +177,6 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
     };
 
     setCompletedWorkoutSummary(summary);
-    completeAndSaveWorkout();
     setShowRecap(true);
   };
 
@@ -210,7 +210,18 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
           />
         </div>
         {showRecap && (
-          <WorkoutRecap workout={completedWorkoutSummary} onClose={() => setShowRecap(false)} />
+          <WorkoutRecap 
+            workout={completedWorkoutSummary} 
+            onClose={() => setShowRecap(false)}
+            onSave={(title) => {
+              completeAndSaveWorkout(title);
+              setShowRecap(false);
+            }}
+            onDiscard={() => {
+              executeReset();
+              setShowRecap(false);
+            }}
+          />
         )}
       </div>
     );
@@ -253,7 +264,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
             timeLeft={restTime} 
             onClose={handleSkipRest}
             onMinimize={() => setIsTimerMinimized(true)}
-            onAdd={(secs) => setRestTime(r => Math.max(0, r + secs))}
+            onAdd={(secs) => addRestTime(secs)}
           />
         ) : (
           <ModalPortal>

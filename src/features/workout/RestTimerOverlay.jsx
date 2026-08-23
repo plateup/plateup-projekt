@@ -17,7 +17,7 @@ export default function RestTimerOverlay({ duration, timeLeft, onClose, onMinimi
 
   useEffect(() => {
     const baseDuration = duration || 90;
-    setProgress((timeLeft / baseDuration) * 100);
+    setProgress(Math.min(100, Math.max(0, (timeLeft / baseDuration) * 100)));
   }, [timeLeft, duration]);
 
   // Funkcja pomocnicza: formatTime

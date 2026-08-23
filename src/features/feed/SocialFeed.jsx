@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MoreHorizontal, Heart, MessageCircle, Award, UserPlus, Search, Users, MessageSquare, Copy, Trash2, Send, X, Trophy } from 'lucide-react';
+import { MoreHorizontal, Heart, MessageCircle, Award, UserPlus, Search, Users, MessageSquare, Copy, Trash2, Send, X, Trophy, Lock, MapPin } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { ConfirmModal, ModalPortal } from '../../components/ui';
 import WorkoutRecap from '../workout/WorkoutRecap';
@@ -198,8 +198,14 @@ const WorkoutPost = ({ post, onCopy, onDelete, currentUsername, currentUserAvata
             )}
           </div>
           <div>
-            <h3 className="font-black text-white text-[17px] leading-tight">{post.user.name}</h3>
-            <p className="text-[11px] font-bold text-[#8E8E93] mt-0.5">{post.timeAgo}</p>
+            <div className="flex items-center gap-2">
+              <h3 className="font-black text-white text-[17px] leading-tight">{post.user.name}</h3>
+              {post.visibility === 'private' && <Lock size={12} className="text-[#8E8E93]" />}
+            </div>
+            <p className="text-[11px] font-bold text-[#8E8E93] mt-0.5">
+              {post.timeAgo}
+              {post.gym && <span className="ml-2 flex items-center inline-flex gap-1"><MapPin size={10} /> {post.gym}</span>}
+            </p>
           </div>
         </div>
         
@@ -822,11 +828,12 @@ export default function SocialFeed() {
         const workoutData = p.workout_data || {};
         return {
           ...workoutData,
+          user_id: p.user_id,
           id: p.id,
           db_id: p.id,
           timeAgo: formatPostTime(p.created_at || workoutData.created_at)
         };
-      });
+      }).filter(p => p.visibility !== 'private' || p.user_id === user.id);
       setPosts(globalPosts);
     } else {
       const localPosts = JSON.parse(localStorage.getItem('plateup_posts') || '[]');

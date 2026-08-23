@@ -29,6 +29,14 @@ export function useWorkoutSession() {
   // Stan przechowujący zmienną: restEndTime
   const [restEndTime, setRestEndTime] = useState(null);
 
+  const addRestTime = (seconds) => {
+    setRestEndTime(prev => {
+      if (!prev) return prev;
+      return prev + (seconds * 1000);
+    });
+    setRestTime(prev => Math.max(0, prev + seconds));
+  };
+
   // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => { localStorage.setItem('plateup_status', sessionStatus); }, [sessionStatus]);
@@ -439,6 +447,6 @@ export function useWorkoutSession() {
   return {
     exercises, sessionStatus, workoutTime, workoutTimeFormatted: Math.floor(workoutTime / 60).toString().padStart(2, '0') + ":" + (workoutTime % 60).toString().padStart(2, '0'),
     workoutTitle, setWorkoutTitle, restTime, initialRestTime, setRestTime, isResting, activeRestSetId, startWorkout, stopRest, pauseWorkout, executeReset, completeAndSaveWorkout, updateSet, toggleSetComplete, toggleSetType, moveSet,
-    addExerciseToSession, addSetToExercise, removeSetFromExercise, duplicateSetInExercise, updateExerciseRestDuration, updateExerciseNotes
+    addExerciseToSession, addSetToExercise, removeSetFromExercise, duplicateSetInExercise, updateExerciseRestDuration, updateExerciseNotes, addRestTime
   };
 }

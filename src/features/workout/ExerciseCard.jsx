@@ -21,6 +21,7 @@ export default function ExerciseCard({
   removeSetFromExercise,
   duplicateSetInExercise,
   updateExerciseRestDuration,
+  updateExerciseNotes,
   isDisabled,
   activeRestSetId,
   restTime
@@ -147,7 +148,7 @@ export default function ExerciseCard({
           </div>
 
           {/* Labels */}
-          <div className="grid grid-cols-[40px_1fr_60px_60px_50px_40px] gap-2 text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-2">
+          <div className="grid grid-cols-[40px_80px_1fr_1fr_50px_40px] gap-2 text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-2">
             <span>Set</span>
             <span className="text-left">Previous</span>
             {isBodyweightExercise ? (

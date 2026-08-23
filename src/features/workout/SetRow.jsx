@@ -89,7 +89,7 @@ export default function SetRow({
       dragElastic={0.4}
       onDragEnd={handleDragEnd}
       animate={controls}
-      className={`relative grid grid-cols-[40px_1fr_60px_60px_50px_40px] gap-2 items-center p-1 rounded-xl transition-all ${
+      className={`relative grid grid-cols-[40px_80px_1fr_1fr_50px_40px] gap-2 items-center p-1 rounded-xl transition-all ${
         set.isCompleted ? 'bg-emerald-500/10' : ''
       }`}
     >

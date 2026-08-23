@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../services/supabaseClient';
-import { Dumbbell, Plus, MoreHorizontal, User, Trash2, LogOut } from 'lucide-react';
+import { Dumbbell, Plus, MoreHorizontal, User, Trash2, LogOut, Lock } from 'lucide-react';
 import { format, addDays, subDays, isSameDay, startOfToday } from 'date-fns';
 import WorkoutRecap from '../workout/WorkoutRecap';
 import { ConfirmModal } from '../../components/ui';
@@ -293,7 +293,10 @@ export default function Dashboard({ setActiveTab }) {
                       <Dumbbell size={24} strokeWidth={2.5} />
                     </div>
                     <div>
-                      <h3 className="font-black text-xl tracking-tight text-white mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/60 transition-all">{workout.title}</h3>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-black text-xl tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/60 transition-all">{workout.title}</h3>
+                        {workout.visibility === 'private' && <Lock size={14} className="text-[#8E8E93]" />}
+                      </div>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-[#8E8E93] font-bold">
                         <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.volume || '0 kg'}</span>
                         <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.time || workout.timeAgo}</span>
