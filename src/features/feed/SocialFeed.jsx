@@ -1057,7 +1057,7 @@ export default function SocialFeed() {
               <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
                 <div className="p-8 flex flex-col items-center text-center border-b border-white/5 bg-[#1C1C1E]">
                   <div className="flex items-center gap-6 w-full max-w-sm mb-6">
-                    <div className="w-24 h-24 rounded-full bg-black border border-white/10 flex items-center justify-center font-black text-4xl overflow-hidden shadow-2xl relative shrink-0">
+                    <div className="w-24 h-24 rounded-[32px] bg-black border border-white/10 flex items-center justify-center font-black text-4xl overflow-hidden shadow-2xl relative shrink-0">
                       {selectedProfile.avatar_url ? (
                         <img src={selectedProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (

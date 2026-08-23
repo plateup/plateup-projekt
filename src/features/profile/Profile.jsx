@@ -225,7 +225,7 @@ export default function Profile() {
 
       {/* Profile Header (Avatar, Nick, Stats) */}
       <div className="flex items-center gap-6 mb-6">
-        <div className="relative w-24 h-24 rounded-full bg-black border border-white/10 flex items-center justify-center text-3xl font-black shadow-2xl overflow-hidden shrink-0">
+        <div className="relative w-24 h-24 rounded-[32px] bg-black border border-white/10 flex items-center justify-center text-3xl font-black shadow-2xl overflow-hidden shrink-0">
           {profile?.avatar_url ? (
             <img src={profile?.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
@@ -361,7 +361,7 @@ export default function Profile() {
               <h2 className="text-2xl font-black text-white mb-8">Edit Profile</h2>
               
               <div className="flex flex-col items-center mb-8">
-                <div className="relative w-24 h-24 rounded-full bg-black border border-white/10 flex items-center justify-center text-3xl font-black overflow-hidden group">
+                <div className="relative w-24 h-24 rounded-[32px] bg-black border border-white/10 flex items-center justify-center text-3xl font-black overflow-hidden group">
                   {profile?.avatar_url ? (
                     <img src={profile?.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
