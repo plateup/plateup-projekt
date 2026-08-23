@@ -10,6 +10,7 @@ import { supabase } from '../../services/supabaseClient';
 import { Dumbbell, Plus, MoreHorizontal, User, Trash2, LogOut, Lock } from 'lucide-react';
 import { format, addDays, subDays, isSameDay, startOfToday } from 'date-fns';
 import WorkoutRecap from '../workout/WorkoutRecap';
+import WorkoutPost from '../../components/WorkoutPost';
 import { ConfirmModal } from '../../components/ui';
 
 export default function Dashboard({ setActiveTab }) {
@@ -82,12 +83,20 @@ export default function Dashboard({ setActiveTab }) {
           }
         }
         
-        // 2. Fetch User's Workouts (Posts)
-        // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
+        // 2. Fetch User's & Friends' Workouts (Posts)
+        let friendIds = [user.id];
+        
+        // Fetch accepted friends
+        const { data: sentReqs } = await supabase.from('friend_requests').select('receiver_id').eq('sender_id', user.id).eq('status', 'accepted');
+        const { data: incReqs } = await supabase.from('friend_requests').select('sender_id').eq('receiver_id', user.id).eq('status', 'accepted');
+        
+        if (sentReqs) sentReqs.forEach(r => friendIds.push(r.receiver_id));
+        if (incReqs) incReqs.forEach(r => friendIds.push(r.sender_id));
+
         const { data: postsData } = await supabase
           .from('posts')
           .select('*')
-          .eq('user_id', user.id)
+          .in('user_id', friendIds)
           .order('created_at', { ascending: false });
           
         if (postsData && postsData.length > 0) {
@@ -96,9 +105,10 @@ export default function Dashboard({ setActiveTab }) {
             return {
               ...workoutData,
               id: p.id,
-              db_id: p.id
+              db_id: p.id,
+              user_id: p.user_id
             };
-          });
+          }).filter(p => p.visibility !== 'private' || p.user_id === user.id);
           setLocalWorkouts(mappedWorkouts);
           // Also sync to local storage for offline support
           localStorage.setItem('plateup_posts', JSON.stringify(mappedWorkouts));
@@ -278,119 +288,23 @@ export default function Dashboard({ setActiveTab }) {
         {dayWorkouts.length > 0 ? (
           <div className="space-y-6">
             {dayWorkouts.map((workout) => (
-              <div 
+              <WorkoutPost 
                 key={workout.id} 
-                onClick={() => setSelectedWorkoutRecap(workout)}
-                className="bg-gradient-to-br from-[#1C1C1E] to-[#121212] border border-white/10 p-6 rounded-[36px] shadow-2xl hover:scale-[1.02] hover:border-white/20 transition-all duration-300 group w-full cursor-pointer relative overflow-hidden flex flex-col gap-4"
-              >
-                {/* Decorative background glow */}
-                <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors pointer-events-none" />
-
-                {/* Header Section */}
-                <div className="flex items-start justify-between relative z-10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-[18px] bg-white text-black flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0">
-                      <Dumbbell size={24} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-black text-xl tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/60 transition-all">{workout.title}</h3>
-                        {workout.visibility === 'private' && <Lock size={14} className="text-[#8E8E93]" />}
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-[#8E8E93] font-bold">
-                        <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.volume || '0 kg'}</span>
-                        <span className="bg-white/10 px-2 py-1 rounded-lg text-white/90">{workout.stats?.time || workout.timeAgo}</span>
-                        <span>•</span>
-                        <span>{workout.stats?.sets || workout.exercises?.length || 0} Sets</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(openMenuId === workout.id ? null : workout.id);
-                      }}
-                      className="p-2 -mr-2 -mt-2 text-white/20 hover:text-white hover:bg-white/10 rounded-full transition-all shrink-0 relative z-20"
-                    >
-                      <MoreHorizontal size={24} />
-                    </button>
-
-                    {openMenuId === workout.id && (
-                      <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className="absolute right-0 top-full mt-1 w-40 bg-[#0A0A0A] border border-[#2C2C2E] rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
-                      >
-                        <button 
-                          onClick={(e) => handleDeleteClick(workout.id, e)}
-                          className="w-full flex items-center gap-3 p-3 hover:bg-white/5 text-left transition-colors text-sm font-bold text-red-500"
-                        >
-                          <Trash2 size={16} /> Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Exercise List Preview Section */}
-                {(() => {
-                  const hasHiddenContent = workout.exercises?.length > 3 || workout.exercises?.slice(0, 3).some(ex => ex.setsList?.length > 3);
-                  // Zwraca interfejs użytkownika (JSX) dla tego komponentu
-                  return (
-                    <div className="bg-black/40 backdrop-blur-md rounded-[24px] border border-white/5 p-4 relative z-10 mt-2">
-                      <div className={`relative ${hasHiddenContent ? 'max-h-[160px] overflow-hidden' : ''}`}>
-                        <div className="space-y-4">
-                          {workout.exercises && workout.exercises.length > 0 ? (
-                            workout.exercises.slice(0, 3).map((ex, idx) => (
-                              <div key={idx} className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm font-black text-white">{ex.name}</span>
-                                </div>
-                                <div className="pl-2 border-l-2 border-white/10 ml-1 space-y-1">
-                                  {ex.setsList && ex.setsList.length > 0 ? (
-                                    ex.setsList.slice(0, 3).map((set, sIdx) => (
-                                      <div key={sIdx} className="flex items-center gap-3 text-xs font-bold text-[#8E8E93]">
-                                        <span className="w-4 text-center">S{sIdx + 1}</span>
-                                        <div className="flex gap-1 text-white/90">
-                                          <span>{set.kg} kg</span>
-                                          <span>×</span>
-                                          <span>{set.reps}</span>
-                                        </div>
-                                      </div>
-                                    ))
-                                  ) : (
-                                    <div className="text-xs font-bold text-[#8E8E93]">
-                                      {ex.sets} {ex.sets === 1 ? 'Set' : 'Sets'} completed
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="text-sm font-bold text-[#8E8E93] italic py-2 text-center">No exercises logged.</div>
-                          )}
-                        </div>
-                        
-                        {/* Fade overlay for long lists */}
-                        {hasHiddenContent && (
-                          <div className="absolute bottom-0 left-0 right-0 h-24 backdrop-blur-md bg-gradient-to-t from-[#121212]/90 via-[#121212]/50 to-transparent [mask-image:radial-gradient(ellipse_at_bottom,black_10%,transparent_80%)] pointer-events-none flex items-end justify-center pb-3">
-                            <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest mb-1">
-                              Click to see more
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
+                post={workout} 
+                currentUsername={username}
+                currentUserAvatar={avatarUrl}
+                onCopy={(post) => {
+                  // TODO: Implement copy routine in Dashboard or pass down
+                }}
+                onDelete={(id) => {
+                  setConfirmModal({ isOpen: true, id });
+                }}
+                onViewSummary={(post) => setSelectedWorkoutRecap(post)}
+              />
             ))}
           </div>
         ) : (
           <div className="bg-[#1C1C1E] border border-[#2C2C2E] border-dashed border-2 p-16 rounded-[40px] flex flex-col items-center justify-center text-center h-[300px]">
-            <div className="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mb-6 shadow-2xl border border-white/5">
-              <Dumbbell className="text-white/20" size={32} />
-            </div>
             <p className="text-[#8E8E93] font-bold text-lg mb-8">No activity recorded for this day.</p>
             {isSameDay(selectedDate, startOfToday()) && (
                <button 

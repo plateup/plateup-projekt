@@ -17,7 +17,7 @@ import { Plus, ChevronUp } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 import { supabase } from '../../services/supabaseClient';
 
-export default function LiveWorkout({ isVisible = true, onRestore }) {
+export default function LiveWorkout({ isVisible = true, onRestore, onFinish }) {
   // Stan przechowujący zmienną: activeTab
   const [activeTab, setActiveTab] = useState('workout');
   // Stan przechowujący zmienną: showLibrary
@@ -216,10 +216,12 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
             onSave={(title) => {
               completeAndSaveWorkout(title);
               setShowRecap(false);
+              if (onFinish) onFinish();
             }}
             onDiscard={() => {
               executeReset();
               setShowRecap(false);
+              if (onFinish) onFinish();
             }}
           />
         )}
@@ -368,7 +370,7 @@ export default function LiveWorkout({ isVisible = true, onRestore }) {
                 <button onClick={() => setShowResetModal(false)} className="bg-black text-[#8E8E93] font-black py-4 rounded-2xl text-xs hover:bg-white/5 transition-all">
                   CANCEL
                 </button>
-                <button onClick={() => { executeReset(); setShowResetModal(false); }} className="bg-red-500 text-white font-black py-4 rounded-2xl text-xs hover:bg-red-600 transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                <button onClick={() => { executeReset(); setShowResetModal(false); if(onFinish) onFinish(); }} className="bg-red-500 text-white font-black py-4 rounded-2xl text-xs hover:bg-red-600 transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]">
                   DISCARD
                 </button>
               </div>

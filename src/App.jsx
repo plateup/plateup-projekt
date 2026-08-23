@@ -144,7 +144,7 @@ function App() {
     <AppShell 
       activeTab={activeTab} 
       setActiveTab={setActiveTab}
-      persistentComponent={<LiveWorkout isVisible={activeTab === 'workout'} onRestore={() => setActiveTab('workout')} />}
+      persistentComponent={<LiveWorkout isVisible={activeTab === 'workout'} onRestore={() => setActiveTab('workout')} onFinish={() => setActiveTab('feed')} />}
     >
       {activeTab === 'feed' && <Dashboard setActiveTab={setActiveTab} />}
       {activeTab === 'social' && <SocialFeed />}
