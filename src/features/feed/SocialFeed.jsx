@@ -227,6 +227,19 @@ export default function SocialFeed() {
   const [leaderboardData, setLeaderboardData] = useState([]);
   // Stan przechowujący zmienną: selectedProfile
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [selectedProfileRoutines, setSelectedProfileRoutines] = useState([]);
+
+  useEffect(() => {
+    if (selectedProfile) {
+      const fetchRoutines = async () => {
+        const { data } = await supabase.from('routines').select('*').eq('user_id', selectedProfile.id).order('created_at', { ascending: false });
+        if (data) setSelectedProfileRoutines(data);
+      };
+      fetchRoutines();
+    } else {
+      setSelectedProfileRoutines([]);
+    }
+  }, [selectedProfile]);
 
   const messagesEndRef = useRef(null);
 
@@ -1029,44 +1042,66 @@ export default function SocialFeed() {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
-                <div className="p-8 flex flex-col items-center text-center border-b border-white/5 bg-black/20">
-                  <div className="w-24 h-24 rounded-[32px] bg-white/10 flex items-center justify-center font-black text-4xl overflow-hidden border border-white/5 shadow-2xl mb-4 relative">
-                    {selectedProfile.avatar_url ? (
-                      <img src={selectedProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      (selectedProfile.username || selectedProfile.display_name || 'U')[0].toUpperCase()
-                    )}
+                <div className="p-8 flex flex-col items-center text-center border-b border-white/5 bg-[#1C1C1E]">
+                  <div className="flex items-center gap-6 w-full max-w-sm mb-6">
+                    <div className="w-24 h-24 rounded-full bg-black border border-white/10 flex items-center justify-center font-black text-4xl overflow-hidden shadow-2xl relative shrink-0">
+                      {selectedProfile.avatar_url ? (
+                        <img src={selectedProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-white">{(selectedProfile.username || selectedProfile.display_name || 'U')[0].toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h2 className="text-2xl font-black text-white mb-2">{selectedProfile.username || selectedProfile.display_name}</h2>
+                      <div className="flex items-center gap-6">
+                        <div className="flex flex-col">
+                          <span className="text-xl font-black text-white leading-none">{posts.filter(p => p.user.name === selectedProfile.username).length}</span>
+                          <span className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-widest mt-1">Workouts</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xl font-black text-white leading-none text-amber-400">{selectedProfile.level}</span>
+                          <span className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-widest mt-1">Level</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-black text-white">{selectedProfile.username || selectedProfile.display_name}</h2>
-                  <div className="flex items-center gap-2 mt-1 mb-6">
-                    <span className="text-[11px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-xl font-black tracking-widest uppercase">Level {selectedProfile.level}</span>
-                    <span className="text-[#8E8E93] font-bold text-sm">{selectedProfile.exp.toLocaleString()} EXP</span>
+
+                  <div className="mb-6 w-full text-sm font-medium text-white/80 leading-relaxed bg-black/40 p-4 rounded-3xl border border-white/5 text-left">
+                    {selectedProfile.bio || <span className="text-[#8E8E93] italic">No bio added.</span>}
                   </div>
                   
                   {selectedProfile.username !== currentUsername && (
-                    <div className="flex gap-2">
-                      <button className="bg-white text-black px-6 py-2.5 rounded-xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-2">
+                    <div className="flex gap-2 w-full">
+                      <button onClick={() => { setActiveSubTab('chats'); setActiveChatUser(selectedProfile); setSelectedProfile(null); }} className="w-full bg-white text-black py-4 rounded-2xl font-black text-sm hover:bg-neutral-200 transition-all flex items-center justify-center gap-2">
                         <MessageSquare size={16} /> Message
                       </button>
                     </div>
                   )}
                 </div>
+
+                {selectedProfileRoutines.length > 0 && (
+                  <div className="p-4 mt-2 border-b border-white/5 pb-8">
+                    <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-widest mb-4 ml-2">Routines</h3>
+                    <div className="flex overflow-x-auto gap-4 pb-2 no-scrollbar px-2">
+                      {selectedProfileRoutines.map(routine => (
+                        <div key={routine.id} className="min-w-[200px] bg-black/40 border border-white/5 p-4 rounded-[24px] cursor-pointer hover:border-white/10 transition-colors">
+                          <h4 className="font-black text-white mb-2 truncate">{routine.name}</h4>
+                          <p className="text-xs text-[#8E8E93] mb-4">{routine.exercises?.length || 0} exercises</p>
+                          <button className="text-[10px] bg-white text-black px-3 py-1.5 rounded-lg font-black uppercase tracking-widest hover:bg-neutral-200 transition-all w-full flex justify-center items-center gap-1">
+                            <Copy size={12} /> Copy
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 <div className="p-4 mt-2">
-                  <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-widest mb-4 ml-2">Recent Activity</h3>
+                  <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-widest mb-4 ml-2">Recent Workouts</h3>
                   <div className="space-y-4">
                     {posts.filter(p => p.user.name === selectedProfile.username).length > 0 ? (
                       posts.filter(p => p.user.name === selectedProfile.username).map(post => (
-                        <div key={post.id} className="bg-black/40 border border-white/5 p-4 rounded-[24px] cursor-pointer hover:border-white/10 transition-colors" onClick={() => setSelectedWorkoutRecap(post)}>
-                          <div className="flex justify-between items-start mb-2">
-                            <h4 className="font-black text-white">{post.title}</h4>
-                            <span className="text-[10px] text-[#8E8E93] font-bold">{post.timeAgo}</span>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="text-xs bg-white/5 px-2 py-1 rounded-lg text-[#8E8E93] font-bold">{post.stats?.volume || '0 kg'}</span>
-                            <span className="text-xs bg-white/5 px-2 py-1 rounded-lg text-[#8E8E93] font-bold">{post.stats?.time || '0m'}</span>
-                          </div>
-                        </div>
+                        <WorkoutPost key={post.id} post={post} currentUsername={currentUsername} currentUserAvatar={currentUserAvatar} onCopy={handleCopyRoutine} onDelete={handleDeletePost} onViewSummary={setSelectedWorkoutRecap} />
                       ))
                     ) : (
                       <div className="text-center py-10 text-[#8E8E93] font-bold text-sm">No recent workouts</div>
