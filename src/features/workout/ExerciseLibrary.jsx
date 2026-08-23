@@ -10,7 +10,7 @@ import { useExercises } from '../../hooks/useExercises';
 import { Search, Plus, X, ChevronRight, Dumbbell, CheckSquare, Square } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 
-export default function ExerciseLibrary({ onSelect, onClose }) {
+export default function ExerciseLibrary({ onSelect, onClose, isReplaceMode = false }) {
   const { exercises, loading, addCustomExercise } = useExercises();
   // Stan przechowujący zmienną: searchTerm
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,6 +48,11 @@ export default function ExerciseLibrary({ onSelect, onClose }) {
   // Funkcja pomocnicza: toggleSelection
 
   const toggleSelection = (ex) => {
+    if (isReplaceMode) {
+      onSelect([ex]);
+      return;
+    }
+    
     if (selectedExercises.find(s => s.id === ex.id)) {
       setSelectedExercises(selectedExercises.filter(s => s.id !== ex.id));
     } else {

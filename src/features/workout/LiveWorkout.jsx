@@ -13,6 +13,8 @@ import WorkoutStart from './WorkoutStart';
 import ExerciseLibrary from './ExerciseLibrary';
 import RestTimerOverlay from './RestTimerOverlay';
 import WorkoutRecap from './WorkoutRecap';
+import ReorderExercisesModal from './ReorderExercisesModal';
+import SupersetModal from './SupersetModal';
 import { Plus, ChevronUp } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
 import { supabase } from '../../services/supabaseClient';
@@ -52,6 +54,9 @@ export default function LiveWorkout({ isVisible = true, onRestore, onFinish }) {
     updateExerciseRestDuration,
     updateExerciseNotes,
     addRestTime,
+    reorderExercises,
+    replaceExercise,
+    toggleSuperset,
     setRestTime
   } = useWorkoutSession();
 
@@ -60,6 +65,10 @@ export default function LiveWorkout({ isVisible = true, onRestore, onFinish }) {
   const [showResetModal, setShowResetModal] = useState(false);
   // Stan przechowujący zmienną: isTimerMinimized
   const [isTimerMinimized, setIsTimerMinimized] = useState(false);
+
+  const [showReorderModal, setShowReorderModal] = useState(false);
+  const [showReplaceModalFor, setShowReplaceModalFor] = useState(null);
+  const [showSupersetModalFor, setShowSupersetModalFor] = useState(null);
 
   // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
@@ -318,23 +327,41 @@ export default function LiveWorkout({ isVisible = true, onRestore, onFinish }) {
         {/* Exercises List */}
         <main className="space-y-6 pb-32 min-h-[60vh]">
           <div className="grid grid-cols-1 gap-8">
-            {exercises.map((exercise) => (
-              <ExerciseCard
-                key={exercise.id}
-                exercise={exercise}
-                updateSet={updateSet}
-                toggleSetComplete={toggleSetComplete}
-                toggleSetType={toggleSetType}
-                addSetToExercise={addSetToExercise}
-                removeSetFromExercise={removeSetFromExercise}
-                duplicateSetInExercise={duplicateSetInExercise}
-                updateExerciseRestDuration={updateExerciseRestDuration}
-                updateExerciseNotes={updateExerciseNotes}
-                isDisabled={!isActive}
-                activeRestSetId={activeRestSetId}
-                restTime={restTime}
-              />
-            ))}
+            {exercises.map((exercise, index) => {
+              const isSuperset = !!exercise.supersetId;
+              const prevEx = exercises[index - 1];
+              const isSupersetStart = isSuperset && (!prevEx || prevEx.supersetId !== exercise.supersetId);
+
+              return (
+                <div key={exercise.id} className="relative">
+                  {isSuperset && !isSupersetStart && (
+                    <div className="absolute -top-6 left-8 w-1 h-6 bg-indigo-500/50 z-0" />
+                  )}
+                  <div className={`relative z-10 ${isSuperset ? 'border-l-4 border-indigo-500 pl-2 sm:pl-4 -ml-3 sm:-ml-5 rounded-l-lg' : ''}`}>
+                    {isSupersetStart && (
+                      <div className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2">Superset</div>
+                    )}
+                    <ExerciseCard
+                      exercise={exercise}
+                      updateSet={updateSet}
+                      toggleSetComplete={toggleSetComplete}
+                      toggleSetType={toggleSetType}
+                      addSetToExercise={addSetToExercise}
+                      removeSetFromExercise={removeSetFromExercise}
+                      duplicateSetInExercise={duplicateSetInExercise}
+                      updateExerciseRestDuration={updateExerciseRestDuration}
+                      updateExerciseNotes={updateExerciseNotes}
+                      onReorder={() => setShowReorderModal(true)}
+                      onReplace={() => setShowReplaceModalFor(exercise.id)}
+                      onSuperset={() => setShowSupersetModalFor(exercise.id)}
+                      isDisabled={!isActive}
+                      activeRestSetId={activeRestSetId}
+                      restTime={restTime}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex flex-col gap-4 mt-8">
@@ -353,10 +380,46 @@ export default function LiveWorkout({ isVisible = true, onRestore, onFinish }) {
         <WorkoutRecap workout={completedWorkoutSummary} onClose={() => setShowRecap(false)} />
       )}
 
-      {showLibrary && (
+      {showLibrary && !showReplaceModalFor && (
         <ExerciseLibrary 
-          onSelect={handleAddExercise}
-          onClose={() => setShowLibrary(false)}
+          onSelect={handleAddExercise} 
+          onClose={() => setShowLibrary(false)} 
+        />
+      )}
+
+      {showReplaceModalFor && (
+        <ExerciseLibrary 
+          isReplaceMode={true}
+          onSelect={(selectedArr) => {
+            if (selectedArr && selectedArr.length > 0) {
+              replaceExercise(showReplaceModalFor, selectedArr[0]);
+            }
+            setShowReplaceModalFor(null);
+          }} 
+          onClose={() => setShowReplaceModalFor(null)} 
+        />
+      )}
+
+      {showReorderModal && (
+        <ReorderExercisesModal 
+          exercises={exercises}
+          onClose={() => setShowReorderModal(false)}
+          onSave={(newOrderIds) => {
+            reorderExercises(newOrderIds);
+            setShowReorderModal(false);
+          }}
+        />
+      )}
+
+      {showSupersetModalFor && (
+        <SupersetModal 
+          exercises={exercises}
+          targetExerciseId={showSupersetModalFor}
+          onClose={() => setShowSupersetModalFor(null)}
+          onSelect={(otherId) => {
+            toggleSuperset(showSupersetModalFor, otherId);
+            setShowSupersetModalFor(null);
+          }}
         />
       )}
 

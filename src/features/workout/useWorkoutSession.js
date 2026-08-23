@@ -379,6 +379,57 @@ export function useWorkoutSession() {
     );
   };
 
+  const reorderExercises = (newOrderIds) => {
+    setExercises(prev => {
+      const reordered = [];
+      newOrderIds.forEach(id => {
+        const found = prev.find(ex => ex.id === id);
+        if (found) reordered.push(found);
+      });
+      return reordered;
+    });
+  };
+
+  const replaceExercise = (oldExerciseId, newExerciseDef) => {
+    setExercises(prev => prev.map(ex => {
+      if (ex.id === oldExerciseId) {
+        // Keep the sets structure, but wipe the values
+        const wipedSets = ex.sets.map(s => ({ ...s, kg: '', reps: '', rpe: '', isCompleted: false, prevKg: '', prevReps: '', prevRpe: '' }));
+        return {
+          ...ex,
+          name: newExerciseDef.name,
+          muscle_group: newExerciseDef.muscle_group,
+          equipment: newExerciseDef.equipment,
+          mechanic: newExerciseDef.mechanic,
+          sets: wipedSets
+        };
+      }
+      return ex;
+    }));
+  };
+
+  const toggleSuperset = (exerciseId1, exerciseId2) => {
+    setExercises(prev => {
+      const ex1 = prev.find(e => e.id === exerciseId1);
+      const ex2 = prev.find(e => e.id === exerciseId2);
+      if (!ex1 || !ex2) return prev;
+      
+      const targetGroupId = ex2.supersetId || ex1.supersetId || `superset-${Date.now()}`;
+      
+      return prev.map(ex => {
+        if (ex.id === exerciseId1 || ex.id === exerciseId2) {
+          // If they both already have the same supersetId, we're detaching ex1
+          if (ex1.supersetId === ex2.supersetId && ex1.supersetId !== undefined && ex1.supersetId !== null) {
+             if (ex.id === exerciseId1) return { ...ex, supersetId: null };
+             return ex;
+          }
+          return { ...ex, supersetId: targetGroupId };
+        }
+        return ex;
+      });
+    });
+  };
+
   // Funkcja pomocnicza: toggleSetComplete
 
   const toggleSetComplete = (exerciseId, setId) => {
@@ -456,6 +507,6 @@ export function useWorkoutSession() {
   return {
     exercises, sessionStatus, workoutTime, workoutTimeFormatted: Math.floor(workoutTime / 60).toString().padStart(2, '0') + ":" + (workoutTime % 60).toString().padStart(2, '0'),
     workoutTitle, setWorkoutTitle, restTime, initialRestTime, setRestTime, isResting, activeRestSetId, startWorkout, stopRest, pauseWorkout, executeReset, completeAndSaveWorkout, updateSet, toggleSetComplete, toggleSetType, moveSet,
-    addExerciseToSession, addSetToExercise, removeSetFromExercise, duplicateSetInExercise, updateExerciseRestDuration, updateExerciseNotes, addRestTime
+    addExerciseToSession, addSetToExercise, removeSetFromExercise, duplicateSetInExercise, updateExerciseRestDuration, updateExerciseNotes, addRestTime, reorderExercises, replaceExercise, toggleSuperset
   };
 }

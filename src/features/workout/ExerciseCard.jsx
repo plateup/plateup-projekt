@@ -22,6 +22,9 @@ export default function ExerciseCard({
   duplicateSetInExercise,
   updateExerciseRestDuration,
   updateExerciseNotes,
+  onReorder,
+  onReplace,
+  onSuperset,
   isDisabled,
   activeRestSetId,
   restTime
@@ -115,13 +118,13 @@ export default function ExerciseCard({
             
             {showOptions && (
               <div className="absolute right-0 top-full mt-2 w-56 bg-[#1C1C1E] border border-[#2C2C2E] rounded-2xl shadow-2xl z-[105] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                <button onClick={() => setShowOptions(false)} className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold border-b border-white/5">
+                <button onClick={() => { setShowOptions(false); if(onReorder) onReorder(); }} className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold border-b border-white/5">
                   <ArrowDownUp size={16} /> Reorder Exercises
                 </button>
-                <button onClick={() => setShowOptions(false)} className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold border-b border-white/5">
+                <button onClick={() => { setShowOptions(false); if(onReplace) onReplace(); }} className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold border-b border-white/5">
                   <RefreshCw size={16} /> Replace Exercise
                 </button>
-                <button onClick={() => setShowOptions(false)} className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold border-b border-white/5">
+                <button onClick={() => { setShowOptions(false); if(onSuperset) onSuperset(); }} className="w-full flex items-center gap-3 p-4 hover:bg-white/5 text-left transition-colors text-sm font-bold border-b border-white/5">
                   <Link2 size={16} /> Add to Superset
                 </button>
                 <button 
