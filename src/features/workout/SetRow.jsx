@@ -89,7 +89,7 @@ export default function SetRow({
       dragElastic={0.4}
       onDragEnd={handleDragEnd}
       animate={controls}
-      className={`relative grid grid-cols-[30px_64px_1fr_1fr_40px_30px] sm:grid-cols-[40px_80px_1fr_1fr_50px_40px] gap-2 items-center p-1 rounded-xl transition-all ${
+      className={`relative grid grid-cols-[36px_72px_1fr_1fr_46px_36px] sm:grid-cols-[40px_80px_1fr_1fr_50px_40px] gap-2 items-center p-1 rounded-xl transition-all ${
         set.isCompleted ? 'bg-emerald-500/10' : ''
       }`}
     >
@@ -98,7 +98,7 @@ export default function SetRow({
       <div className="relative flex justify-center">
         <button 
           onClick={() => setShowTypeSelector(!showTypeSelector)}
-          className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-black text-xs sm:text-sm transition-all ${
+          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-md flex items-center justify-center font-black text-xs sm:text-sm transition-all ${
             set.type !== 'normal' ? 'bg-amber-500 text-black' : 'bg-white/10 text-white'
           }`}
         >
@@ -140,7 +140,7 @@ export default function SetRow({
           type="text"
           inputMode="decimal"
           placeholder="-"
-          className={`w-full bg-white/10 text-white text-center font-bold py-1.5 sm:py-2 rounded-lg border-none outline-none transition-all placeholder:text-[#8E8E93] text-sm sm:text-base ${
+          className={`w-full bg-white/10 text-white text-center font-bold py-2 rounded-lg border-none outline-none transition-all placeholder:text-[#8E8E93] text-[15px] sm:text-base ${
             set.isCompleted ? 'bg-transparent text-white/80' : 'focus:bg-white/20'
           }`}
           value={set.kg || ''}
@@ -159,7 +159,7 @@ export default function SetRow({
           type="text"
           inputMode="numeric"
           placeholder="-"
-          className={`w-full bg-white/10 text-white text-center font-bold py-1.5 sm:py-2 rounded-lg border-none outline-none transition-all placeholder:text-[#8E8E93] text-sm sm:text-base ${
+          className={`w-full bg-white/10 text-white text-center font-bold py-2 rounded-lg border-none outline-none transition-all placeholder:text-[#8E8E93] text-[15px] sm:text-base ${
             set.isCompleted ? 'bg-transparent text-white/80' : 'focus:bg-white/20'
           }`}
           value={set.reps || ''}
@@ -175,7 +175,7 @@ export default function SetRow({
           type="text"
           inputMode="decimal"
           placeholder="-"
-          className={`w-full bg-white/10 text-white text-center font-bold py-1.5 sm:py-2 rounded-lg border-none outline-none transition-all placeholder:text-[#8E8E93] text-sm sm:text-base ${
+          className={`w-full bg-white/10 text-white text-center font-bold py-2 rounded-lg border-none outline-none transition-all placeholder:text-[#8E8E93] text-[15px] sm:text-base ${
             set.isCompleted ? 'bg-transparent text-white/80' : 'focus:bg-white/20'
           }`}
           value={set.rpe || ''}
@@ -190,13 +190,13 @@ export default function SetRow({
         <button
           onClick={onCheck}
           disabled={isDisabled}
-          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${
+          className={`w-8 h-8 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${
             set.isCompleted 
               ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
               : 'bg-white/10 text-transparent hover:bg-white/20'
           }`}
         >
-          <Check size={14} strokeWidth={4} className={set.isCompleted ? 'scale-100' : 'scale-0'} />
+          <Check size={16} strokeWidth={4} className={set.isCompleted ? 'scale-100' : 'scale-0'} />
         </button>
       </div>
     </motion.div>

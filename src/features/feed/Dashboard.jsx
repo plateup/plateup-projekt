@@ -212,7 +212,7 @@ export default function Dashboard({ setActiveTab }) {
   return (
     <div className="animate-in fade-in duration-700">
       {/* Header */}
-      <header className="flex items-center justify-between mb-12 relative">
+      <header className="flex items-start justify-between mb-12 relative">
         <div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2">
             Hey, {username}
@@ -220,7 +220,7 @@ export default function Dashboard({ setActiveTab }) {
           <p className="text-[#8E8E93] font-bold">Ready to crush your goals today?</p>
         </div>
         
-        <div className="relative">
+        <div className="relative mt-1">
           <button 
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             className="w-14 h-14 rounded-[20px] bg-white/5 hover:bg-white/10 flex items-center justify-center border border-white/10 shadow-xl transition-all overflow-hidden"

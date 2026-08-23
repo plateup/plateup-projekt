@@ -670,7 +670,7 @@ export default function SocialFeed() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearch}
-              placeholder="Find friends by username (Press Enter)..."
+              placeholder="Search username to add friends..."
               className="w-full bg-[#1C1C1E] text-white h-14 rounded-[20px] pl-12 pr-4 font-bold outline-none border border-white/5 focus:border-white/20 transition-all placeholder:text-[#8E8E93]"
             />
           </div>

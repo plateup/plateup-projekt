@@ -151,7 +151,7 @@ export default function ExerciseCard({
           </div>
 
           {/* Labels */}
-          <div className="grid grid-cols-[30px_64px_1fr_1fr_40px_30px] sm:grid-cols-[40px_80px_1fr_1fr_50px_40px] gap-2 text-center text-[9px] sm:text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-1 sm:px-2">
+          <div className="grid grid-cols-[36px_72px_1fr_1fr_46px_36px] sm:grid-cols-[40px_80px_1fr_1fr_50px_40px] gap-2 text-center text-[10px] sm:text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-1 sm:px-2">
             <span>Set</span>
             <span className="text-left">Prev</span>
             {isBodyweightExercise ? (

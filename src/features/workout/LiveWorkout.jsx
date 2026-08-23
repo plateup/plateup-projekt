@@ -249,7 +249,7 @@ export default function LiveWorkout({ isVisible = true, onRestore, onFinish }) {
         >
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-black animate-pulse" />
-            <span className="font-black text-sm uppercase tracking-widest">Active Workout</span>
+            <span className="font-black text-sm uppercase tracking-widest">Workout</span>
           </div>
           <div className="flex items-center gap-4">
             <span className="font-mono font-black">{workoutTimeFormatted}</span>
