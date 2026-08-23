@@ -148,12 +148,12 @@ export default function ExerciseCard({
           </div>
 
           {/* Labels */}
-          <div className="grid grid-cols-[40px_80px_1fr_1fr_50px_40px] gap-2 text-center text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-2">
+          <div className="grid grid-cols-[30px_64px_1fr_1fr_40px_30px] sm:grid-cols-[40px_80px_1fr_1fr_50px_40px] gap-2 text-center text-[9px] sm:text-[10px] font-black text-[#8E8E93] uppercase tracking-widest px-1 sm:px-2">
             <span>Set</span>
-            <span className="text-left">Previous</span>
+            <span className="text-left">Prev</span>
             {isBodyweightExercise ? (
               <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowAddedWeightInfo(true)}>
-                + KG
+                +KG
               </span>
             ) : (
               <span>KG</span>
@@ -162,7 +162,7 @@ export default function ExerciseCard({
             <span className="flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors" onClick={() => setShowRpeInfo(true)}>
               RPE
             </span>
-            <span><Check size={14} className="mx-auto" /></span>
+            <span><Check size={12} className="mx-auto" /></span>
           </div>
 
           {/* Sets */}
