@@ -9,6 +9,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MoreHorizontal, Heart, MessageCircle, Award, UserPlus, Search, Users, MessageSquare, Copy, Trash2, Send, X, Trophy, Lock, MapPin, Share2, Bookmark, Edit3, Dumbbell } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { ConfirmModal, ModalPortal } from '../../components/ui';
+import FriendProfileModal from '../../components/FriendProfileModal';
 import WorkoutRecap from '../workout/WorkoutRecap';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 
@@ -773,7 +774,10 @@ export default function SocialFeed() {
                   <div className="space-y-4">
                     {leaderboardData.filter(u => u.id !== currentUserId).map(friend => (
                       <div key={friend.id} className="flex items-center justify-between bg-[#1C1C1E] p-4 rounded-[24px] border border-white/5">
-                        <div className="flex items-center gap-4">
+                        <div 
+                          className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity flex-1"
+                          onClick={() => setSelectedProfile({ id: friend.id })}
+                        >
                           <div className="w-12 h-12 rounded-[16px] bg-white/10 flex items-center justify-center font-black text-lg overflow-hidden border border-white/5">
                             {friend.avatar_url ? (
                               <img src={friend.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
@@ -786,7 +790,7 @@ export default function SocialFeed() {
                             <p className="text-[11px] font-bold text-[#8E8E93]">Level {friend.level}</p>
                           </div>
                         </div>
-                        <button onClick={() => { setActiveSubTab('chats'); setActiveChatUser(friend); }} className="bg-white/10 text-white px-4 py-2 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-white/20 transition-all">
+                        <button onClick={() => { setActiveSubTab('chats'); setActiveChatUser(friend); }} className="bg-white/10 text-white px-4 py-2 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-white/20 transition-all shrink-0">
                           <MessageSquare size={16} /> Chat
                         </button>
                       </div>
@@ -844,7 +848,7 @@ export default function SocialFeed() {
               return (
                 <div 
                   key={user.id} 
-                  onClick={() => setSelectedProfile(user)}
+                  onClick={() => setSelectedProfile({ id: user.id })}
                   className={`flex items-center justify-between p-4 rounded-[24px] border ${borderClass} ${bgClass} cursor-pointer hover:scale-[1.02] transition-all`}
                 >
                   <div className="flex items-center gap-4">
@@ -1044,87 +1048,17 @@ export default function SocialFeed() {
       )}
 
       {selectedProfile && (
-        <ModalPortal>
-          <div className="fixed inset-0 z-[600] flex items-end sm:items-center justify-center sm:p-6 animate-in fade-in duration-300">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedProfile(null)} />
-            <div className="relative w-full sm:max-w-md h-[90vh] sm:h-[700px] bg-[#1C1C1E] sm:rounded-[36px] rounded-t-[36px] shadow-2xl border border-white/10 overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300">
-              <div className="flex items-center justify-between p-6 pb-4 border-b border-white/5 relative z-10 bg-[#1C1C1E]">
-                <h3 className="font-black text-xl text-white">Profile</h3>
-                <button onClick={() => setSelectedProfile(null)} className="text-[#8E8E93] hover:text-white transition-colors bg-white/5 p-2 rounded-full">
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
-                <div className="p-8 flex flex-col items-center text-center border-b border-white/5 bg-[#1C1C1E]">
-                  <div className="flex items-center gap-6 w-full max-w-sm mb-6">
-                    <div className="w-24 h-24 rounded-[32px] bg-black border border-white/10 flex items-center justify-center font-black text-4xl overflow-hidden shadow-2xl relative shrink-0">
-                      {selectedProfile.avatar_url ? (
-                        <img src={selectedProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-white">{(selectedProfile.username || selectedProfile.display_name || 'U')[0].toUpperCase()}</span>
-                      )}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <h2 className="text-2xl font-black text-white mb-2">{selectedProfile.username || selectedProfile.display_name}</h2>
-                      <div className="flex items-center gap-6">
-                        <div className="flex flex-col">
-                          <span className="text-xl font-black text-white leading-none">{posts.filter(p => p.user.name === selectedProfile.username).length}</span>
-                          <span className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-widest mt-1">Workouts</span>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-xl font-black text-white leading-none text-amber-400">{selectedProfile.level}</span>
-                          <span className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-widest mt-1">Level</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-6 w-full text-sm font-medium text-white/80 leading-relaxed bg-black/40 p-4 rounded-3xl border border-white/5 text-left">
-                    {selectedProfile.bio || <span className="text-[#8E8E93] italic">No bio added.</span>}
-                  </div>
-                  
-                  {selectedProfile.username !== currentUsername && (
-                    <div className="flex gap-2 w-full">
-                      <button onClick={() => { setActiveSubTab('chats'); setActiveChatUser(selectedProfile); setSelectedProfile(null); }} className="w-full bg-white text-black py-4 rounded-2xl font-black text-sm hover:bg-neutral-200 transition-all flex items-center justify-center gap-2">
-                        <MessageSquare size={16} /> Message
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {selectedProfileRoutines.length > 0 && (
-                  <div className="p-4 mt-2 border-b border-white/5 pb-8">
-                    <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-widest mb-4 ml-2">Routines</h3>
-                    <div className="flex overflow-x-auto gap-4 pb-2 no-scrollbar px-2">
-                      {selectedProfileRoutines.map(routine => (
-                        <div key={routine.id} className="min-w-[200px] bg-black/40 border border-white/5 p-4 rounded-[24px] cursor-pointer hover:border-white/10 transition-colors">
-                          <h4 className="font-black text-white mb-2 truncate">{routine.name}</h4>
-                          <p className="text-xs text-[#8E8E93] mb-4">{routine.exercises?.length || 0} exercises</p>
-                          <button className="text-[10px] bg-white text-black px-3 py-1.5 rounded-lg font-black uppercase tracking-widest hover:bg-neutral-200 transition-all w-full flex justify-center items-center gap-1">
-                            <Copy size={12} /> Copy
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                <div className="p-4 mt-2">
-                  <h3 className="text-sm font-black text-[#8E8E93] uppercase tracking-widest mb-4 ml-2">Recent Workouts</h3>
-                  <div className="space-y-4">
-                    {posts.filter(p => p.user.name === selectedProfile.username).length > 0 ? (
-                      posts.filter(p => p.user.name === selectedProfile.username).map(post => (
-                        <WorkoutPost key={post.id} post={post} currentUsername={currentUsername} currentUserAvatar={currentUserAvatar} onCopy={handleCopyRoutine} onDelete={handleDeletePost} onViewSummary={setSelectedWorkoutRecap} />
-                      ))
-                    ) : (
-                      <div className="text-center py-10 text-[#8E8E93] font-bold text-sm">No recent workouts</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ModalPortal>
+        <FriendProfileModal 
+          userId={selectedProfile.id}
+          currentUsername={currentUsername}
+          currentUserAvatar={currentUserAvatar}
+          onClose={() => setSelectedProfile(null)}
+          onMessageClick={(prof) => {
+            setActiveSubTab('chats'); 
+            setActiveChatUser(prof); 
+            setSelectedProfile(null);
+          }}
+        />
       )}
     </div>
   );

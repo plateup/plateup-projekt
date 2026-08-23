@@ -12,6 +12,7 @@ import { format, addDays, subDays, isSameDay, startOfToday } from 'date-fns';
 import WorkoutRecap from '../workout/WorkoutRecap';
 import WorkoutPost from '../../components/WorkoutPost';
 import { ConfirmModal } from '../../components/ui';
+import FriendProfileModal from '../../components/FriendProfileModal';
 
 export default function Dashboard({ setActiveTab }) {
   // Stan przechowujący zmienną: username
@@ -30,6 +31,7 @@ export default function Dashboard({ setActiveTab }) {
   const [openMenuId, setOpenMenuId] = useState(null);
   // Stan przechowujący zmienną: confirmModal
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const scrollRef = useRef(null);
 
   // Funkcja pomocnicza: generateDates
@@ -315,6 +317,7 @@ export default function Dashboard({ setActiveTab }) {
                   setConfirmModal({ isOpen: true, id });
                 }}
                 onViewSummary={(post) => setSelectedWorkoutRecap(post)}
+                onUserClick={(userId) => setSelectedUserId(userId)}
               />
             ))}
           </div>
@@ -359,6 +362,20 @@ export default function Dashboard({ setActiveTab }) {
         onConfirm={executeDeleteWorkout}
         onCancel={() => setConfirmModal({ isOpen: false, id: null })}
       />
+
+      {selectedUserId && (
+        <FriendProfileModal 
+          userId={selectedUserId}
+          currentUsername={username}
+          currentUserAvatar={avatarUrl}
+          onClose={() => setSelectedUserId(null)}
+          onMessageClick={() => {
+             // Maybe switch tab to social later
+             setSelectedUserId(null);
+             setActiveTab('social');
+          }}
+        />
+      )}
     </div>
   );
 }

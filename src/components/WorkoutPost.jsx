@@ -70,7 +70,7 @@ export const StatBox = ({ label, value, highlight }) => (
   </div>
 );
 
-export default function WorkoutPost({ post, onCopy, onDelete, currentUsername, currentUserAvatar, onViewSummary }) {
+export default function WorkoutPost({ post, onCopy, onDelete, currentUsername, currentUserAvatar, onViewSummary, onUserClick }) {
   const [showOptions, setShowOptions] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes || 0);
@@ -91,7 +91,15 @@ export default function WorkoutPost({ post, onCopy, onDelete, currentUsername, c
   return (
     <div className="bg-[#1C1C1E] border border-white/5 rounded-[40px] p-6 mb-6 shadow-xl relative w-full">
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+        <div 
+          className={`flex items-center gap-4 ${onUserClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+          onClick={(e) => {
+            if (onUserClick && post.user_id) {
+              e.stopPropagation();
+              onUserClick(post.user_id);
+            }
+          }}
+        >
           <div className="w-12 h-12 rounded-[16px] bg-white/10 flex items-center justify-center font-black text-lg overflow-hidden border border-white/5 shadow-inner">
             {post.user.avatar ? (
               <img src={post.user.avatar} alt="Avatar" className="w-full h-full object-cover" />
