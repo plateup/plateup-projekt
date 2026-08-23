@@ -20,7 +20,7 @@ export default function AppShell({ children, activeTab, setActiveTab, persistent
   // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white/30">
+    <div className="min-h-screen bg-black text-white selection:bg-white/30 overflow-x-hidden">
       {/* Main Content Area */}
       <main className="min-h-screen transition-all duration-300 pb-32">
         <div className="max-w-4xl mx-auto px-6 py-12 lg:py-16 relative">

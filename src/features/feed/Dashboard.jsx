@@ -259,7 +259,7 @@ export default function Dashboard({ setActiveTab }) {
         </div>
         <div 
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto no-scrollbar py-4 -mx-6 px-6 md:mx-0 md:px-0 snap-x scroll-smooth"
+          className="flex gap-3 overflow-x-auto no-scrollbar py-4 -mx-6 px-6 md:mx-0 md:px-0 snap-x scroll-smooth w-screen max-w-none md:w-auto"
         >
           {dates.map((date, index) => {
             const isSelected = isSameDay(date, selectedDate);
@@ -273,7 +273,7 @@ export default function Dashboard({ setActiveTab }) {
                 key={index}
                 data-istoday={isToday}
                 onClick={() => setSelectedDate(date)}
-                className={`snap-center flex flex-col items-center justify-center min-w-[72px] h-[100px] rounded-[32px] transition-all relative shrink-0 ${
+                className={`snap-center flex flex-col items-center justify-center min-w-[64px] h-[90px] rounded-[28px] transition-all relative shrink-0 ${
                   isSelected 
                     ? 'bg-white text-black scale-105 shadow-[0_20px_40px_rgba(255,255,255,0.15)]' 
                     : 'bg-[#1C1C1E] text-[#8E8E93] border border-[#2C2C2E] hover:border-white/20'

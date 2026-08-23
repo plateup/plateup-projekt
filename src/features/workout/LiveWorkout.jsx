@@ -202,7 +202,7 @@ export default function LiveWorkout({ isVisible = true, onRestore, onFinish }) {
     if (!isVisible) return null;
     // Zwraca interfejs użytkownika (JSX) dla tego komponentu
     return (
-      <div className="min-h-screen bg-black text-white antialiased flex flex-col items-center w-full px-4 pt-10 relative">
+      <div className="min-h-screen bg-black text-white antialiased flex flex-col items-center w-full px-4 pt-10 relative overflow-x-hidden">
         <div className="w-full max-w-2xl">
           <WorkoutStart 
             onStartBlank={() => startWorkout()} 
