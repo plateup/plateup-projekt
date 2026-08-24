@@ -108,14 +108,14 @@ export default function LiveWorkout({ isVisible = true, onRestore, onFinish }) {
         : 0;
 
       ex.sets.forEach(set => {
-        if (set.isCompleted && set.kg && set.reps) {
-          const weight = parseFloat(set.kg);
+        if (set.isCompleted && set.reps) {
+          const weight = parseFloat(set.kg) || 0;
           const reps = parseInt(set.reps, 10);
           exVolume += weight * reps;
           validSets++;
-          if (weight > maxKg) {
+          if (weight >= maxKg) {
             maxKg = weight;
-            bestSet = `${weight}kg x ${reps}`;
+            bestSet = `${weight > 0 ? weight + 'kg x ' : 'BW x '}${reps}`;
           }
         }
       });
@@ -377,7 +377,20 @@ export default function LiveWorkout({ isVisible = true, onRestore, onFinish }) {
       </div>
 
       {showRecap && (
-        <WorkoutRecap workout={completedWorkoutSummary} onClose={() => setShowRecap(false)} />
+        <WorkoutRecap 
+          workout={completedWorkoutSummary} 
+          onClose={() => setShowRecap(false)}
+          onSave={(title) => {
+            completeAndSaveWorkout(title);
+            setShowRecap(false);
+            if (onFinish) onFinish();
+          }}
+          onDiscard={() => {
+            executeReset();
+            setShowRecap(false);
+            if (onFinish) onFinish();
+          }} 
+        />
       )}
 
       {showLibrary && !showReplaceModalFor && (

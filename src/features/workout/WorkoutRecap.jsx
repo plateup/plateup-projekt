@@ -35,19 +35,11 @@ export default function WorkoutRecap({ workout, onClose, onSave, onDiscard, isHi
 
   useEffect(() => {
     if (isHistory) return;
-    // Fire confetti on load for celebration
+    // Fire confetti on load for celebration (shortened to single burst)
     const timer = setTimeout(() => {
-      const duration = 2000;
-      const end = Date.now() + duration;
-
-      const frame = () => {
-        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ffffff', '#8E8E93', '#2C2C2E'], zIndex: 9999 });
-        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ffffff', '#8E8E93', '#2C2C2E'], zIndex: 9999 });
-        if (Date.now() < end) requestAnimationFrame(frame);
-      };
-      frame();
+      confetti({ particleCount: 50, spread: 80, origin: { y: 0.6 }, colors: ['#ffffff', '#8E8E93', '#2C2C2E'], zIndex: 9999 });
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    }, 500);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [isHistory]);
