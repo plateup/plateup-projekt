@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { useExercises } from '../../hooks/useExercises';
 import { Search, Plus, X, ChevronRight, Dumbbell, CheckSquare, Square } from 'lucide-react';
 import { ModalPortal } from '../../components/ui';
+import { getExerciseImage } from '../../utils/getExerciseImage';
 
 export default function ExerciseLibrary({ onSelect, onClose, isReplaceMode = false }) {
   const { exercises, loading, addCustomExercise } = useExercises();
@@ -20,12 +21,10 @@ export default function ExerciseLibrary({ onSelect, onClose, isReplaceMode = fal
   const [newExName, setNewExName] = useState('');
   const [newExMuscle, setNewExMuscle] = useState('Chest');
   const [selectedExercises, setSelectedExercises] = useState([]);
-  const [filterType, setFilterType] = useState('all'); // 'all', 'compound', 'isolation'
 
   const filteredExercises = exercises.filter(ex => 
     (ex.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ex.muscle_group.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (filterType === 'all' || ex.mechanic === filterType)
+    ex.muscle_group.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   // Group by muscle
@@ -110,26 +109,6 @@ export default function ExerciseLibrary({ onSelect, onClose, isReplaceMode = fal
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setFilterType('all')}
-              className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${filterType === 'all' ? 'bg-white text-black' : 'bg-white/5 text-[#8E8E93]'}`}
-            >
-              All
-            </button>
-            <button 
-              onClick={() => setFilterType('compound')}
-              className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${filterType === 'compound' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-[#8E8E93]'}`}
-            >
-              Compound
-            </button>
-            <button 
-              onClick={() => setFilterType('isolation')}
-              className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${filterType === 'isolation' ? 'bg-emerald-500 text-white' : 'bg-white/5 text-[#8E8E93]'}`}
-            >
-              Isolation
-            </button>
-          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 pb-24">
@@ -160,20 +139,22 @@ export default function ExerciseLibrary({ onSelect, onClose, isReplaceMode = fal
                           onClick={() => toggleSelection(ex)}
                           className={`w-full flex items-center p-4 transition-colors text-left group border-b border-white/5 last:border-0 ${isSelected ? 'bg-white/10' : 'hover:bg-white/5 active:bg-white/10'}`}
                         >
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mr-4 transition-all ${isSelected ? 'bg-white text-black scale-110 shadow-lg shadow-white/20' : ex.isCustom ? 'bg-blue-500/20 text-blue-400 group-hover:bg-blue-500/30' : 'bg-white/5 text-[#8E8E93] group-hover:bg-white/10 group-hover:text-white'}`}>
-                            <Dumbbell size={24} />
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mr-4 transition-all overflow-hidden shrink-0 ${isSelected ? 'bg-white text-black scale-110 shadow-lg shadow-white/20' : ex.isCustom ? 'bg-blue-500/20 text-blue-400 group-hover:bg-blue-500/30' : 'bg-white/5 text-[#8E8E93] group-hover:bg-white/10 group-hover:text-white'}`}>
+                            {getExerciseImage(ex.name) ? (
+                              <img 
+                                src={getExerciseImage(ex.name)} 
+                                alt={ex.name} 
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Dumbbell size={24} />
+                            )}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <h4 className="font-black text-white text-[16px]">{ex.name}</h4>
                               {ex.isCustom && (
                                 <span className="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-blue-500/20">Custom</span>
-                              )}
-                              {ex.mechanic === 'compound' && (
-                                <span className="text-[9px] bg-indigo-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20">Compound</span>
-                              )}
-                              {ex.mechanic === 'isolation' && (
-                                <span className="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">Isolation</span>
                               )}
                             </div>
                             <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mt-1 block">{ex.muscle_group}</span>

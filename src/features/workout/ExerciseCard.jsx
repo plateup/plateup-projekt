@@ -11,6 +11,7 @@ import { MoreHorizontal, Plus, Timer, Edit3, Trash2, Dumbbell, Info, X, Check, A
 import { ModalPortal } from '../../components/ui';
 import RestTimerModal from './RestTimerModal';
 import PlateCalculator from './PlateCalculator';
+import { getExerciseImage } from '../../utils/getExerciseImage';
 
 export default function ExerciseCard({ 
   exercise, 
@@ -74,18 +75,20 @@ export default function ExerciseCard({
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white font-black text-lg border border-white/5">
-              {exercise.name[0]}
+            <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white font-black text-lg border border-white/5 overflow-hidden shrink-0">
+              {getExerciseImage(exercise.name) ? (
+                <img 
+                  src={getExerciseImage(exercise.name)} 
+                  alt={exercise.name} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                exercise.name[0]
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-xl font-black tracking-tight text-white leading-none">{exercise.name}</h3>
-                {exercise.mechanic === 'compound' && (
-                  <span className="text-[9px] bg-indigo-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20">Compound</span>
-                )}
-                {exercise.mechanic === 'isolation' && (
-                  <span className="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">Isolation</span>
-                )}
               </div>
               <div className="flex items-center gap-4">
                 <button 

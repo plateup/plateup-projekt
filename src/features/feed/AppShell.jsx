@@ -40,7 +40,7 @@ export default function AppShell({ children, activeTab, setActiveTab, persistent
       </main>
 
       {/* Unified Bottom Nav (Mobile & Desktop) */}
-      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-lg h-20 bg-[#1C1C1E]/90 backdrop-blur-2xl border border-white/5 rounded-[32px] flex items-center justify-around px-4 shadow-2xl z-50">
+      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-lg h-20 bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/5 rounded-[32px] flex items-center justify-around px-4 shadow-2xl z-50">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
