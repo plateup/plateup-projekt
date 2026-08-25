@@ -39,7 +39,41 @@ const OPENGYM_EXACT_MAP = {
   "Pull-Up": "pull-up",
   "Pull Up": "pull-up",
   "Squat (Barbell)": "barbell full squat",
-  "Squat": "barbell full squat"
+  "Squat": "barbell full squat",
+
+  // Nowe ćwiczenia z prośby
+  "Crunches": "band bicycle crunch",
+  "Plank": "front plank with twist",
+  "Bicep Curl (Dumbbell)": "dumbbell alternate biceps curl",
+  "Hammer Curl (Dumbbell)": "dumbbell hammer curl",
+  "Skull Crusher": "barbell lying triceps extension",
+  "Triceps Pushdown": "cable pushdown",
+  "Bent Over Row (Barbell)": "barbell bent over row",
+  "Deadlift (Barbell)": "barbell deadlift",
+  "Chest Fly (Dumbbell)": "dumbbell fly",
+  "Incline Bench Press (Barbell)": "barbell incline bench press",
+  "Leg Curl": "lever seated leg curl",
+  "Leg Extension": "lever leg extension",
+  "Leg Press": "sled 45в° leg press",
+  "Lateral Raise (Dumbbell)": "dumbbell lateral raise",
+  "Overhead Press (Barbell)": "barbell seated overhead press",
+
+  // Z Planu Treningowego (Push, Pull, Legs, Upper, Lower)
+  "Incline Dumbbell Bench Press": "dumbbell incline bench press",
+  "Weighted Dips": "weighted tricep dips",
+  "EZ-Bar Skullcrusher": "barbell lying triceps extension",
+  "Weighted Pull-Up": "weighted pull-up",
+  "T-Bar Row": "lever reverse t-bar row",
+  "EZ Bar Bicep Curl": "barbell curl",
+  "Leg Curl (Machine)": "lever seated leg curl",
+  "Calf Raise": "lever standing calf raise",
+  "Hanging Leg Raise": "hanging leg raise",
+  "Cable Crunch": "cable kneeling crunch",
+  "Dumbbell Lateral Raise": "dumbbell lateral raise",
+  "Cable Lateral Raise": "cable lateral raise",
+  "Reverse Pec Deck Fly": "lever seated reverse fly",
+  "Spider Curl": "dumbbell prone incline curl",
+  "Weighted Plank": "weighted front plank"
 };
 
 export const EXERCISE_IMAGE_MAP = {
