@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { EXTENDED_EXERCISES } from '../../constants/exercises';
 
 export function useWorkoutSession() {
   // Stan przechowujący zmienną: sessionStatus
@@ -145,6 +146,8 @@ export function useWorkoutSession() {
       
       const routineExercises = routine.exercises.map((ex, idx) => {
         const pastSets = history[ex.name] || [];
+        const baseEx = EXTENDED_EXERCISES.find(e => e.name === ex.name) || {};
+        const mechanic = baseEx.mechanic || ex.mechanic || 'compound';
         
         // Determine sets array
         let initialSets = [];
@@ -176,6 +179,8 @@ export function useWorkoutSession() {
           id: `ex-${Date.now()}-${idx}`,
           name: ex.name,
           muscle_group: ex.muscle_group || 'Full Body',
+          mechanic: mechanic,
+          targetReps: ex.targetReps || '8-12',
           restDuration: ex.restDuration || 90,
           pastSets: pastSets,
           sets: initialSets
@@ -479,12 +484,16 @@ export function useWorkoutSession() {
   const addExerciseToSession = (exercise) => {
     const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
     const pastSets = history[exercise.name] || [];
+    const baseEx = EXTENDED_EXERCISES.find(e => e.name === exercise.name) || {};
+    const mechanic = baseEx.mechanic || exercise.mechanic || 'compound';
 
     const newExercise = {
       id: `ex-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       name: exercise.name,
       muscle_group: exercise.muscle_group || 'Full Body',
       equipment: exercise.equipment || 'Unknown',
+      mechanic: mechanic,
+      targetReps: exercise.targetReps || '8-12',
       restDuration: 90,
       pastSets: pastSets,
       sets: [

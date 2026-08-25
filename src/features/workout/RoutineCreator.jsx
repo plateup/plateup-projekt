@@ -26,10 +26,10 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
 
   const addExercise = (exercisesToAdd) => {
     if (Array.isArray(exercisesToAdd)) {
-      const newExs = exercisesToAdd.map(ex => ({ ...ex, tempId: Date.now() + Math.random(), targetSets: 3, restDuration: 90 }));
+      const newExs = exercisesToAdd.map(ex => ({ ...ex, tempId: Date.now() + Math.random(), targetSets: 3, restDuration: 90, targetReps: '8-12' }));
       setSelectedExercises([...selectedExercises, ...newExs]);
     } else {
-      setSelectedExercises([...selectedExercises, { ...exercisesToAdd, tempId: Date.now() + Math.random(), targetSets: 3, restDuration: 90 }]);
+      setSelectedExercises([...selectedExercises, { ...exercisesToAdd, tempId: Date.now() + Math.random(), targetSets: 3, restDuration: 90, targetReps: '8-12' }]);
     }
     setShowLibrary(false);
   };
@@ -45,6 +45,12 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
   const updateExerciseSets = (tempId, sets) => {
     setSelectedExercises(selectedExercises.map(ex => 
       ex.tempId === tempId ? { ...ex, targetSets: parseInt(sets, 10) || 1 } : ex
+    ));
+  };
+
+  const updateExerciseTargetReps = (tempId, repsStr) => {
+    setSelectedExercises(selectedExercises.map(ex => 
+      ex.tempId === tempId ? { ...ex, targetReps: repsStr } : ex
     ));
   };
 
@@ -78,7 +84,8 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
       name: ex.name, 
       muscle_group: ex.muscle_group,
       sets: ex.targetSets || 3,
-      restDuration: ex.restDuration || 90
+      restDuration: ex.restDuration || 90,
+      targetReps: ex.targetReps || '8-12'
     }));
     
     const routineData = {
@@ -180,6 +187,17 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
                       className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg font-black transition-colors"
                     >+</button>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-[#8E8E93]">Reps:</span>
+                  <input 
+                    type="text" 
+                    value={ex.targetReps || ''} 
+                    onChange={(e) => updateExerciseTargetReps(ex.tempId, e.target.value)}
+                    placeholder="np. 8-12"
+                    className="w-16 h-8 bg-black border border-white/10 text-white rounded-lg px-2 text-center text-sm font-bold focus:outline-none focus:border-white/30 transition-colors"
+                  />
                 </div>
 
                 <div className="flex items-center gap-3">

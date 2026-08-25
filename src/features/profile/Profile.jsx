@@ -206,7 +206,29 @@ export default function Profile() {
   // Views handling
   if (loading && !profile) return null;
 
-  if (activeView === 'general') return <SettingsView title="General Settings" onBack={() => setActiveView('main')}><ToggleRow label="Weight Units" value="Kilograms (kg)" /><ToggleRow label="Theme" value="Dark Mode (Forced)" locked /><ToggleRow label="Rest Timer Sound" toggleState={true} /><ToggleRow label="Haptic Feedback" toggleState={true} /></SettingsView>;
+  const [smartCoach, setSmartCoach] = useState(() => localStorage.getItem('plateup_smart_coach_enabled') !== 'false');
+
+  const toggleSmartCoach = () => {
+    const newVal = !smartCoach;
+    setSmartCoach(newVal);
+    localStorage.setItem('plateup_smart_coach_enabled', String(newVal));
+  };
+
+  if (activeView === 'general') return <SettingsView title="General Settings" onBack={() => setActiveView('main')}>
+    <ToggleRow label="Weight Units" value="Kilograms (kg)" />
+    <ToggleRow label="Theme" value="Dark Mode (Forced)" locked />
+    <ToggleRow label="Rest Timer Sound" toggleState={true} />
+    <ToggleRow label="Haptic Feedback" toggleState={true} />
+    <div className="bg-[#1C1C1E] border border-white/5 p-4 px-6 rounded-[24px] flex items-center justify-between">
+      <div>
+        <span className="text-white font-bold block">Smart Coach (Progression)</span>
+        <span className="text-[#8E8E93] text-xs font-bold">Auto-detects if you hit max reps & suggests adding 1.25kg</span>
+      </div>
+      <button onClick={toggleSmartCoach} className={`w-12 h-6 rounded-full transition-colors relative ${smartCoach ? 'bg-[#E5FF00]' : 'bg-white/10'}`}>
+        <div className={`w-5 h-5 bg-black rounded-full absolute top-0.5 transition-all ${smartCoach ? 'left-6' : 'left-0.5'}`} />
+      </button>
+    </div>
+  </SettingsView>;
   if (activeView === 'privacy') return <SettingsView title="Privacy & Security" onBack={() => setActiveView('main')}><ToggleRow label="Public Profile" toggleState={true} /><ToggleRow label="Show Activity on Feed" toggleState={true} /><button className="w-full mt-8 bg-white/5 text-white font-bold py-4 rounded-[20px] hover:bg-white/10 transition-colors border border-white/10">Change Password</button></SettingsView>;
   if (activeView === 'notifications') return <SettingsView title="Notifications" onBack={() => setActiveView('main')}><ToggleRow label="Workout Reminders" toggleState={true} /><ToggleRow label="Friend Requests" toggleState={true} /><ToggleRow label="Likes & Comments" toggleState={true} /></SettingsView>;
   if (activeView === 'badges') return <SettingsView title="My Badges" onBack={() => setActiveView('main')}><div className="grid grid-cols-2 gap-4"><BadgeCard icon={<Flame size={32} />} title="Consistency" desc="3 days streak" active /><BadgeCard icon={<Award size={32} />} title="Century Club" desc="100 workouts" active={false} /></div></SettingsView>;

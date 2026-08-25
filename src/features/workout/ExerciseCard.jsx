@@ -42,6 +42,26 @@ export default function ExerciseCard({
   const [showRpeInfo, setShowRpeInfo] = useState(false);
   // Stan przechowujący zmienną: showAddedWeightInfo
   const [showAddedWeightInfo, setShowAddedWeightInfo] = useState(false);
+  const [showCoach, setShowCoach] = useState(true);
+
+  const smartCoachEnabled = localStorage.getItem('plateup_smart_coach_enabled') !== 'false';
+
+  let progressionMessage = null;
+  if (smartCoachEnabled && exercise.pastSets && exercise.pastSets.length > 0 && exercise.targetReps && showCoach) {
+    const repsStr = String(exercise.targetReps);
+    const parts = repsStr.split('-');
+    const upperLimit = parseInt(parts[parts.length - 1], 10);
+    
+    if (!isNaN(upperLimit)) {
+      const allSetsHitLimit = exercise.pastSets.every(s => parseInt(s.reps, 10) >= upperLimit);
+      if (allSetsHitLimit) {
+        const isCompound = exercise.mechanic === 'compound';
+        progressionMessage = isCompound 
+          ? "🎯 Ostatnio wbiłeś górny limit powt. we wszystkich seriach! Celuj w dołożenie 1.25 kg na tym treningu."
+          : "🎯 Wbiłeś górny limit we wszystkich seriach! Dodaj ciężar, jeśli zachowasz idealną technikę.";
+      }
+    }
+  }
 
   // Funkcja pomocnicza: formatRest
 
@@ -140,6 +160,17 @@ export default function ExerciseCard({
             )}
           </div>
         </div>
+
+        {progressionMessage && (
+          <div className="mb-6 p-4 rounded-2xl bg-[#E5FF00]/10 border border-[#E5FF00]/20 flex items-start justify-between">
+            <p className="text-sm font-bold text-[#E5FF00]">
+              {progressionMessage}
+            </p>
+            <button onClick={() => setShowCoach(false)} className="text-[#E5FF00]/50 hover:text-[#E5FF00] transition-colors shrink-0 ml-4">
+              <X size={16} />
+            </button>
+          </div>
+        )}
 
         <div className="space-y-4">
           {/* Notes Ghost Field */}
