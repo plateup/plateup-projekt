@@ -195,7 +195,7 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
                     type="text" 
                     value={ex.targetReps || ''} 
                     onChange={(e) => updateExerciseTargetReps(ex.tempId, e.target.value)}
-                    placeholder="np. 8-12"
+                    placeholder="e.g. 8-12"
                     className="w-16 h-8 bg-black border border-white/10 text-white rounded-lg px-2 text-center text-sm font-bold focus:outline-none focus:border-white/30 transition-colors"
                   />
                 </div>

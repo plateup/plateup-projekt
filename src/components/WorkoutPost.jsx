@@ -77,7 +77,8 @@ export default function WorkoutPost({ post, onCopy, onDelete, currentUsername, c
   const [showComments, setShowComments] = useState(false);
   const [commentsList, setCommentsList] = useState([]);
 
-  const isOwner = post.user.name === currentUsername;
+  const safeUser = post.user || { name: 'Athlete', avatar: null };
+  const isOwner = safeUser.name === currentUsername;
 
   const handleLike = () => {
     setLiked(!liked);
@@ -101,15 +102,15 @@ export default function WorkoutPost({ post, onCopy, onDelete, currentUsername, c
           }}
         >
           <div className="w-12 h-12 rounded-[16px] bg-white/10 flex items-center justify-center font-black text-lg overflow-hidden border border-white/5 shadow-inner">
-            {post.user.avatar ? (
-              <img src={post.user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+            {safeUser.avatar ? (
+              <img src={safeUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
-              post.user.name[0]
+              safeUser.name ? safeUser.name[0] : 'A'
             )}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-black text-white text-[17px] leading-tight">{post.user.name}</h3>
+              <h3 className="font-black text-white text-[17px] leading-tight">{safeUser.name}</h3>
               {post.visibility === 'private' && <Lock size={12} className="text-[#8E8E93]" />}
             </div>
             <p className="text-[11px] font-bold text-[#8E8E93] mt-0.5">

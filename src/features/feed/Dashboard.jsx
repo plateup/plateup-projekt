@@ -105,19 +105,13 @@ export default function Dashboard({ setActiveTab }) {
 
         const { data: postsData } = await supabase
           .from('posts')
-          .select('*, profiles(username, avatar_url)')
+          .select('*')
           .in('user_id', friendIds)
           .order('created_at', { ascending: false });
           
         if (postsData && postsData.length > 0) {
           const mappedWorkouts = postsData.map(p => {
             const workoutData = p.workout_data || {};
-            // Sync dynamic profile data!
-            if (p.profiles) {
-              if(!workoutData.user) workoutData.user = {};
-              workoutData.user.name = p.profiles.username;
-              workoutData.user.avatar = p.profiles.avatar_url;
-            }
             return {
               ...workoutData,
               id: p.id,

@@ -501,7 +501,7 @@ export default function SocialFeed() {
     }
 
     // Fetch global posts from Supabase
-    let query = supabase.from('posts').select('*, profiles(username, avatar_url)').order('created_at', { ascending: false }).limit(20);
+    let query = supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(20);
     
     if (user && friendIds.length > 0) {
       query = query.in('user_id', friendIds);
@@ -538,11 +538,6 @@ export default function SocialFeed() {
     if (data && data.length > 0) {
       const globalPosts = data.map(p => {
         const workoutData = p.workout_data || {};
-        if (p.profiles) {
-          if(!workoutData.user) workoutData.user = {};
-          workoutData.user.name = p.profiles.username;
-          workoutData.user.avatar = p.profiles.avatar_url;
-        }
         return {
           ...workoutData,
           user_id: p.user_id,

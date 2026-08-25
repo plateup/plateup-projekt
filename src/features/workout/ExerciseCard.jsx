@@ -57,8 +57,8 @@ export default function ExerciseCard({
       if (allSetsHitLimit) {
         const isCompound = exercise.mechanic === 'compound';
         progressionMessage = isCompound 
-          ? "🎯 Ostatnio wbiłeś górny limit powt. we wszystkich seriach! Celuj w dołożenie 1.25 kg na tym treningu."
-          : "🎯 Wbiłeś górny limit we wszystkich seriach! Dodaj ciężar, jeśli zachowasz idealną technikę.";
+          ? "🎯 You hit the upper rep limit in all sets last time! Aim to add 1.25 kg."
+          : "🎯 You hit the upper rep limit in all sets! Increase weight only if maintaining perfect form.";
       }
     }
   }
@@ -107,8 +107,13 @@ export default function ExerciseCard({
               )}
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <h3 className="text-xl font-black tracking-tight text-white leading-none">{exercise.name}</h3>
+                {exercise.mechanic && (
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/50 bg-white/5 px-2 py-0.5 rounded-full mt-0.5">
+                    {exercise.mechanic === 'compound' ? '(C) Compound' : '(I) Isolation'}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-4">
                 <button 

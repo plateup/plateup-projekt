@@ -91,16 +91,16 @@ export default function Profile() {
     setFriendsCount(fCount);
 
     // Workouts
-    const { data: postsData } = await supabase.from('posts').select('*, profiles(username, avatar_url)').eq('user_id', user.id).order('created_at', { ascending: false });
+    const { data: postsData, error: postsError } = await supabase.from('posts').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+    
+    if (postsError) {
+      console.warn("Error fetching profile posts:", postsError);
+    }
+    
     if (postsData) {
       setWorkoutsCount(postsData.length);
       const mappedWorkouts = postsData.map(p => {
         const workoutData = p.workout_data || {};
-        if (p.profiles) {
-          if(!workoutData.user) workoutData.user = {};
-          workoutData.user.name = p.profiles.username;
-          workoutData.user.avatar = p.profiles.avatar_url;
-        }
         return {
           ...workoutData,
           id: p.id,
