@@ -36,6 +36,7 @@ export default function Profile() {
   const [timeRange, setTimeRange] = useState('3M'); // '3M', '1Y', 'ALL'
   const [metric, setMetric] = useState('volume'); // 'volume', 'duration', 'workouts'
   const [showAllWorkouts, setShowAllWorkouts] = useState(false);
+  const [smartCoach, setSmartCoach] = useState(() => localStorage.getItem('plateup_smart_coach_enabled') !== 'false');
 
   useEffect(() => {
     fetchProfile();
@@ -205,8 +206,6 @@ export default function Profile() {
 
   // Views handling
   if (loading && !profile) return null;
-
-  const [smartCoach, setSmartCoach] = useState(() => localStorage.getItem('plateup_smart_coach_enabled') !== 'false');
 
   const toggleSmartCoach = () => {
     const newVal = !smartCoach;
