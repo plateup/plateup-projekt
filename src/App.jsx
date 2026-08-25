@@ -29,6 +29,7 @@ function App() {
       handleSessionData(session);
       if (session) {
         syncOfflineQueue(session.user.id);
+        syncOfflineRoutines();
         syncUserHistory(session.user.id);
       }
     });
@@ -37,12 +38,48 @@ function App() {
       handleSessionData(session);
       if (session) {
         syncOfflineQueue(session.user.id);
+        syncOfflineRoutines();
         syncUserHistory(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  async function syncOfflineRoutines() {
+    const offlineQ = JSON.parse(localStorage.getItem('plateup_offline_routines') || '[]');
+    if (offlineQ.length === 0) return;
+    
+    console.log("Syncing offline routines...", offlineQ.length);
+    const remainingQ = [];
+    
+    for (const action of offlineQ) {
+      let error = null;
+      try {
+        if (action.type === 'insert') {
+          // Usuwamy tymczasowe id, zeby Supabase samo nadalo UUID/serial
+          const { id, ...dataToInsert } = action.data; 
+          const res = await supabase.from('routines').insert([dataToInsert]);
+          error = res.error;
+        } else if (action.type === 'update') {
+          const res = await supabase.from('routines').update(action.data).eq('id', action.id);
+          error = res.error;
+        } else if (action.type === 'delete') {
+          // Upewniamy sie ze id to nie byl lokalny string 
+          if (!String(action.id).startsWith('local-')) {
+            const res = await supabase.from('routines').delete().eq('id', action.id);
+            error = res.error;
+          }
+        }
+        if (error) throw error;
+      } catch (err) {
+        console.warn("Failed to sync routine action, keeping in queue", err);
+        remainingQ.push(action);
+      }
+    }
+    
+    localStorage.setItem('plateup_offline_routines', JSON.stringify(remainingQ));
+  }
 
   async function syncOfflineQueue(userId) {
     const offlineQueue = JSON.parse(localStorage.getItem('plateup_offline_posts') || '[]');

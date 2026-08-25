@@ -73,45 +73,56 @@ export default function RoutineCreator({ onClose, onSave, initialRoutine = null 
     // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
     
     const { data: { user } } = await supabase.auth.getUser();
+    const formattedExercises = selectedExercises.map(ex => ({ 
+      id: ex.id, 
+      name: ex.name, 
+      muscle_group: ex.muscle_group,
+      sets: ex.targetSets || 3,
+      restDuration: ex.restDuration || 90
+    }));
     
-    if (initialRoutine) {
-      const { error } = await supabase
-        .from('routines')
-        .update({
-          name,
-          exercises: selectedExercises.map(ex => ({ 
-            id: ex.id, 
-            name: ex.name, 
-            muscle_group: ex.muscle_group,
-            sets: ex.targetSets || 3,
-            restDuration: ex.restDuration || 90
-          }))
-        })
-        .eq('id', initialRoutine.id);
-        
-      if (!error) {
-        onSave();
-        onClose();
-      }
-    } else {
-      const { error } = await supabase
-        .from('routines')
-        .insert([{
-          user_id: user.id,
-          name,
-          exercises: selectedExercises.map(ex => ({ 
-            id: ex.id, 
-            name: ex.name, 
-            muscle_group: ex.muscle_group,
-            sets: ex.targetSets || 3,
-            restDuration: ex.restDuration || 90
-          }))
-        }]);
+    const routineData = {
+      name,
+      exercises: formattedExercises
+    };
 
-      if (!error) {
-        onSave();
-        onClose();
+    if (initialRoutine) {
+      try {
+        const { error } = await supabase
+          .from('routines')
+          .update(routineData)
+          .eq('id', initialRoutine.id);
+          
+        if (error) throw error;
+      } catch (e) {
+        console.warn("Offline edit routine, queuing...");
+        const offlineQ = JSON.parse(localStorage.getItem('plateup_offline_routines') || '[]');
+        offlineQ.push({ type: 'update', id: initialRoutine.id, data: routineData, user_id: user?.id });
+        localStorage.setItem('plateup_offline_routines', JSON.stringify(offlineQ));
       }
+      onSave();
+      onClose();
+    } else {
+      const newRoutine = {
+        user_id: user?.id,
+        ...routineData,
+        id: `local-${Date.now()}` // temporary local ID
+      };
+      
+      try {
+        const { error } = await supabase
+          .from('routines')
+          .insert([{ user_id: user?.id, ...routineData }]);
+          
+        if (error) throw error;
+      } catch (e) {
+        console.warn("Offline insert routine, queuing...");
+        const offlineQ = JSON.parse(localStorage.getItem('plateup_offline_routines') || '[]');
+        offlineQ.push({ type: 'insert', data: newRoutine, user_id: user?.id });
+        localStorage.setItem('plateup_offline_routines', JSON.stringify(offlineQ));
+      }
+      onSave();
+      onClose();
     }
     setSaving(false);
   };

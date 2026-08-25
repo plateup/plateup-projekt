@@ -39,7 +39,25 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
       .select('*')
       .order('created_at', { ascending: false });
     
-    if (!error) setRoutines(data);
+    let fetchedRoutines = error ? [] : (data || []);
+    
+    // Merge offline routines
+    const offlineQ = JSON.parse(localStorage.getItem('plateup_offline_routines') || '[]');
+    const inserts = offlineQ.filter(q => q.type === 'insert').map(q => q.data);
+    const updates = offlineQ.filter(q => q.type === 'update');
+    const deletes = offlineQ.filter(q => q.type === 'delete').map(q => q.id);
+    
+    // Apply local deletes
+    fetchedRoutines = fetchedRoutines.filter(r => !deletes.includes(r.id));
+    
+    // Apply local updates
+    fetchedRoutines = fetchedRoutines.map(r => {
+      const up = updates.find(u => u.id === r.id);
+      return up ? { ...r, ...up.data } : r;
+    });
+    
+    // Add local inserts
+    setRoutines([...inserts, ...fetchedRoutines]);
     setLoading(false);
   };
 
@@ -55,7 +73,15 @@ export default function WorkoutStart({ onStartBlank, onStartRoutine }) {
 
   const executeDeleteRoutine = async () => {
     if (confirmModal.id) {
-      await supabase.from('routines').delete().eq('id', confirmModal.id);
+      try {
+        const { error } = await supabase.from('routines').delete().eq('id', confirmModal.id);
+        if (error) throw error;
+      } catch (e) {
+        console.warn("Offline delete routine, queuing...");
+        const offlineQ = JSON.parse(localStorage.getItem('plateup_offline_routines') || '[]');
+        offlineQ.push({ type: 'delete', id: confirmModal.id });
+        localStorage.setItem('plateup_offline_routines', JSON.stringify(offlineQ));
+      }
       fetchRoutines();
     }
     setConfirmModal({ isOpen: false, id: null });
