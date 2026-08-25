@@ -1,0 +1,512 @@
+/**
+ * Plik: useWorkoutSession.js
+ * Autor: landzi
+ * Opis: Moduł odpowiedzialny za logikę powiązaną z workout/useWorkoutSession.js.
+ * Technologia: React / JSX / Tailwind CSS
+ */
+
+import { useState, useEffect } from 'react';
+
+export function useWorkoutSession() {
+  // Stan przechowujący zmienną: sessionStatus
+  const [sessionStatus, setSessionStatus] = useState(() => localStorage.getItem('plateup_status') || 'idle');
+  // Stan przechowujący zmienną: workoutTitle
+  const [workoutTitle, setWorkoutTitle] = useState(() => localStorage.getItem('plateup_workout_title') || 'Workout Session');
+  // Stan przechowujący zmienną: workoutTime
+  const [workoutTime, setWorkoutTime] = useState(() => parseInt(localStorage.getItem('plateup_time') || '0', 10));
+  const [exercises, setExercises] = useState(() => {
+    const saved = localStorage.getItem('plateup_exercises');
+    return saved ? JSON.parse(saved) : [];
+  });
+  // Stan przechowujący zmienną: restTime
+  const [restTime, setRestTime] = useState(0);
+  // Stan przechowujący zmienną: initialRestTime
+  const [initialRestTime, setInitialRestTime] = useState(90);
+  // Stan przechowujący zmienną: isResting
+  const [isResting, setIsResting] = useState(false);
+  // Stan przechowujący zmienną: activeRestSetId
+  const [activeRestSetId, setActiveRestSetId] = useState(null);
+  // Stan przechowujący zmienną: restEndTime
+  const [restEndTime, setRestEndTime] = useState(null);
+
+  const addRestTime = (seconds) => {
+    setRestEndTime(prev => {
+      if (!prev) return prev;
+      return prev + (seconds * 1000);
+    });
+    setRestTime(prev => Math.max(0, prev + seconds));
+  };
+
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+
+  useEffect(() => { localStorage.setItem('plateup_status', sessionStatus); }, [sessionStatus]);
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+  useEffect(() => { localStorage.setItem('plateup_workout_title', workoutTitle); }, [workoutTitle]);
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+  useEffect(() => { localStorage.setItem('plateup_time', workoutTime.toString()); }, [workoutTime]);
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+  useEffect(() => { localStorage.setItem('plateup_exercises', JSON.stringify(exercises)); }, [exercises]);
+
+  // Timer logic for workout duration with background catch-up
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+  useEffect(() => {
+    let interval = null;
+    if (sessionStatus === 'active') {
+      // 1. Initial catch up when component mounts/tab focuses
+      const savedLastTick = parseInt(localStorage.getItem('plateup_last_tick') || '0', 10);
+      const nowOnStart = Date.now();
+      
+      if (savedLastTick > 0) {
+        const diffSeconds = Math.floor((nowOnStart - savedLastTick) / 1000);
+        if (diffSeconds > 0 && diffSeconds < 86400) { // arbitrary 24h limit to prevent crazy numbers
+          setWorkoutTime(prev => prev + diffSeconds);
+        }
+      }
+      
+      localStorage.setItem('plateup_last_tick', nowOnStart.toString());
+      let lastTick = nowOnStart;
+
+      // 2. Interval loop
+      interval = setInterval(() => {
+        const now = Date.now();
+        const diffSeconds = Math.floor((now - lastTick) / 1000);
+        
+        if (diffSeconds > 0) {
+          setWorkoutTime(prev => prev + diffSeconds);
+          lastTick = lastTick + (diffSeconds * 1000); // precise tick updating
+          localStorage.setItem('plateup_last_tick', lastTick.toString());
+        }
+      }, 1000);
+    } else {
+      localStorage.removeItem('plateup_last_tick');
+    }
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+    return () => clearInterval(interval);
+  }, [sessionStatus]);
+
+  // Rest Timer logic with background persistence
+  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
+  useEffect(() => {
+    let interval = null;
+    if (isResting && restEndTime) {
+      interval = setInterval(() => {
+        const now = Date.now();
+        const remaining = Math.max(0, Math.round((restEndTime - now) / 1000));
+        setRestTime(remaining);
+        
+        if (remaining === 0) {
+          setIsResting(false);
+          setActiveRestSetId(null);
+          setRestEndTime(null);
+          playTimerSound();
+          
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Rest time is over!', {
+              body: 'Time to get back to lifting. Let\'s go!',
+              icon: '/icons/icon-192x192.png',
+              silent: false // Sound is handled by playTimerSound but notification can also ring
+            });
+          }
+          
+          clearInterval(interval);
+        }
+      }, 1000);
+    }
+    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
+    return () => clearInterval(interval);
+  }, [isResting, restEndTime]);
+
+  // Funkcja pomocnicza: playTimerSound
+
+  const playTimerSound = () => {
+    try {
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+      audio.play().catch(e => console.log("Audio play failed:", e));
+    } catch (err) {
+      console.error("Audio error:", err);
+    }
+  };
+
+  // Funkcja pomocnicza: stopRest
+
+  const stopRest = () => {
+    setIsResting(false);
+    setActiveRestSetId(null);
+    setRestEndTime(null);
+    setRestTime(0);
+  };
+
+  // Funkcja pomocnicza: startWorkout
+
+  const startWorkout = (routine = null) => {
+    if (routine) {
+      const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
+      setWorkoutTitle(routine.name || 'Workout Session');
+      
+      const routineExercises = routine.exercises.map((ex, idx) => {
+        const pastSets = history[ex.name] || [];
+        
+        // Determine sets array
+        let initialSets = [];
+        if (Array.isArray(ex.sets) && ex.sets.length > 0 && typeof ex.sets[0] === 'object') {
+          // If routine already provides full set objects (like from AI Chat)
+          initialSets = ex.sets.map((s, j) => ({
+            ...s,
+            prevKg: pastSets[j]?.kg || pastSets[0]?.kg || '',
+            prevReps: pastSets[j]?.reps || pastSets[0]?.reps || '',
+            prevRpe: pastSets[j]?.rpe || pastSets[0]?.rpe || ''
+          }));
+        } else {
+          // Determine how many sets to generate
+          const setCount = typeof ex.sets === 'number' ? ex.sets : 3;
+          initialSets = Array.from({ length: setCount }).map((_, j) => ({
+            id: `s-${Date.now()}-${idx}-${j}`,
+            type: 'normal',
+            kg: '',
+            reps: '',
+            rpe: '',
+            isCompleted: false,
+            prevKg: pastSets[j]?.kg || pastSets[0]?.kg || '',
+            prevReps: pastSets[j]?.reps || pastSets[0]?.reps || '',
+            prevRpe: pastSets[j]?.rpe || pastSets[0]?.rpe || ''
+          }));
+        }
+
+        return {
+          id: `ex-${Date.now()}-${idx}`,
+          name: ex.name,
+          muscle_group: ex.muscle_group || 'Full Body',
+          restDuration: ex.restDuration || 90,
+          pastSets: pastSets,
+          sets: initialSets
+        };
+      });
+      setExercises(routineExercises);
+    } else {
+      setExercises([]); 
+    }
+    setWorkoutTime(0);
+    setSessionStatus('active');
+  };
+
+  // Funkcja pomocnicza: addSetToExercise
+
+  const addSetToExercise = (exerciseId) => {
+    setExercises(prev => prev.map(ex => {
+      if (ex.id !== exerciseId) return ex;
+      const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
+      const pastSets = history[ex.name] || [];
+      const newIndex = ex.sets.length;
+      const lastSet = ex.sets[ex.sets.length - 1];
+      
+      const newSet = {
+        id: `s-${Date.now()}`,
+        type: 'normal',
+        kg: lastSet?.kg || '',
+        reps: lastSet?.reps || '',
+        rpe: lastSet?.rpe || '',
+        isCompleted: false,
+        prevKg: pastSets[newIndex]?.kg || lastSet?.kg || '',
+        prevReps: pastSets[newIndex]?.reps || lastSet?.reps || '',
+      };
+      return { ...ex, sets: [...ex.sets, newSet] };
+    }));
+  };
+
+  // Funkcja pomocnicza: updateExerciseRestDuration
+
+  const updateExerciseRestDuration = (exerciseId, newDuration) => {
+    setExercises(prev => prev.map(ex => 
+      ex.id === exerciseId ? { ...ex, restDuration: newDuration } : ex
+    ));
+  };
+
+  const updateExerciseNotes = (exerciseId, notes) => {
+    setExercises(prev => prev.map(ex => 
+      ex.id === exerciseId ? { ...ex, notes } : ex
+    ));
+  };
+
+  const pauseWorkout = () => setSessionStatus('paused');
+  
+  // Funkcja pomocnicza: executeReset
+  
+  const executeReset = () => {
+    setSessionStatus('idle');
+    setWorkoutTime(0);
+    setExercises([]);
+    setIsResting(false);
+    setActiveRestSetId(null);
+    setRestEndTime(null);
+    localStorage.removeItem('plateup_exercises');
+    localStorage.removeItem('plateup_time');
+    localStorage.removeItem('plateup_title');
+    localStorage.removeItem('plateup_rest_end');
+  };
+
+  // Funkcja pomocnicza: completeAndSaveWorkout
+
+  const completeAndSaveWorkout = () => {
+    const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
+    exercises.forEach(ex => {
+      const completedSets = ex.sets.filter(s => s.isCompleted);
+      if (completedSets.length > 0) {
+        history[ex.name] = completedSets.map(s => ({
+          kg: s.kg || s.prevKg,
+          reps: s.reps || s.prevReps,
+          rpe: s.rpe || s.prevRpe
+        }));
+      }
+    });
+    localStorage.setItem('plateup_exercise_history', JSON.stringify(history));
+
+    setWorkoutTime(0);
+    setSessionStatus('idle');
+    setExercises([]);
+    setIsResting(false);
+    setActiveRestSetId(null);
+    setRestEndTime(null);
+    localStorage.removeItem('plateup_exercises');
+    localStorage.removeItem('plateup_time');
+    localStorage.removeItem('plateup_title');
+    localStorage.removeItem('plateup_rest_end');
+  };
+
+  // Funkcja pomocnicza: cleanNumberInput
+
+  const cleanNumberInput = (value) => {
+    if (value === '') return '';
+    let clean = value.replace(/[^0-9.]/g, '');
+    clean = clean.replace(/^0+(?=\d)/, '');
+    return clean;
+  };
+
+  // Funkcja pomocnicza: updateSet
+
+  const updateSet = (exerciseId, setId, field, value) => {
+    const cleanedValue = field === 'kg' || field === 'reps' || field === 'rpe' ? cleanNumberInput(value) : value;
+    setExercises((prev) =>
+      prev.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
+        return {
+          ...ex,
+          sets: ex.sets.map((s) => (s.id === setId ? { ...s, [field]: cleanedValue } : s)),
+        };
+      })
+    );
+  };
+
+  // Funkcja pomocnicza: toggleSetType
+
+  const toggleSetType = (exerciseId, setId, type) => {
+    setExercises((prev) =>
+      prev.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
+        
+        let newSets = ex.sets.map((s) => 
+          s.id === setId ? { ...s, type: type || (s.type === 'warmup' ? 'normal' : 'warmup') } : s
+        );
+
+        // Sort: warmup sets always go first
+        newSets.sort((a, b) => {
+          if (a.type === 'warmup' && b.type !== 'warmup') return -1;
+          if (b.type === 'warmup' && a.type !== 'warmup') return 1;
+          return 0; // maintain relative order otherwise
+        });
+
+        return { ...ex, sets: newSets };
+      })
+    );
+  };
+
+  // Funkcja pomocnicza: removeSetFromExercise
+
+  const removeSetFromExercise = (exerciseId, setId) => {
+    if (setId === 'all') {
+      setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
+      return;
+    }
+    setExercises((prev) =>
+      prev.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
+        return { ...ex, sets: ex.sets.filter((s) => s.id !== setId) };
+      })
+    );
+  };
+
+  // Funkcja pomocnicza: duplicateSetInExercise
+
+  const duplicateSetInExercise = (exerciseId, setId) => {
+    setExercises((prev) =>
+      prev.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
+        const setIndex = ex.sets.findIndex((s) => s.id === setId);
+        if (setIndex === -1) return ex;
+        
+        const sourceSet = ex.sets[setIndex];
+        const newSet = {
+          ...sourceSet,
+          id: `s-${Date.now()}`,
+          isCompleted: false,
+        };
+        
+        const newSets = [...ex.sets];
+        newSets.splice(setIndex + 1, 0, newSet);
+        
+        return { ...ex, sets: newSets };
+      })
+    );
+  };
+
+  // Funkcja pomocnicza: moveSet
+
+  const moveSet = (exerciseId, setId, direction) => {
+    setExercises((prev) =>
+      prev.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
+        const index = ex.sets.findIndex((s) => s.id === setId);
+        if (index === -1) return ex;
+        
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= ex.sets.length) return ex;
+
+        const updatedSets = [...ex.sets];
+        const [movedSet] = updatedSets.splice(index, 1);
+        updatedSets.splice(newIndex, 0, movedSet);
+
+        return { ...ex, sets: updatedSets };
+      })
+    );
+  };
+
+  const reorderExercises = (newOrderIds) => {
+    setExercises(prev => {
+      const reordered = [];
+      newOrderIds.forEach(id => {
+        const found = prev.find(ex => ex.id === id);
+        if (found) reordered.push(found);
+      });
+      return reordered;
+    });
+  };
+
+  const replaceExercise = (oldExerciseId, newExerciseDef) => {
+    setExercises(prev => prev.map(ex => {
+      if (ex.id === oldExerciseId) {
+        // Keep the sets structure, but wipe the values
+        const wipedSets = ex.sets.map(s => ({ ...s, kg: '', reps: '', rpe: '', isCompleted: false, prevKg: '', prevReps: '', prevRpe: '' }));
+        return {
+          ...ex,
+          name: newExerciseDef.name,
+          muscle_group: newExerciseDef.muscle_group,
+          equipment: newExerciseDef.equipment,
+          mechanic: newExerciseDef.mechanic,
+          sets: wipedSets
+        };
+      }
+      return ex;
+    }));
+  };
+
+  const toggleSuperset = (exerciseId1, exerciseId2) => {
+    setExercises(prev => {
+      const ex1 = prev.find(e => e.id === exerciseId1);
+      const ex2 = prev.find(e => e.id === exerciseId2);
+      if (!ex1 || !ex2) return prev;
+      
+      const targetGroupId = ex2.supersetId || ex1.supersetId || `superset-${Date.now()}`;
+      
+      return prev.map(ex => {
+        if (ex.id === exerciseId1 || ex.id === exerciseId2) {
+          // If they both already have the same supersetId, we're detaching ex1
+          if (ex1.supersetId === ex2.supersetId && ex1.supersetId !== undefined && ex1.supersetId !== null) {
+             if (ex.id === exerciseId1) return { ...ex, supersetId: null };
+             return ex;
+          }
+          return { ...ex, supersetId: targetGroupId };
+        }
+        return ex;
+      });
+    });
+  };
+
+  // Funkcja pomocnicza: toggleSetComplete
+
+  const toggleSetComplete = (exerciseId, setId) => {
+    if (sessionStatus !== 'active') return;
+    setExercises((prevExercises) =>
+      prevExercises.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
+        const currentSetIndex = ex.sets.findIndex((s) => s.id === setId);
+        return {
+          ...ex,
+          sets: ex.sets.map((s, index) => {
+            if (s.id === setId) {
+              const nextCompleted = !s.isCompleted;
+              let updatedKg = s.kg || s.prevKg;
+              let updatedReps = s.reps || s.prevReps;
+              let updatedRpe = s.rpe || s.prevRpe;
+
+              if (nextCompleted) {
+                const duration = ex.restDuration || 90;
+                setInitialRestTime(duration);
+                setRestTime(duration);
+                setRestEndTime(Date.now() + duration * 1000);
+                setIsResting(true);
+                if (currentSetIndex >= 0 && currentSetIndex < ex.sets.length - 1) {
+                  setActiveRestSetId(ex.sets[currentSetIndex + 1].id);
+                } else {
+                  setActiveRestSetId(null);
+                }
+              } else {
+                setIsResting(false);
+                setRestTime(0);
+                setRestEndTime(null);
+                setActiveRestSetId(null);
+              }
+
+              return { ...s, isCompleted: nextCompleted, kg: updatedKg, reps: updatedReps, rpe: updatedRpe };
+            }
+            return s;
+          }),
+        };
+      })
+    );
+  };
+
+  // Funkcja pomocnicza: addExerciseToSession
+
+  const addExerciseToSession = (exercise) => {
+    const history = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
+    const pastSets = history[exercise.name] || [];
+
+    const newExercise = {
+      id: `ex-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      name: exercise.name,
+      muscle_group: exercise.muscle_group || 'Full Body',
+      equipment: exercise.equipment || 'Unknown',
+      restDuration: 90,
+      pastSets: pastSets,
+      sets: [
+        { 
+          id: `s-${Date.now()}-1`, 
+          type: 'normal', 
+          kg: '', 
+          reps: '', 
+          rpe: '', 
+          isCompleted: false, 
+          prevKg: pastSets[0]?.kg || '', 
+          prevReps: pastSets[0]?.reps || '', 
+          prevRpe: pastSets[0]?.rpe || '' 
+        },
+      ]
+    };
+    setExercises(prev => [...prev, newExercise]);
+  };
+
+  return {
+    exercises, sessionStatus, workoutTime, workoutTimeFormatted: Math.floor(workoutTime / 60).toString().padStart(2, '0') + ":" + (workoutTime % 60).toString().padStart(2, '0'),
+    workoutTitle, setWorkoutTitle, restTime, initialRestTime, setRestTime, isResting, activeRestSetId, startWorkout, stopRest, pauseWorkout, executeReset, completeAndSaveWorkout, updateSet, toggleSetComplete, toggleSetType, moveSet,
+    addExerciseToSession, addSetToExercise, removeSetFromExercise, duplicateSetInExercise, updateExerciseRestDuration, updateExerciseNotes, addRestTime, reorderExercises, replaceExercise, toggleSuperset
+  };
+}
