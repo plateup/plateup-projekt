@@ -1,0 +1,4 @@
+{
+    "dotnetMaui.targetFramework": "net10.0-android",
+    "dotnetMaui.javaSdkDirectory": "/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+}

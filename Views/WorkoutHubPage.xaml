@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlateUp.ViewModels"
+             xmlns:dm="clr-namespace:PlateUp.ViewModels.DisplayModels"
+             xmlns:helpers="clr-namespace:PlateUp.Helpers"
+             xmlns:controls="clr-namespace:PlateUp.Controls"
+             x:Class="PlateUp.Views.WorkoutHubPage"
+             x:DataType="vm:WorkoutHubViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <Grid RowDefinitions="*,Auto">
+    <RefreshView Grid.Row="0" IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding InitializeAsyncCommand}">
+        <ScrollView>
+            <VerticalStackLayout Spacing="0" Padding="0,0,0,32">
+
+                <!-- Header -->
+                <Label Text="Workout"
+                       Style="{StaticResource LargeTitle}"
+                       Padding="20,16,20,0" />
+
+                <!-- Quick Start -->
+                <VerticalStackLayout Spacing="8" Margin="20,16,20,0">
+                    <Button Text="Start Empty Workout"
+                            Style="{StaticResource PrimaryButton}"
+                            HeightRequest="52"
+                            FontSize="17"
+                            CornerRadius="14"
+                            Command="{Binding StartEmptyWorkoutCommand}" />
+
+                    <!-- Repeat Last Workout -->
+                    <Border Style="{StaticResource GroupedSection}"
+                            Padding="14,12"
+                            IsVisible="{Binding HasLastWorkout}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.RotateRight}"
+                                   FontFamily="FASolid" FontSize="18"
+                                   VerticalOptions="Center"
+                                   TextColor="{StaticResource AccentBlue}" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Repeat Last Workout"
+                                       Style="{StaticResource Body}" FontAttributes="Bold" />
+                                <Label Text="{Binding LastWorkoutTitle}"
+                                       Style="{StaticResource Caption}"
+                                       LineBreakMode="TailTruncation" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2"
+                                   Text="{x:Static helpers:Icons.ChevronRight}"
+                                   FontFamily="FASolid" FontSize="14"
+                                   VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}" />
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding RepeatLastWorkoutCommand}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <Label Text="or choose a routine"
+                           Style="{StaticResource Caption}"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <!-- My Routines Section -->
+                <Label Text="MY ROUTINES"
+                       Style="{StaticResource SmallCaption}"
+                       FontAttributes="Bold"
+                       Margin="20,24,20,12"
+                       CharacterSpacing="1" />
+
+                <!-- Routines List -->
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Routines}"
+                                     Spacing="0"
+                                     Padding="20,0">
+
+                    <BindableLayout.EmptyView>
+                        <VerticalStackLayout Spacing="12"
+                                             Padding="0,32"
+                                             HorizontalOptions="Center">
+                            <Label Text="{x:Static helpers:Icons.Dumbbell}"
+                                   FontFamily="FASolid"
+                                   FontSize="48"
+                                   HorizontalOptions="Center"
+                                   Opacity="0.2"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label Text="No routines yet"
+                                   Style="{StaticResource HeadlineSmall}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Create a routine to get started"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                            <Button Text="Create Routine"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Margin="0,8,0,0"
+                                    HorizontalOptions="Center"
+                                    Command="{Binding CreateRoutineCommand}" />
+                        </VerticalStackLayout>
+                    </BindableLayout.EmptyView>
+
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="dm:WorkoutTemplateDisplayModel">
+                            <Border Style="{StaticResource GroupedSection}"
+                                    Padding="16"
+                                    Margin="0,0,0,12">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Label Text="{Binding Title}"
+                                               Style="{StaticResource HeadlineSmall}" />
+                                        <Label Text="{Binding ExerciseSummary}"
+                                               Style="{StaticResource Caption}"
+                                               LineBreakMode="TailTruncation"
+                                               MaxLines="2" />
+                                        <Label Style="{StaticResource SmallCaption}">
+                                            <Label.Text>
+                                                <Binding Path="ExerciseCount"
+                                                         StringFormat="{}{0} exercises" />
+                                            </Label.Text>
+                                        </Label>
+                                    </VerticalStackLayout>
+
+                                    <Button Grid.Column="1"
+                                            Text="{x:Static helpers:Icons.Ellipsis}"
+                                            Style="{StaticResource IconButton}"
+                                            HeightRequest="40"
+                                            WidthRequest="40"
+                                            FontSize="16"
+                                            VerticalOptions="Center"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:WorkoutHubViewModel}}, Path=ShowRoutineOptionsCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:WorkoutHubViewModel}}, Path=StartRoutineCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Create Routine button -->
+                <Button Text="Create Routine"
+                        Style="{StaticResource SecondaryButton}"
+                        Margin="20,4,20,0"
+                        Command="{Binding CreateRoutineCommand}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FASolid"
+                                         Glyph="{x:Static helpers:Icons.Plus}"
+                                         Size="14"
+                                         Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                    </Button.ImageSource>
+                </Button>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+    <controls:MiniWorkoutBar Grid.Row="1" />
+    </Grid>
+
+</ContentPage>

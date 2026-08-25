@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlateUp.ViewModels"
+             xmlns:dm="clr-namespace:PlateUp.ViewModels.DisplayModels"
+             xmlns:helpers="clr-namespace:PlateUp.Helpers"
+             x:Class="PlateUp.Views.ExercisePickerPage"
+             x:DataType="vm:ExercisePickerViewModel"
+             Shell.PresentationMode="ModalAnimated"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- HEADER -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto,*,Auto"
+              Padding="20,12">
+            <Button Grid.Column="0"
+                    Text="Cancel"
+                    Style="{StaticResource TextButton}"
+                    Command="{Binding CancelCommand}" />
+            <Label Grid.Column="1"
+                   Text="Add Exercise"
+                   Style="{StaticResource HeadlineSmall}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+        </Grid>
+
+        <!-- SEARCH -->
+        <Border Grid.Row="1"
+                StrokeShape="RoundRectangle 12"
+                StrokeThickness="0"
+                Margin="20,0"
+                Padding="0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray850}}">
+            <SearchBar Text="{Binding SearchText}"
+                       Placeholder="Search exercises..."
+                       BackgroundColor="Transparent" />
+        </Border>
+
+        <!-- MUSCLE GROUP CHIPS -->
+        <ScrollView Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    Margin="20,12,0,4">
+            <HorizontalStackLayout Spacing="8"
+                                   BindableLayout.ItemsSource="{Binding MuscleGroupChips}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="dm:MuscleGroupChip">
+                        <Border StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="14,8"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray850}}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding IsActive}"
+                                             Value="True">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="{Binding DisplayName}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsActive}"
+                                                 Value="True">
+                                        <Setter Property="TextColor"
+                                                Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExercisePickerViewModel}}, Path=SelectMuscleGroupCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- EXERCISE LIST -->
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding FilteredExercises}"
+                        SelectionMode="None"
+                        Margin="0,8,0,0">
+
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="0" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Spacing="12"
+                                     Padding="32,40"
+                                     HorizontalOptions="Center">
+                    <Label Text="{x:Static helpers:Icons.Search}"
+                           FontFamily="FASolid"
+                           FontSize="44"
+                           HorizontalOptions="Center"
+                           Opacity="0.15"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                    <Label Text="No exercises found"
+                           Style="{StaticResource HeadlineSmall}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="dm:ExerciseDisplayModel">
+                    <VerticalStackLayout Spacing="0">
+                    <Grid ColumnDefinitions="48,*,36"
+                          ColumnSpacing="12"
+                          Padding="20,12"
+                          MinimumHeightRequest="56">
+
+                        <!-- Avatar -->
+                        <Border Grid.Column="0"
+                                WidthRequest="42"
+                                HeightRequest="42"
+                                StrokeShape="RoundRectangle 12"
+                                StrokeThickness="0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray850}}"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center">
+                            <Label Text="{Binding AvatarLetter}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                        </Border>
+
+                        <!-- Name -->
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="2"
+                                             VerticalOptions="Center">
+                            <Label Text="{Binding Name}"
+                                   Style="{StaticResource Body}" />
+                            <Label Text="{Binding MuscleGroupName}"
+                                   Style="{StaticResource SmallCaption}" />
+                        </VerticalStackLayout>
+
+                        <!-- Checkbox -->
+                        <Border Grid.Column="2"
+                                WidthRequest="26"
+                                HeightRequest="26"
+                                StrokeShape="RoundRectangle 13"
+                                StrokeThickness="2"
+                                Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray700}}"
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding IsSelected}"
+                                             Value="True">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    <Setter Property="Stroke"
+                                            Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="{x:Static helpers:Icons.Check}"
+                                   FontFamily="FASolid"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   IsVisible="{Binding IsSelected}" />
+                        </Border>
+
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExercisePickerViewModel}}, Path=ToggleExerciseCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Grid.GestureRecognizers>
+                    </Grid>
+                    <BoxView HeightRequest="0.5" Margin="80,0,20,0"
+                             Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- FOOTER -->
+        <VerticalStackLayout Grid.Row="4"
+                             Padding="20,12"
+                             Spacing="8"
+                             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+            <Button Style="{StaticResource PrimaryButton}"
+                    Command="{Binding ConfirmSelectionCommand}">
+                <Button.Text>
+                    <Binding Path="SelectedCount" StringFormat="Add {0} Exercise(s)" />
+                </Button.Text>
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button"
+                                 Binding="{Binding SelectedCount}"
+                                 Value="0">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <Button Text="Create Custom Exercise"
+                    Style="{StaticResource TextButton}"
+                    Command="{Binding CreateCustomExerciseCommand}" />
+        </VerticalStackLayout>
+
+    </Grid>
+
+</ContentPage>

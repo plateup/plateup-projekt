@@ -1,0 +1,914 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlateUp.ViewModels"
+             xmlns:helpers="clr-namespace:PlateUp.Helpers"
+             x:Class="PlateUp.Views.OnboardingPage"
+             x:DataType="vm:OnboardingViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+
+        <!-- Top: Animated progress dots -->
+        <HorizontalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="6"
+                               Padding="24,20,24,0" x:Name="DotsContainer">
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" x:Name="Dot0"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot1"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot2"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot3"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot4"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot5"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot6"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot7"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot8"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot9"/>
+            <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" x:Name="Dot10"/>
+        </HorizontalStackLayout>
+
+        <!-- Middle: Step content -->
+        <ScrollView Grid.Row="1" Padding="24,8">
+            <Grid>
+
+            <!-- Step 0: Welcome -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step0" Spacing="24" VerticalOptions="Center" Opacity="0">
+                <Label Text="{x:Static helpers:Icons.Dumbbell}"
+                       FontFamily="FASolid" FontSize="64"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                       Margin="0,0,0,12" />
+
+                <Label Text="Welcome to PlateUp"
+                       Style="{StaticResource LargeTitle}"
+                       HorizontalTextAlignment="Center" />
+
+                <Label Text="Your personal workout companion.&#10;Let's set things up — it only takes a minute."
+                       Style="{StaticResource Body}"
+                       HorizontalTextAlignment="Center"
+                       LineHeight="1.4"
+                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+            </VerticalStackLayout>
+
+            <!-- Step 1: Experience Level -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step1" Spacing="10" Opacity="0">
+                <Label Text="Your experience"
+                       Style="{StaticResource Headline}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,12,0,4" />
+                <Label Text="We'll adjust recommendations to your level."
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,16" />
+
+                <Border Style="{StaticResource GroupedSection}" Padding="0">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="1" FontSize="18" FontAttributes="Bold" WidthRequest="24" HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Beginner" Style="{StaticResource Body}"/>
+                                <Label Text="0–6 months" Style="{StaticResource SmallCaption}"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsExp0}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectExperienceCommand}" CommandParameter="0"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="2" FontSize="18" FontAttributes="Bold" WidthRequest="24" HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Intermediate" Style="{StaticResource Body}"/>
+                                <Label Text="6–24 months" Style="{StaticResource SmallCaption}"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsExp1}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectExperienceCommand}" CommandParameter="1"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="3" FontSize="18" FontAttributes="Bold" WidthRequest="24" HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Advanced" Style="{StaticResource Body}"/>
+                                <Label Text="2–5 years" Style="{StaticResource SmallCaption}"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsExp2}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectExperienceCommand}" CommandParameter="2"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="4" FontSize="18" FontAttributes="Bold" WidthRequest="24" HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Athlete" Style="{StaticResource Body}"/>
+                                <Label Text="5+ years" Style="{StaticResource SmallCaption}"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsExp3}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectExperienceCommand}" CommandParameter="3"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Step 2: Goal -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step2" Spacing="10" Opacity="0">
+                <Label Text="What's your goal?"
+                       Style="{StaticResource Headline}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,12,0,4" />
+                <Label Text="This helps us tailor your experience."
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,16" />
+
+                <Border Style="{StaticResource GroupedSection}" Padding="0">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.Dumbbell}" FontFamily="FASolid" FontSize="18"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="Build Muscle" Style="{StaticResource Body}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsGoal0}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="0"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.Fire}" FontFamily="FASolid" FontSize="18"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="Lose Weight" Style="{StaticResource Body}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsGoal1}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="1"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.Trophy}" FontFamily="FASolid" FontSize="18"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="Gain Strength" Style="{StaticResource Body}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsGoal2}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="2"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.Heart}" FontFamily="FASolid" FontSize="18"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="Stay Fit" Style="{StaticResource Body}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsGoal3}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="3"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.RotateRight}" FontFamily="FASolid" FontSize="18"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="Body Recomposition" Style="{StaticResource Body}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsGoal4}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="4"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Step 3: Gender -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step3" Spacing="10" Opacity="0">
+                <Label Text="Gender"
+                       Style="{StaticResource Headline}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,12,0,4" />
+                <Label Text="Helps us estimate your caloric needs."
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,16" />
+
+                <Border Style="{StaticResource GroupedSection}" Padding="0">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.User}" FontFamily="FASolid" FontSize="18"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="Male" Style="{StaticResource Body}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsGender0}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectGenderCommand}" CommandParameter="0"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.User}" FontFamily="FASolid" FontSize="18"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="Female" Style="{StaticResource Body}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsGender1}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectGenderCommand}" CommandParameter="1"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.User}" FontFamily="FASolid" FontSize="18"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="Prefer not to say" Style="{StaticResource Body}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsGender2}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectGenderCommand}" CommandParameter="2"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Step 4: Age — +/- stepper with big display -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step4" Spacing="0" VerticalOptions="Center" Opacity="0">
+                <Label Text="How old are you?"
+                       Style="{StaticResource Headline}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,12,0,4" />
+                <Label Text="We'll personalize your recovery needs."
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,40" />
+
+                <!-- Age stepper card -->
+                <Border Style="{StaticResource GroupedSection}" Padding="24,32">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="0">
+                        <!-- Minus button -->
+                        <Border Grid.Column="0" StrokeShape="RoundRectangle 24"
+                                WidthRequest="48" HeightRequest="48"
+                                StrokeThickness="0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}"
+                                VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icons.Minus}"
+                                   FontFamily="FASolid" FontSize="16"
+                                   HorizontalOptions="Center" VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AgeDownCommand}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+
+                        <!-- Age display -->
+                        <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4" VerticalOptions="Center">
+                            <Label Text="{Binding Age}"
+                                   FontSize="64" FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label Text="yrs"
+                                   FontSize="20"
+                                   VerticalOptions="End"
+                                   Margin="0,0,0,14"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                        </HorizontalStackLayout>
+
+                        <!-- Plus button -->
+                        <Border Grid.Column="2" StrokeShape="RoundRectangle 24"
+                                WidthRequest="48" HeightRequest="48"
+                                StrokeThickness="0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}"
+                                VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icons.Plus}"
+                                   FontFamily="FASolid" FontSize="16"
+                                   HorizontalOptions="Center" VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AgeUpCommand}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Step 5: Body Weight — Clean centered design -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step5" Spacing="0" VerticalOptions="Center" Opacity="0">
+                <Label Text="Body weight"
+                       Style="{StaticResource Headline}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,12,0,4" />
+                <Label Text="Optional — helps track your progress."
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,40" />
+
+                <!-- Weight input card -->
+                <Border Style="{StaticResource GroupedSection}" Padding="24,32">
+                    <VerticalStackLayout Spacing="20" HorizontalOptions="Center">
+                        <!-- Big weight entry -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4" HorizontalOptions="Center">
+                            <Entry Text="{Binding WeightText}" Placeholder="0"
+                                   Keyboard="Numeric"
+                                   BackgroundColor="Transparent"
+                                   FontSize="56" FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"
+                                   WidthRequest="160" />
+                            <Label Grid.Column="1" Text="{Binding WeightUnit}"
+                                   FontSize="22"
+                                   VerticalOptions="End"
+                                   Margin="0,0,0,16"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                        </Grid>
+
+                        <!-- Unit toggle pills -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="0" HorizontalOptions="Center" WidthRequest="200">
+                            <Border Grid.Column="0"
+                                    StrokeShape="RoundRectangle 12,0,12,0"
+                                    StrokeThickness="0"
+                                    Padding="16,10"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding UseMetric}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="kg" HorizontalOptions="Center" FontAttributes="Bold" FontSize="15">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding UseMetric}" Value="True">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleUnitCommand}" CommandParameter="metric"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    StrokeShape="RoundRectangle 0,12,0,12"
+                                    StrokeThickness="0"
+                                    Padding="16,10"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding UseMetric}" Value="False">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="lbs" HorizontalOptions="Center" FontAttributes="Bold" FontSize="15">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding UseMetric}" Value="False">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleUnitCommand}" CommandParameter="imperial"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Step 6: Training Days — Pill button selector -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step6" Spacing="0" VerticalOptions="Center" Opacity="0">
+                <Label Text="Training frequency"
+                       Style="{StaticResource Headline}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,12,0,4" />
+                <Label Text="How many days per week do you train?"
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,40" />
+
+                <!-- Day pills card -->
+                <Border Style="{StaticResource GroupedSection}" Padding="20,28">
+                    <VerticalStackLayout Spacing="20">
+                        <!-- 7 pill buttons in a row -->
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                            <!-- Day 1 -->
+                            <Border StrokeShape="RoundRectangle 24" WidthRequest="48" HeightRequest="48" StrokeThickness="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding TrainingDays}" Value="1">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="1" FontSize="17" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding TrainingDays}" Value="1">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetTrainingDaysCommand}" CommandParameter="1" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <!-- Day 2 -->
+                            <Border StrokeShape="RoundRectangle 24" WidthRequest="48" HeightRequest="48" StrokeThickness="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding TrainingDays}" Value="2">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="2" FontSize="17" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding TrainingDays}" Value="2">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetTrainingDaysCommand}" CommandParameter="2" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <!-- Day 3 -->
+                            <Border StrokeShape="RoundRectangle 24" WidthRequest="48" HeightRequest="48" StrokeThickness="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding TrainingDays}" Value="3">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="3" FontSize="17" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding TrainingDays}" Value="3">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetTrainingDaysCommand}" CommandParameter="3" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <!-- Day 4 -->
+                            <Border StrokeShape="RoundRectangle 24" WidthRequest="48" HeightRequest="48" StrokeThickness="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding TrainingDays}" Value="4">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="4" FontSize="17" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding TrainingDays}" Value="4">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetTrainingDaysCommand}" CommandParameter="4" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <!-- Day 5 -->
+                            <Border StrokeShape="RoundRectangle 24" WidthRequest="48" HeightRequest="48" StrokeThickness="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding TrainingDays}" Value="5">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="5" FontSize="17" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding TrainingDays}" Value="5">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetTrainingDaysCommand}" CommandParameter="5" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <!-- Day 6 -->
+                            <Border StrokeShape="RoundRectangle 24" WidthRequest="48" HeightRequest="48" StrokeThickness="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding TrainingDays}" Value="6">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="6" FontSize="17" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding TrainingDays}" Value="6">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetTrainingDaysCommand}" CommandParameter="6" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <!-- Day 7 -->
+                            <Border StrokeShape="RoundRectangle 24" WidthRequest="48" HeightRequest="48" StrokeThickness="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding TrainingDays}" Value="7">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="7" FontSize="17" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding TrainingDays}" Value="7">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetTrainingDaysCommand}" CommandParameter="7" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </HorizontalStackLayout>
+
+                        <!-- Description -->
+                        <Label Text="{Binding TrainingDaysDesc}"
+                               Style="{StaticResource Caption}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Step 7: Sleep — Option selection -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step7" Spacing="10" Opacity="0">
+                <Label Text="{x:Static helpers:Icons.Moon}"
+                       FontFamily="FASolid" FontSize="40"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                       Margin="0,12,0,8" />
+
+                <Label Text="How much sleep do you get?"
+                       Style="{StaticResource Headline}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,4" />
+                <Label Text="Sleep is crucial for muscle recovery."
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,16" />
+
+                <Border Style="{StaticResource GroupedSection}" Padding="0">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="5h" FontSize="17" FontAttributes="Bold" WidthRequest="36"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Less than 6 hours" Style="{StaticResource Body}"/>
+                                <Label Text="Try to aim for more rest" Style="{StaticResource SmallCaption}"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsSleep0}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectSleepCommand}" CommandParameter="0"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="6h" FontSize="17" FontAttributes="Bold" WidthRequest="36"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="About 6 hours" Style="{StaticResource Body}"/>
+                                <Label Text="A bit below optimal" Style="{StaticResource SmallCaption}"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsSleep1}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectSleepCommand}" CommandParameter="1"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="7-8h" FontSize="17" FontAttributes="Bold" WidthRequest="36"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="7 to 8 hours" Style="{StaticResource Body}"/>
+                                <Label Text="Great for recovery" Style="{StaticResource SmallCaption}"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsSleep2}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectSleepCommand}" CommandParameter="2"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="52,0,0,0"
+                                 Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="9h+" FontSize="17" FontAttributes="Bold" WidthRequest="36"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="9 hours or more" Style="{StaticResource Body}"/>
+                                <Label Text="Excellent recovery window" Style="{StaticResource SmallCaption}"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                   VerticalOptions="Center" IsVisible="{Binding IsSleep3}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectSleepCommand}" CommandParameter="3"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Step 8: Volume Calculation — Clean minimal -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step8" Spacing="0" VerticalOptions="Center" Opacity="0">
+                <Label Text="Your optimal volume"
+                       Style="{StaticResource Headline}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,12,0,4" />
+                <Label Text="Based on your experience and training days."
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,32" />
+
+                <!-- Volume stats -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,0,0,16">
+                    <Border Grid.Column="0" Style="{StaticResource GroupedSection}" Padding="20,24">
+                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label Text="{Binding WeeklyVolume}"
+                                   FontSize="44" FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label Text="weekly sets"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource GroupedSection}" Padding="20,24">
+                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label Text="{Binding SetsPerMuscle}"
+                                   FontSize="44" FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label Text="sets / muscle"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <Border Style="{StaticResource GroupedSection}" Padding="16,14">
+                    <Label Text="{Binding VolumeVerdict}"
+                           Style="{StaticResource Body}"
+                           HorizontalTextAlignment="Center" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Step 9: Starter Routines (with loading animation) -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step9" Spacing="12" Opacity="0">
+
+                <!-- Loading state -->
+                <VerticalStackLayout IsVisible="{Binding IsGeneratingRoutines}"
+                                     VerticalOptions="Center" Spacing="20" Margin="0,60,0,0">
+                    <ActivityIndicator IsRunning="{Binding IsGeneratingRoutines}"
+                                       WidthRequest="48" HeightRequest="48"
+                                       HorizontalOptions="Center"
+                                       Color="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                    <Label Text="Building your routines..."
+                           Style="{StaticResource HeadlineSmall}"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="Personalizing based on your profile"
+                           Style="{StaticResource Caption}"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <!-- Content (shown after loading) -->
+                <VerticalStackLayout IsVisible="{Binding IsGeneratingRoutines, Converter={StaticResource InverseBoolConverter}}" Spacing="12">
+                    <Label Text="Your routines"
+                           Style="{StaticResource Headline}"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,12,0,4" />
+                    <Label Text="We've prepared routines for you. Toggle any to add them."
+                           Style="{StaticResource Caption}"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,0,0,8" />
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding StarterRoutines}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:StarterRoutineOption">
+                                <Border Style="{StaticResource GroupedSection}" Padding="0">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OnboardingViewModel}}, Path=ToggleRoutineCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                                        <Label Grid.Column="0"
+                                               Text="{x:Static helpers:Icons.Check}" FontFamily="FASolid" FontSize="16"
+                                               VerticalOptions="Center"
+                                               IsVisible="{Binding IsSelected}"
+                                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding Name}"
+                                                   Style="{StaticResource Body}"
+                                                   FontAttributes="Bold" />
+                                            <Label Text="{Binding ExerciseSummary}"
+                                                   Style="{StaticResource SmallCaption}"
+                                                   LineBreakMode="TailTruncation"
+                                                   MaxLines="1" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2"
+                                               Text="{Binding ExerciseCount, StringFormat='{0} exercises'}"
+                                               Style="{StaticResource Caption}"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <Button Text="Skip for now"
+                            Style="{StaticResource TextButton}"
+                            Command="{Binding SkipToAuthCommand}"
+                            HorizontalOptions="Center"
+                            Margin="0,8,0,0" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Step 10: Profile — Avatar + Name, then auth -->
+            <VerticalStackLayout IsVisible="False" x:Name="Step10" Spacing="20" VerticalOptions="Center" Opacity="0">
+                <Label Text="Your profile"
+                       Style="{StaticResource Headline}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,4" />
+                <Label Text="Add a photo and your name."
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,8" />
+
+                <!-- Avatar with photo option -->
+                <Grid HorizontalOptions="Center" WidthRequest="110" HeightRequest="110">
+                    <!-- Avatar circle -->
+                    <Border StrokeShape="RoundRectangle 55"
+                            WidthRequest="110" HeightRequest="110"
+                            StrokeThickness="0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray800}}"
+                            HorizontalOptions="Center">
+                        <!-- Show avatar image if set, otherwise initial -->
+                        <Grid>
+                            <Image Source="{Binding AvatarImageSource}"
+                                   Aspect="AspectFill"
+                                   IsVisible="{Binding HasAvatarImage}"
+                                   WidthRequest="110" HeightRequest="110" />
+                            <Label Text="{Binding AvatarLetter}"
+                                   FontSize="44" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   HorizontalOptions="Center" VerticalOptions="Center"
+                                   IsVisible="{Binding HasAvatarImage, Converter={StaticResource InverseBoolConverter}}" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Camera badge -->
+                    <Border StrokeShape="RoundRectangle 16"
+                            WidthRequest="32" HeightRequest="32"
+                            StrokeThickness="0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                            HorizontalOptions="End" VerticalOptions="End"
+                            Margin="0,0,2,2">
+                        <Label Text="{x:Static helpers:Icons.Camera}"
+                               FontFamily="FASolid" FontSize="13"
+                               TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PickAvatarPhotoCommand}" />
+                    </Grid.GestureRecognizers>
+                </Grid>
+
+                <!-- Nickname input in styled card -->
+                <Border Style="{StaticResource GroupedSection}" Padding="4,0" Margin="0,8,0,0">
+                    <Entry Text="{Binding Nickname}" Placeholder="Your name"
+                           FontSize="18" FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"
+                           BackgroundColor="Transparent"
+                           MinimumHeightRequest="52" />
+                </Border>
+
+                <!-- Continue goes to auth -->
+                <Button Text="Continue"
+                        Style="{StaticResource PrimaryButton}"
+                        Margin="0,12,0,0"
+                        Command="{Binding FinishOnboardingCommand}" />
+
+                <Button Text="Skip for now"
+                        Style="{StaticResource TextButton}"
+                        Command="{Binding SkipAuthCommand}"
+                        HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            </Grid>
+        </ScrollView>
+
+        <!-- Bottom: Navigation -->
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" Padding="24,12,24,32" ColumnSpacing="12">
+            <Button Grid.Column="0"
+                    Text="Back"
+                    Style="{StaticResource TextButton}"
+                    Command="{Binding PreviousStepCommand}"
+                    x:Name="BackButton" />
+
+            <!-- Get Started (welcome only) -->
+            <Button Grid.Column="2"
+                    Text="Get Started"
+                    Style="{StaticResource PrimaryButton}"
+                    MinimumWidthRequest="140"
+                    Command="{Binding NextStepCommand}"
+                    x:Name="GetStartedButton"
+                    IsVisible="False" />
+
+            <!-- Continue (steps 1-9) -->
+            <Button Grid.Column="2"
+                    Text="Continue"
+                    Style="{StaticResource PrimaryButton}"
+                    MinimumWidthRequest="120"
+                    Command="{Binding NextStepCommand}"
+                    IsEnabled="{Binding CanProceed}"
+                    Opacity="1"
+                    x:Name="NextButton">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding CanProceed}" Value="False">
+                        <Setter Property="Opacity" Value="0.35" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+
+            <!-- Last step has its own buttons inside Step10 -->
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

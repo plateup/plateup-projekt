@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlateUp.ViewModels"
+             xmlns:dm="clr-namespace:PlateUp.ViewModels.DisplayModels"
+             xmlns:helpers="clr-namespace:PlateUp.Helpers"
+             x:Class="PlateUp.Views.WorkoutSummaryPage"
+             x:DataType="vm:WorkoutSummaryViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0" Padding="0,0,0,32">
+
+            <!-- ═══ HEADER ═══ -->
+            <VerticalStackLayout Padding="20,16,20,0" Spacing="4">
+                <Entry Text="{Binding WorkoutTitle}"
+                       Style="{StaticResource InputEntry}"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       BackgroundColor="Transparent"
+                       IsReadOnly="{Binding IsReadOnly}" />
+                <Label Text="{Binding WorkoutDate}"
+                       Style="{StaticResource Caption}" />
+            </VerticalStackLayout>
+
+            <!-- ═══ STATS DASHBOARD ═══ -->
+            <Grid ColumnDefinitions="*,*"
+                  RowDefinitions="Auto,Auto"
+                  ColumnSpacing="12"
+                  RowSpacing="12"
+                  Margin="20,16,20,0">
+
+                <!-- Duration -->
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.Clock}"
+                               FontFamily="FASolid" FontSize="24"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                        <Label Text="{Binding Duration}"
+                               Style="{StaticResource Title}"
+                               HorizontalOptions="Center" />
+                        <Label Text="Duration"
+                               Style="{StaticResource Caption}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Volume -->
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.Weight}"
+                               FontFamily="FASolid" FontSize="24"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                        <Label Text="{Binding TotalVolume}"
+                               Style="{StaticResource Title}"
+                               HorizontalOptions="Center" />
+                        <Label Text="Volume"
+                               Style="{StaticResource Caption}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sets -->
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.CircleCheck}"
+                               FontFamily="FASolid" FontSize="24"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                        <Label Text="{Binding TotalSets}"
+                               Style="{StaticResource Title}"
+                               HorizontalOptions="Center" />
+                        <Label Text="Sets"
+                               Style="{StaticResource Caption}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- PRs -->
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.Trophy}"
+                               FontFamily="FASolid" FontSize="24"
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource AccentGold}" />
+                        <Label Text="{Binding PrCount}"
+                               Style="{StaticResource Title}"
+                               TextColor="{StaticResource AccentGold}"
+                               HorizontalOptions="Center" />
+                        <Label Text="PRs"
+                               Style="{StaticResource Caption}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- ═══ EXERCISES ═══ -->
+            <Label Text="Exercises"
+                   Style="{StaticResource Title}"
+                   Margin="20,24,20,8" />
+
+            <VerticalStackLayout Margin="20,0"
+                                 BindableLayout.ItemsSource="{Binding Exercises}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="dm:SummaryExerciseDisplay">
+                        <VerticalStackLayout Spacing="4" Margin="0,8">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{Binding ExerciseName}"
+                                       Style="{StaticResource Body}"
+                                       FontAttributes="Bold" />
+                                <Label Text="{x:Static helpers:Icons.Trophy}"
+                                       FontFamily="FASolid"
+                                       FontSize="14"
+                                       TextColor="{StaticResource AccentGold}"
+                                       VerticalOptions="Center"
+                                       IsVisible="{Binding HasPR}" />
+                            </HorizontalStackLayout>
+
+                            <VerticalStackLayout Spacing="2"
+                                                 BindableLayout.ItemsSource="{Binding Sets}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="dm:SummarySetDisplay">
+                                        <Grid ColumnDefinitions="60,*,Auto" Padding="0,2">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding SetLabel}"
+                                                   Style="{StaticResource Caption}" />
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding WeightReps}"
+                                                   Style="{StaticResource Body}" />
+                                            <Label Grid.Column="2"
+                                                   Text="PR"
+                                                   Style="{StaticResource GoldLabel}"
+                                                   IsVisible="{Binding IsPR}"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <!-- ═══ MUSCLE SPLIT ═══ -->
+            <Label Text="Muscle Split"
+                   Style="{StaticResource Title}"
+                   Margin="20,24,20,8" />
+
+            <VerticalStackLayout Margin="20,0" Spacing="8"
+                                 BindableLayout.ItemsSource="{Binding MuscleSplit}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="dm:MuscleGroupSplit">
+                        <Grid ColumnDefinitions="80,*,40" ColumnSpacing="8">
+                            <Label Grid.Column="0"
+                                   Text="{Binding MuscleGroupName}"
+                                   Style="{StaticResource Caption}"
+                                   VerticalOptions="Center" />
+                            <ProgressBar Grid.Column="1"
+                                         Progress="{Binding Percentage, Converter={StaticResource PercentToProgressConverter}}"
+                                         ProgressColor="{Binding Color}"
+                                         VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{Binding Percentage, StringFormat='{0:0}%'}"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="End"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <!-- ═══ SOCIAL SECTION ═══ -->
+            <VerticalStackLayout Margin="20,24,20,0"
+                                 Spacing="8"
+                                 IsVisible="{Binding IsReadOnly, Converter={StaticResource InverseBoolConverter}}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Share to Feed"
+                           Style="{StaticResource Body}"
+                           VerticalOptions="Center" />
+                    <Switch Grid.Column="1"
+                            IsToggled="{Binding IsPublic}" />
+                </Grid>
+                <Editor Text="{Binding Description}"
+                        Placeholder="How was your workout?"
+                        HeightRequest="80"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource InputBackgroundLight}, Dark={StaticResource InputBackgroundDark}}" />
+            </VerticalStackLayout>
+
+            <!-- ═══ SAVE BUTTON ═══ -->
+            <VerticalStackLayout Margin="20,24,20,0"
+                                 Spacing="8"
+                                 IsVisible="{Binding IsReadOnly, Converter={StaticResource InverseBoolConverter}}">
+                <Label Text="{Binding EarnedExp, StringFormat='+{0} XP earned!'}"
+                       Style="{StaticResource GoldLabel}"
+                       HorizontalOptions="Center" />
+                <Button Text="Save Workout"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding SaveWorkoutCommand}" />
+                <Button Style="{StaticResource SecondaryButton}"
+                        Command="{Binding ShareWorkoutCommand}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FASolid"
+                                         Glyph="{x:Static helpers:Icons.Share}"
+                                         Size="14"
+                                         Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                    </Button.ImageSource>
+                    <Button.Text>Share</Button.Text>
+                </Button>
+            </VerticalStackLayout>
+
+            <!-- Read-only back button -->
+            <Button Text="Back"
+                    Style="{StaticResource SecondaryButton}"
+                    Margin="20,24,20,0"
+                    IsVisible="{Binding IsReadOnly}"
+                    Command="{Binding GoBackCommand}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

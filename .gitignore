@@ -1,37 +1,50 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Build artifacts
-dev-dist/
-
-# Codebase index
-.codegraph/
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
+# .NET
+bin/
+obj/
+*.user
 *.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.userosscache
+*.sln.docstates
 
-# Internal / Documentation files
-AI_CONTEXT.md
-LANDZI.md
-LIFT_ROADMAP.md
-interfejs_projektu.txt
-praktyczna_karta_wymagan.txt
+# VS / Rider
+.vs/
+.idea/
+*.DotSettings.user
+_ReSharper.*/
+[Tt]est[Rr]esult*/
+
+# MAUI
+*.app/
+*.ipa
+*.apk
+*.aab
+
+# macOS
+.DS_Store
+*.swp
+*~.nib
+Thumbs.db
+
+# Secrets / env
+*.env
+*.env.*
+appsettings.*.json
+credentials.json
+
+# NuGet
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Ll]og/
+[Ll]ogs/
+node_modules/

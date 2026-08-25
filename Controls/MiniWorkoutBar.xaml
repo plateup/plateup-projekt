@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:PlateUp.Helpers"
+             x:Class="PlateUp.Controls.MiniWorkoutBar">
+
+    <Border StrokeThickness="0"
+            Padding="16,10"
+            Margin="12,0,12,4"
+            StrokeShape="RoundRectangle 14"
+            BackgroundColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+            x:Name="BarBorder"
+            IsVisible="False">
+
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnBarTapped" />
+        </Border.GestureRecognizers>
+
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+            <!-- Pulsing dot -->
+            <Border Grid.Column="0"
+                    WidthRequest="8" HeightRequest="8"
+                    StrokeShape="RoundRectangle 4"
+                    StrokeThickness="0"
+                    BackgroundColor="#34C759"
+                    VerticalOptions="Center"
+                    x:Name="PulseDot" />
+
+            <!-- Title -->
+            <Label Grid.Column="1"
+                   x:Name="TitleLabel"
+                   Text="Workout"
+                   FontSize="15"
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}"
+                   VerticalOptions="Center"
+                   LineBreakMode="TailTruncation" />
+
+            <!-- Timer -->
+            <Label Grid.Column="2"
+                   x:Name="TimerLabel"
+                   Text="00:00"
+                   FontSize="14"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                   VerticalOptions="Center" />
+
+            <!-- Chevron -->
+            <Label Grid.Column="3"
+                   Text="{x:Static helpers:Icons.ChevronRight}"
+                   FontFamily="FASolid"
+                   FontSize="12"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
+                   VerticalOptions="Center" />
+        </Grid>
+    </Border>
+
+</ContentView>

@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlateUp.ViewModels"
+             xmlns:dm="clr-namespace:PlateUp.ViewModels.DisplayModels"
+             xmlns:helpers="clr-namespace:PlateUp.Helpers"
+             xmlns:models="clr-namespace:PlateUp.Models"
+             xmlns:controls="clr-namespace:PlateUp.Controls"
+             x:Class="PlateUp.Views.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <Grid RowDefinitions="*,Auto">
+    <RefreshView Grid.Row="0" IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding InitializeAsyncCommand}">
+        <ScrollView>
+            <VerticalStackLayout Spacing="0" Padding="0,0,0,40">
+
+                <!-- Header -->
+                <Grid ColumnDefinitions="*,Auto" Padding="20,16,20,0">
+                    <Label Text="Profile"
+                           Style="{StaticResource LargeTitle}" />
+                    <Button Grid.Column="1"
+                            Text="{x:Static helpers:Icons.Gear}"
+                            Style="{StaticResource IconButton}"
+                            Command="{Binding GoToSettingsCommand}" />
+                </Grid>
+
+                <!-- Avatar + Name (editable inline) -->
+                <VerticalStackLayout Spacing="12" Margin="20,24,20,0" HorizontalOptions="Center">
+                    <Grid WidthRequest="96" HeightRequest="96" HorizontalOptions="Center">
+                        <!-- Letter fallback -->
+                        <Border StrokeShape="RoundRectangle 48"
+                                StrokeThickness="0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                                IsVisible="{Binding HasAvatarImage, Converter={StaticResource InverseBoolConverter}}">
+                            <Label Text="{Binding AvatarLetter}"
+                                   TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}"
+                                   FontSize="40"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+                        <!-- Photo avatar -->
+                        <Border StrokeShape="RoundRectangle 48"
+                                StrokeThickness="0"
+                                IsVisible="{Binding HasAvatarImage}">
+                            <Image Source="{Binding AvatarImageSource}"
+                                   Aspect="AspectFill"
+                                   WidthRequest="96" HeightRequest="96" />
+                        </Border>
+                        <!-- Camera overlay -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                StrokeThickness="0"
+                                WidthRequest="28" HeightRequest="28"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                                HorizontalOptions="End" VerticalOptions="End"
+                                Margin="0,0,2,2">
+                            <Label Text="{x:Static helpers:Icons.Camera}"
+                                   FontFamily="FASolid" FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PickAvatarPhotoCommand}" />
+                        </Grid.GestureRecognizers>
+                    </Grid>
+
+                    <!-- Editable nickname -->
+                    <Entry Text="{Binding Nickname}"
+                           BackgroundColor="Transparent"
+                           FontSize="22" FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"
+                           WidthRequest="240"
+                           Placeholder="Your name" />
+
+                    <!-- Editable bio -->
+                    <Entry Text="{Binding Bio}"
+                           BackgroundColor="Transparent"
+                           FontSize="14"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"
+                           WidthRequest="280"
+                           Placeholder="Add a bio..."
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                </VerticalStackLayout>
+
+                <!-- Level Card -->
+                <Border Style="{StaticResource Card}" Margin="20,20,20,0">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="{Binding RankName}"
+                                   Style="{StaticResource GoldLabel}"
+                                   FontSize="15" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Level, StringFormat='Level {0}'}"
+                                   Style="{StaticResource Caption}" />
+                        </Grid>
+                        <ProgressBar Progress="{Binding ExpProgress}"
+                                     HeightRequest="6" />
+                        <Label Text="{Binding ExpText}"
+                               Style="{StaticResource SmallCaption}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Stats -->
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      RowDefinitions="Auto,Auto"
+                      RowSpacing="12"
+                      Margin="20,16,20,0">
+                    <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource GroupedSection}" Padding="16,20">
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Text="{Binding TotalWorkouts}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label Text="Workouts"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Grid.Row="0" Style="{StaticResource GroupedSection}" Padding="16,20">
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Text="{Binding TotalVolumeFormatted}"
+                                   FontSize="20" FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label Text="Volume"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource GroupedSection}" Padding="16,20">
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Text="{Binding CurrentStreak}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label Text="Streak"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Grid.Row="1" Style="{StaticResource GroupedSection}" Padding="16,20">
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Text="{Binding BestStreak}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label Text="Best"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Calendar -->
+                <VerticalStackLayout Margin="20,24,20,0" Spacing="10">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Button Grid.Column="0"
+                                Text="{x:Static helpers:Icons.ChevronLeft}"
+                                Style="{StaticResource IconButton}"
+                                HeightRequest="36" WidthRequest="36"
+                                FontSize="14"
+                                Command="{Binding PreviousMonthCommand}" />
+                        <Label Grid.Column="1"
+                               Text="{Binding CalendarMonth}"
+                               Style="{StaticResource HeadlineSmall}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                        <Button Grid.Column="2"
+                                Text="{x:Static helpers:Icons.ChevronRight}"
+                                Style="{StaticResource IconButton}"
+                                HeightRequest="36" WidthRequest="36"
+                                FontSize="14"
+                                Command="{Binding NextMonthCommand}" />
+                    </Grid>
+
+                    <!-- Day headers -->
+                    <Grid ColumnDefinitions="*,*,*,*,*,*,*">
+                        <Label Grid.Column="0" Text="M" Style="{StaticResource SmallCaption}" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="1" Text="T" Style="{StaticResource SmallCaption}" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="2" Text="W" Style="{StaticResource SmallCaption}" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="3" Text="T" Style="{StaticResource SmallCaption}" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="4" Text="F" Style="{StaticResource SmallCaption}" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="5" Text="S" Style="{StaticResource SmallCaption}" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="6" Text="S" Style="{StaticResource SmallCaption}" HorizontalTextAlignment="Center" />
+                    </Grid>
+
+                    <!-- Calendar grid -->
+                    <FlexLayout x:Name="CalendarGrid"
+                                Wrap="Wrap"
+                                JustifyContent="Start"
+                                BindableLayout.ItemsSource="{Binding CalendarDays}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="dm:CalendarDay">
+                                <Border WidthRequest="46" HeightRequest="40"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 12"
+                                        BackgroundColor="Transparent"
+                                        HorizontalOptions="Center"
+                                        Margin="0,1">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding HasWorkout}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="{Binding DayNumber}"
+                                           FontSize="13"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding HasWorkout}" Value="True">
+                                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                                <Setter Property="FontAttributes" Value="Bold" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsCurrentMonth}" Value="False">
+                                                <Setter Property="Opacity" Value="0.25" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </VerticalStackLayout>
+
+                <!-- Body Weight -->
+                <VerticalStackLayout Margin="20,24,20,0" Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Body Weight"
+                               Style="{StaticResource HeadlineSmall}" />
+                        <Button Grid.Column="1"
+                                Text="+ Add"
+                                Style="{StaticResource TextButton}"
+                                FontSize="15"
+                                Command="{Binding AddMeasurementCommand}" />
+                    </Grid>
+
+                    <Border Style="{StaticResource GroupedSection}" Padding="16">
+                        <VerticalStackLayout Spacing="0"
+                                             BindableLayout.ItemsSource="{Binding Measurements}">
+                            <BindableLayout.EmptyView>
+                                <Label Text="No measurements yet"
+                                       Style="{StaticResource Caption}"
+                                       Margin="0,8" />
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:BodyMeasurement">
+                                    <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                        <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}"
+                                               Style="{StaticResource Body}" />
+                                        <Label Grid.Column="1"
+                                               Text="{Binding WeightKg, StringFormat='{0:0.#} kg'}"
+                                               Style="{StaticResource HeadlineSmall}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Tools Section -->
+                <Label Text="TOOLS"
+                       Style="{StaticResource SmallCaption}"
+                       FontAttributes="Bold"
+                       Margin="20,24,20,12"
+                       CharacterSpacing="1" />
+
+                <Border Style="{StaticResource GroupedSection}" Margin="20,0" Padding="0">
+                    <VerticalStackLayout Spacing="0">
+                        <!-- History -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.History}"
+                                   FontFamily="FASolid" FontSize="16"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Workout History"
+                                   Style="{StaticResource Body}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{x:Static helpers:Icons.ChevronRight}"
+                                   FontFamily="FASolid" FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToHistoryCommand}" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="48,0,0,0" />
+
+                        <!-- Monthly Wrap -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.Gift}"
+                                   FontFamily="FASolid" FontSize="16"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Monthly Wrap"
+                                   Style="{StaticResource Body}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{x:Static helpers:Icons.ChevronRight}"
+                                   FontFamily="FASolid" FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToMonthlyWrapCommand}" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="48,0,0,0" />
+
+                        <!-- Yearly Wrap -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                            <Label Text="{x:Static helpers:Icons.Trophy}"
+                                   FontFamily="FASolid" FontSize="16"
+                                   TextColor="{StaticResource Gold}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Yearly Wrap"
+                                   Style="{StaticResource Body}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{x:Static helpers:Icons.ChevronRight}"
+                                   FontFamily="FASolid" FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToYearlyWrapCommand}" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Account Section -->
+                <Label Text="ACCOUNT"
+                       Style="{StaticResource SmallCaption}"
+                       FontAttributes="Bold"
+                       Margin="20,24,20,12"
+                       CharacterSpacing="1" />
+
+                <Border Style="{StaticResource GroupedSection}" Margin="20,0" Padding="0">
+                    <VerticalStackLayout Spacing="0">
+                        <!-- Google sign in -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12"
+                              IsVisible="{Binding IsLoggedIn, Converter={StaticResource InverseBoolConverter}}">
+                            <Label Text="{x:Static helpers:Icons.Globe}"
+                                   FontFamily="FASolid" FontSize="16"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Sign in with Google"
+                                   Style="{StaticResource Body}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{x:Static helpers:Icons.ChevronRight}"
+                                   FontFamily="FASolid" FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToAuthCommand}" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Margin="48,0,0,0"
+                                 IsVisible="{Binding IsLoggedIn, Converter={StaticResource InverseBoolConverter}}" />
+
+                        <!-- Login -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12"
+                              IsVisible="{Binding IsLoggedIn, Converter={StaticResource InverseBoolConverter}}">
+                            <Label Text="{x:Static helpers:Icons.User}"
+                                   FontFamily="FASolid" FontSize="16"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Log In / Sign Up"
+                                   Style="{StaticResource Body}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{x:Static helpers:Icons.ChevronRight}"
+                                   FontFamily="FASolid" FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToAuthCommand}" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+
+                        <!-- Logout -->
+                        <Grid ColumnDefinitions="*" Padding="16,14"
+                              IsVisible="{Binding IsLoggedIn}">
+                            <Label Text="Log Out"
+                                   Style="{StaticResource Body}"
+                                   TextColor="{StaticResource Danger}"
+                                   HorizontalOptions="Center" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding LogoutCommand}" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+    <controls:MiniWorkoutBar Grid.Row="1" />
+    </Grid>
+
+</ContentPage>

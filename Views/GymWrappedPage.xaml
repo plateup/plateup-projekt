@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlateUp.ViewModels"
+             xmlns:helpers="clr-namespace:PlateUp.Helpers"
+             x:Class="PlateUp.Views.GymWrappedPage"
+             x:DataType="vm:GymWrappedViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="16,12">
+            <Button Grid.Column="0"
+                    Text="{x:Static helpers:Icons.ChevronLeft}"
+                    Style="{StaticResource IconButton}"
+                    Command="{Binding GoBackCommand}" />
+            <Label Grid.Column="1"
+                   Text="{Binding PeriodLabel}"
+                   Style="{StaticResource Title}"
+                   VerticalOptions="Center"
+                   Margin="8,0,0,0" />
+        </Grid>
+
+        <!-- Cards ScrollView with Snap -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal"
+                     HorizontalScrollBarVisibility="Never"
+                     x:Name="CardScroller">
+            <HorizontalStackLayout Spacing="16" Padding="24,16">
+
+                <!-- Card 0: Overview -->
+                <Border Style="{StaticResource Card}" Padding="24"
+                        WidthRequest="300" HeightRequest="400">
+                    <VerticalStackLayout Spacing="16" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.Dumbbell}"
+                               FontFamily="FASolid" FontSize="48"
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource AccentBlue}" />
+                        <Label Text="Your Overview"
+                               Style="{StaticResource Headline}"
+                               HorizontalTextAlignment="Center" />
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   Text="{Binding TotalWorkouts}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{StaticResource AccentBlue}" />
+                            <Label Grid.Row="1" Grid.Column="0"
+                                   Text="Workouts" Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="Center" />
+
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding TotalHours}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{StaticResource AccentBlue}" />
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   Text="Hours" Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="Center" />
+
+                            <Label Grid.Row="0" Grid.Column="2"
+                                   Text="{Binding TotalExercisesDone}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{StaticResource AccentBlue}" />
+                            <Label Grid.Row="1" Grid.Column="2"
+                                   Text="Exercises" Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Card 1: Top Exercises -->
+                <Border Style="{StaticResource Card}" Padding="24"
+                        WidthRequest="300" HeightRequest="400">
+                    <VerticalStackLayout Spacing="16" VerticalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.Trophy}"
+                               FontFamily="FASolid" FontSize="48"
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource AccentGold}" />
+                        <Label Text="Top Exercises"
+                               Style="{StaticResource Headline}"
+                               HorizontalTextAlignment="Center" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding TopExercises}" Spacing="12">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:TopExerciseItem">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding Name}" Style="{StaticResource Body}" FontAttributes="Bold" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding Volume}" Style="{StaticResource AccentLabel}" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Card 2: Muscle Split -->
+                <Border Style="{StaticResource Card}" Padding="24"
+                        WidthRequest="300" HeightRequest="400">
+                    <VerticalStackLayout Spacing="16" VerticalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.Weight}"
+                               FontFamily="FASolid" FontSize="48"
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource AccentBlue}" />
+                        <Label Text="Muscle Split"
+                               Style="{StaticResource Headline}"
+                               HorizontalTextAlignment="Center" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding MuscleSplit}" Spacing="8">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:MuscleSplitItem">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                        <Border WidthRequest="12" HeightRequest="12"
+                                                StrokeShape="RoundRectangle 6" StrokeThickness="0"
+                                                BackgroundColor="{Binding Color}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding MuscleGroup}" Style="{StaticResource Body}" VerticalOptions="Center" />
+                                        <Label Grid.Column="2" Text="{Binding Percentage, StringFormat='{0}%'}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Card 3: PRs -->
+                <Border Style="{StaticResource Card}" Padding="24"
+                        WidthRequest="300" HeightRequest="400">
+                    <VerticalStackLayout Spacing="16" VerticalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.Medal}"
+                               FontFamily="FASolid" FontSize="48"
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource AccentGold}" />
+                        <Label Text="{Binding TotalPRs, StringFormat='{0} Personal Records!'}"
+                               Style="{StaticResource Headline}"
+                               HorizontalTextAlignment="Center" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding PrHighlights}" Spacing="8">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PRHighlightItem">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding ExerciseName}" Style="{StaticResource Body}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding Value}" Style="{StaticResource GoldLabel}" FontSize="15" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Card 4: Streaks -->
+                <Border Style="{StaticResource Card}" Padding="24"
+                        WidthRequest="300" HeightRequest="400">
+                    <VerticalStackLayout Spacing="16" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.Fire}"
+                               FontFamily="FASolid" FontSize="48"
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource DangerRed}" />
+                        <Label Text="Consistency"
+                               Style="{StaticResource Headline}"
+                               HorizontalTextAlignment="Center" />
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   Text="{Binding LongestStreak}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{StaticResource DangerRed}" />
+                            <Label Grid.Row="1" Grid.Column="0"
+                                   Text="Day Streak" Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="Center" />
+
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding ActiveDays}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{StaticResource AccentBlue}" />
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   Text="Active Days" Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="Center" />
+
+                            <Label Grid.Row="0" Grid.Column="2"
+                                   Text="{Binding ConsistencyPercent, StringFormat='{0}%'}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{StaticResource AccentGold}" />
+                            <Label Grid.Row="1" Grid.Column="2"
+                                   Text="Consistency" Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Card 5: Volume Comparison -->
+                <Border Style="{StaticResource Card}" Padding="24"
+                        WidthRequest="300" HeightRequest="400">
+                    <VerticalStackLayout Spacing="16" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="{x:Static helpers:Icons.ChartLine}"
+                               FontFamily="FASolid" FontSize="48"
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource AccentBlue}" />
+                        <Label Text="Volume Progress"
+                               Style="{StaticResource Headline}"
+                               HorizontalTextAlignment="Center" />
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12">
+                            <VerticalStackLayout HorizontalOptions="Center">
+                                <Label Text="{Binding PreviousVolume}"
+                                       FontSize="20" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                                <Label Text="Previous" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="{x:Static helpers:Icons.ChevronRight}"
+                                   FontFamily="FASolid" FontSize="18" VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}" />
+                            <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                                <Label Text="{Binding CurrentVolume}"
+                                       FontSize="20" FontAttributes="Bold" HorizontalTextAlignment="Center"
+                                       TextColor="{StaticResource AccentBlue}" />
+                                <Label Text="Current" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Label Text="{Binding VolumeChange}"
+                               FontSize="28" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{StaticResource AccentGold}" />
+                    </VerticalStackLayout>
+                </Border>
+
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Footer -->
+        <VerticalStackLayout Grid.Row="2" Spacing="8" Padding="16,0,16,16">
+            <Button Text="Share Summary"
+                    Style="{StaticResource SecondaryButton}"
+                    Command="{Binding ShareWrappedCommand}">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FASolid"
+                                     Glyph="{x:Static helpers:Icons.Share}"
+                                     Size="14"
+                                     Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                </Button.ImageSource>
+            </Button>
+            <Label Text="Swipe to explore"
+                   Style="{StaticResource Caption}"
+                   HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+
+    </Grid>
+
+</ContentPage>

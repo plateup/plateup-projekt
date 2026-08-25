@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlateUp.ViewModels"
+             xmlns:helpers="clr-namespace:PlateUp.Helpers"
+             xmlns:services="clr-namespace:PlateUp.Services"
+             x:Class="PlateUp.Views.UserProfilePage"
+             x:DataType="vm:UserProfileViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="20,12">
+            <Button Grid.Column="0"
+                    Text="{x:Static helpers:Icons.ChevronLeft}"
+                    Style="{StaticResource IconButton}"
+                    Command="{Binding GoBackCommand}" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20" Padding="24,0,24,32">
+
+                <!-- Avatar -->
+                <Border StrokeShape="RoundRectangle 50"
+                        WidthRequest="100" HeightRequest="100"
+                        StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray800}}"
+                        HorizontalOptions="Center">
+                    <Label Text="{Binding AvatarLetter}"
+                           FontSize="40" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+
+                <!-- Name + Bio -->
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                    <Label Text="{Binding Nickname}"
+                           Style="{StaticResource Title}"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding Bio}"
+                           Style="{StaticResource Caption}"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <!-- Stats row -->
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="32">
+                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label Text="{Binding Level}"
+                               FontSize="22" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Level" Style="{StaticResource SmallCaption}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label Text="{Binding FollowerCount}"
+                               FontSize="22" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Followers" Style="{StaticResource SmallCaption}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label Text="{Binding FollowingCount}"
+                               FontSize="22" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Following" Style="{StaticResource SmallCaption}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+
+                <!-- Follow button -->
+                <Button Text="{Binding FollowButtonText}"
+                        Command="{Binding ToggleFollowCommand}"
+                        HorizontalOptions="Center"
+                        MinimumWidthRequest="160">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                            <Setter Property="HeightRequest" Value="44" />
+                        </Style>
+                    </Button.Style>
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsFollowing}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <!-- Separator -->
+                <BoxView HeightRequest="0.5"
+                         Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}" />
+
+                <!-- Workouts section -->
+                <Label Text="WORKOUTS"
+                       Style="{StaticResource SmallCaption}"
+                       FontAttributes="Bold"
+                       Margin="0,4,0,0" />
+
+                <!-- Workout list -->
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Workouts}" Spacing="12">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="services:CloudWorkoutPost">
+                            <Border Style="{StaticResource GroupedSection}" Padding="16">
+                                <VerticalStackLayout Spacing="8">
+                                    <!-- Title + time -->
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding Title}"
+                                               Style="{StaticResource HeadlineSmall}" />
+                                        <Label Grid.Column="1"
+                                               Text="{Binding CreatedAt, StringFormat='{0:MMM d}'}"
+                                               Style="{StaticResource SmallCaption}"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+
+                                    <!-- Stats pills -->
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4"
+                                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                            <Label FontSize="12">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding DurationMinutes}" FontAttributes="Bold" />
+                                                        <Span Text=" min" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </Border>
+                                        <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4"
+                                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+                                            <Label FontSize="12">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding TotalSets}" FontAttributes="Bold" />
+                                                        <Span Text=" sets" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </Border>
+                                        <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4"
+                                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}"
+>
+                                            <Label FontSize="12" TextColor="{StaticResource Gold}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding PrCount}" FontAttributes="Bold" />
+                                                        <Span Text=" PR" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </Border>
+                                    </HorizontalStackLayout>
+
+                                    <!-- Exercise summary -->
+                                    <Label Text="{Binding ExerciseSummary}"
+                                           Style="{StaticResource Caption}"
+                                           MaxLines="2"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+
+                    <BindableLayout.EmptyView>
+                        <VerticalStackLayout Spacing="8" Margin="0,20" HorizontalOptions="Center">
+                            <Label Text="{x:Static helpers:Icons.Dumbbell}"
+                                   FontFamily="FASolid" FontSize="32"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}" />
+                            <Label Text="No public workouts yet"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </BindableLayout.EmptyView>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Loading -->
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center" />
+    </Grid>
+
+</ContentPage>

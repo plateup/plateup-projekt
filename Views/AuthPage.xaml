@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlateUp.ViewModels"
+             xmlns:helpers="clr-namespace:PlateUp.Helpers"
+             x:Class="PlateUp.Views.AuthPage"
+             x:DataType="vm:AuthViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="20,12">
+            <Button Grid.Column="0"
+                    Text="{x:Static helpers:Icons.ChevronLeft}"
+                    Style="{StaticResource IconButton}"
+                    Command="{Binding GoBackCommand}" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="16" Padding="24" VerticalOptions="Center">
+
+                <!-- Branding -->
+                <Border WidthRequest="88" HeightRequest="88"
+                        StrokeShape="RoundRectangle 22"
+                        StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                        HorizontalOptions="Center"
+                        Margin="0,0,0,4">
+                    <Label Text="{x:Static helpers:Icons.Dumbbell}"
+                           FontFamily="FASolid" FontSize="36"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                </Border>
+
+                <Label Text="PlateUp"
+                       Style="{StaticResource LargeTitle}"
+                       HorizontalOptions="Center" />
+                <Label Text="Sign in to sync workouts and connect with friends"
+                       Style="{StaticResource Caption}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,8" />
+
+                <!-- Success -->
+                <Border StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Success}, Dark={StaticResource SuccessDark}}"
+                        Padding="16"
+                        IsVisible="{Binding HasSuccess}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static helpers:Icons.Envelope}"
+                               FontFamily="FASolid" FontSize="28"
+                               TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding SuccessMessage}"
+                               TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
+                               FontSize="14"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Error -->
+                <Border StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0"
+                        BackgroundColor="{StaticResource Danger}"
+                        Padding="14"
+                        IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
+                           FontSize="14" />
+                </Border>
+
+                <!-- Google Sign-In -->
+                <Button Text="  Continue with Google"
+                        Style="{StaticResource SecondaryButton}"
+                        HeightRequest="52"
+                        FontSize="16"
+                        Command="{Binding SignInWithGoogleCommand}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FASolid"
+                                         Glyph="{x:Static helpers:Icons.Globe}"
+                                         Size="18"
+                                         Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                    </Button.ImageSource>
+                </Button>
+
+                <!-- Separator -->
+                <Grid ColumnDefinitions="*,Auto,*" Margin="0,4">
+                    <BoxView Grid.Column="0" HeightRequest="0.5" VerticalOptions="Center"
+                             Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}" />
+                    <Label Grid.Column="1" Text="  OR  "
+                           Style="{StaticResource Caption}"
+                           VerticalOptions="Center" />
+                    <BoxView Grid.Column="2" HeightRequest="0.5" VerticalOptions="Center"
+                             Color="{AppThemeBinding Light={StaticResource SeparatorLight}, Dark={StaticResource SeparatorDark}}" />
+                </Grid>
+
+                <!-- Nickname (register only) -->
+                <VerticalStackLayout Spacing="6">
+                    <VerticalStackLayout.Triggers>
+                        <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding IsLoginMode}" Value="True">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </VerticalStackLayout.Triggers>
+                    <Label Text="Nickname" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                    <Border Style="{StaticResource GroupedSection}" Padding="4,0">
+                        <Entry Text="{Binding Nickname}"
+                               Placeholder="Your display name"
+                               BackgroundColor="Transparent"
+                               FontSize="17"
+                               MinimumHeightRequest="50" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Email -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Email" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                    <Border Style="{StaticResource GroupedSection}" Padding="4,0">
+                        <Entry Text="{Binding Email}"
+                               Placeholder="email@example.com"
+                               Keyboard="Email"
+                               BackgroundColor="Transparent"
+                               FontSize="17"
+                               MinimumHeightRequest="50" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Password -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Password" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                    <Border Style="{StaticResource GroupedSection}" Padding="4,0">
+                        <Entry Text="{Binding Password}"
+                               Placeholder="Min 6 characters"
+                               IsPassword="True"
+                               BackgroundColor="Transparent"
+                               FontSize="17"
+                               MinimumHeightRequest="50" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Submit -->
+                <Button Text="{Binding ActionButtonText}"
+                        Style="{StaticResource PrimaryButton}"
+                        Margin="0,8,0,0"
+                        Command="{Binding SubmitCommand}" />
+
+                <!-- Loading -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   HorizontalOptions="Center" />
+
+                <!-- Toggle mode -->
+                <Button Text="{Binding SwitchModeText}"
+                        Style="{StaticResource TextButton}"
+                        HorizontalOptions="Center"
+                        Command="{Binding ToggleModeCommand}" />
+
+                <!-- Skip -->
+                <Button Text="Skip for now"
+                        Style="{StaticResource TextButton}"
+                        HorizontalOptions="Center"
+                        Command="{Binding SkipAuthCommand}"
+                        Margin="0,8,0,0"
+                        TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>
