@@ -5,6 +5,43 @@ const BASE_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/mai
 const OPENGYM_IMG_BASE = 'https://cdn.jsdelivr.net/gh/hasaneyldrm/exercises-dataset@7455efae41b330c265e7cd4b78dfa848e7ce5ebd/images/';
 const OPENGYM_GIF_BASE = 'https://cdn.jsdelivr.net/gh/hasaneyldrm/exercises-dataset@7455efae41b330c265e7cd4b78dfa848e7ce5ebd/videos/';
 
+const OPENGYM_EXACT_MAP = {
+  "Dips": "chest dip",
+  "Push-up": "push-up",
+  "Muscle-up": "muscle up",
+  "Chin-up": "chin-up",
+  "Bulgarian Split Squat (Bodyweight)": "split squats",
+  "Pistol Squat": "kettlebell pistol squat",
+  "Romanian Deadlift (Barbell)": "barbell romanian deadlift",
+  "Front Squat (Barbell)": "barbell front squat",
+  "Hip Thrust (Barbell)": "barbell glute bridge",
+  "Pendlay Row (Barbell)": "barbell pendlay row",
+  "Close Grip Bench Press (Barbell)": "barbell close-grip bench press",
+  "Good Morning (Barbell)": "barbell good morning",
+  "Romanian Deadlift (Dumbbell)": "dumbbell romanian deadlift",
+  "Incline Dumbbell Curl": "dumbbell incline curl",
+  "Arnold Press (Dumbbell)": "dumbbell arnold press",
+  "Bulgarian Split Squat (Dumbbell)": "dumbbell single leg split squat",
+  "Shrugs (Dumbbell)": "dumbbell shrug",
+  "Face Pull (Cable)": "cable standing rear delt row (with rope)",
+  "Lateral Raise (Cable)": "cable lateral raise",
+  "Cable Crossover": "cable standing fly",
+  "Seated Cable Row": "cable seated row",
+  "Triceps Rope Pushdown": "cable pushdown (with rope attachment)",
+  "Hack Squat (Machine)": "sled hack squat",
+  "Seated Calf Raise (Machine)": "lever seated calf raise",
+  "Pec Deck Fly (Machine)": "lever seated fly",
+  "Smith Machine Squat": "smith squat",
+  "Deadlift": "barbell deadlift",
+  "Lat Pulldown": "cable pulldown",
+  "Bench Press": "barbell bench press",
+  "Bench Press (Barbell)": "barbell bench press",
+  "Pull-Up": "pull-up",
+  "Pull Up": "pull-up",
+  "Squat (Barbell)": "barbell full squat",
+  "Squat": "barbell full squat"
+};
+
 export const EXERCISE_IMAGE_MAP = {
   "Dips": "Dips_-_Chest_Version/0.jpg",
   "Push-up": "Pushups/0.jpg",
@@ -34,28 +71,46 @@ export const EXERCISE_IMAGE_MAP = {
   "Smith Machine Squat": "Smith_Machine_Squat/0.jpg"
 };
 
-export function getExerciseImage(exerciseName) {
+function getOpenGymMatch(exerciseName) {
   if (!exerciseName) return null;
   
+  // 1. Check manual exact map first
+  const exactMapName = OPENGYM_EXACT_MAP[exerciseName];
+  if (exactMapName) {
+    const match = opengymDb.find(ex => ex.n === exactMapName);
+    if (match) return match;
+  }
+  
+  // 2. Fuzzy matching
   const normalizedName = exerciseName.toLowerCase().replace(/[^a-z0-9]/g, '');
   const noEq = exerciseName.replace(/\([^)]+\)/g, '').trim();
   const normNoEq = noEq.toLowerCase().replace(/[^a-z0-9]/g, '');
   
-  // 1. Check OpenGym DB first (better images/gifs usually)
   let ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedName);
   if (!ogMatch) {
     ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normNoEq);
   }
+  return ogMatch;
+}
+
+export function getExerciseImage(exerciseName) {
+  if (!exerciseName) return null;
+  
+  const ogMatch = getOpenGymMatch(exerciseName);
   if (ogMatch && ogMatch.img) {
     return OPENGYM_IMG_BASE + ogMatch.img;
   }
   
-  // 2. Fallback to existing manual map
+  // Fallback to existing manual map
   if (EXERCISE_IMAGE_MAP[exerciseName]) {
     return BASE_URL + EXERCISE_IMAGE_MAP[exerciseName];
   }
 
-  // 3. Fallback to existing free-exercise-db
+  // Fallback to existing free-exercise-db
+  const normalizedName = exerciseName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const noEq = exerciseName.replace(/\([^)]+\)/g, '').trim();
+  const normNoEq = noEq.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
   let match = exercisesDb.find(ex => {
     const exName = ex.name.toLowerCase().replace(/[^a-z0-9]/g, '');
     return exName === normalizedName;
@@ -77,27 +132,16 @@ export function getExerciseImage(exerciseName) {
 
 export function getExerciseGif(exerciseName) {
   if (!exerciseName) return null;
-  
-  const normalizedName = exerciseName.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const noEq = exerciseName.replace(/\([^)]+\)/g, '').trim();
-  const normNoEq = noEq.toLowerCase().replace(/[^a-z0-9]/g, '');
-  
-  let ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedName);
-  if (!ogMatch) {
-    ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normNoEq);
-  }
+  const ogMatch = getOpenGymMatch(exerciseName);
   if (ogMatch && ogMatch.gif) {
     return OPENGYM_GIF_BASE + ogMatch.gif;
   }
-  
   return null;
 }
 
 export function getExerciseInstructions(exerciseName) {
   if (!exerciseName) return null;
-  const noEq = exerciseName.replace(/\([^)]+\)/g, '').trim();
-  const normNoEq = noEq.toLowerCase().replace(/[^a-z0-9]/g, '');
-  let ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normNoEq);
+  const ogMatch = getOpenGymMatch(exerciseName);
   if (ogMatch && ogMatch.st) {
     return ogMatch.st;
   }
