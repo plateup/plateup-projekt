@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <_PostProcessingItem Include="PlateUp.app/PlateUp">
+      <IsAppExtension>false</IsAppExtension>
+      <BCSymbolMapName>PlateUp.bcsymbolmap</BCSymbolMapName>
+      <NoDSymUtil>true</NoDSymUtil>
+      <dSYMSourcePathExists>false</dSYMSourcePathExists>
+      <NoSymbolStrip>true</NoSymbolStrip>
+      <dSYMInfoPlistRelativePath>PlateUp.app.dSYM\Contents\Info.plist</dSYMInfoPlistRelativePath>
+      <SymbolFile>/Users/landzi/Documents/programs/PlateUp/obj/Debug/net10.0-ios/iossimulator-arm64/mtouch-symbols.list</SymbolFile>
+      <DSymName>PlateUp.app.dSYM</DSymName>
+      <SourceProjectPath>/Users/landzi/Documents/programs/PlateUp</SourceProjectPath>
+      <IsXPCService></IsXPCService>
+    </_PostProcessingItem>
+  </ItemGroup>
+</Project>

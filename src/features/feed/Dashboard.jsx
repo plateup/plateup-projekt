@@ -105,7 +105,7 @@ export default function Dashboard({ setActiveTab }) {
 
         const { data: postsData } = await supabase
           .from('posts')
-          .select('*, profiles!user_id(username, avatar_url)')
+          .select('*, profiles(username, avatar_url)')
           .in('user_id', friendIds)
           .order('created_at', { ascending: false });
           

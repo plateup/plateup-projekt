@@ -1,0 +1,1 @@
+-v --force --timestamp=none --sign - /Users/landzi/Documents/programs/PlateUp/bin/Debug/net10.0-maccatalyst/maccatalyst-arm64/PlateUp.app/Contents/MonoBundle/libe_sqlite3.dylib

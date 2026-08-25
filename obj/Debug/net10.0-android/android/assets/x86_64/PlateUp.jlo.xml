@@ -1,0 +1,24 @@
+<api>
+  <jcw-types>
+    <type name="MainActivity" package="crc64938383cee64b39b0" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="crc6488302ad6e9e4df1a.MauiAppCompatActivity" partial_assembly_qualified_name="PlateUp.MainActivity, PlateUp">
+      <constructors>
+        <constructor name="MainActivity" method="n_.ctor:()V:" jni_signature="()V" managed_parameters="" retval="void" is_dynamically_registered="True" />
+        <constructor name="MainActivity" method="n_.ctor:(I)V:" jni_signature="(I)V" managed_parameters="System.Int32, System.Private.CoreLib" params="int p0" retval="void" is_dynamically_registered="True" super_call="p0" activate_call="p0" />
+      </constructors>
+    </type>
+    <type name="MainApplication" package="crc64938383cee64b39b0" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="crc6488302ad6e9e4df1a.MauiApplication" is_application="True" partial_assembly_qualified_name="PlateUp.MainApplication, PlateUp" application_constructor="MainApplication" />
+    <type name="RestTimerReceiver" package="crc64b7230108c1a3c8d8" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="android.content.BroadcastReceiver" partial_assembly_qualified_name="PlateUp.Platforms.Android.Services.RestTimerReceiver, PlateUp">
+      <constructors>
+        <constructor name="RestTimerReceiver" method="n_.ctor:()V:" jni_signature="()V" managed_parameters="" retval="void" is_dynamically_registered="True" />
+      </constructors>
+      <methods>
+        <method name="onReceive" method="n_onReceive:(Landroid/content/Context;Landroid/content/Intent;)V:GetOnReceive_Landroid_content_Context_Landroid_content_Intent_Handler" jni_signature="(Landroid/content/Context;Landroid/content/Intent;)V" params="android.content.Context p0, android.content.Intent p1" retval="void" is_dynamically_registered="True" super_call="p0, p1" activate_call="p0, p1" />
+      </methods>
+    </type>
+  </jcw-types>
+  <acw-types partial-assembly-name="PlateUp" module-name="PlateUp.dll">
+    <type assembly-qualified-name="PlateUp.MainActivity, PlateUp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="plateup.MainActivity" java-key="crc64938383cee64b39b0.MainActivity" managed-key="PlateUp.MainActivity" partial-assembly-qualified-name="PlateUp.MainActivity, PlateUp" />
+    <type assembly-qualified-name="PlateUp.MainApplication, PlateUp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="plateup.MainApplication" java-key="crc64938383cee64b39b0.MainApplication" managed-key="PlateUp.MainApplication" partial-assembly-qualified-name="PlateUp.MainApplication, PlateUp" />
+    <type assembly-qualified-name="PlateUp.Platforms.Android.Services.RestTimerReceiver, PlateUp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="plateup.platforms.android.services.RestTimerReceiver" java-key="crc64b7230108c1a3c8d8.RestTimerReceiver" managed-key="PlateUp.Platforms.Android.Services.RestTimerReceiver" partial-assembly-qualified-name="PlateUp.Platforms.Android.Services.RestTimerReceiver, PlateUp" />
+  </acw-types>
+</api>

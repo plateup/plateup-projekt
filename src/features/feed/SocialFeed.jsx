@@ -410,7 +410,6 @@ export default function SocialFeed() {
         .eq('receiver_id', user.id);
         
       if (incError) {
-        console.error("Error fetching incoming requests:", incError);
         // Fallback query if the foreign key syntax fails
         // Odpytanie bazy danych Supabase w poszukiwaniu odpowiednich rekordów
         const { data: incDataFallback } = await supabase
@@ -502,7 +501,7 @@ export default function SocialFeed() {
     }
 
     // Fetch global posts from Supabase
-    let query = supabase.from('posts').select('*, profiles!user_id(username, avatar_url)').order('created_at', { ascending: false }).limit(20);
+    let query = supabase.from('posts').select('*, profiles(username, avatar_url)').order('created_at', { ascending: false }).limit(20);
     
     if (user && friendIds.length > 0) {
       query = query.in('user_id', friendIds);

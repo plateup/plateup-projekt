@@ -14,15 +14,14 @@ export async function syncUserHistory(userId) {
 
     const history = {};
     
-    // We iterate from oldest to newest so newest overwrites oldest, 
-    // OR we iterate newest to oldest and only set if not exists.
-    // newest to oldest is better.
     for (const post of postsData) {
-      if (!post.workout_data || !post.workout_data.exercises) continue;
+      if (!post.workout_data || !Array.isArray(post.workout_data.exercises)) continue;
       
       post.workout_data.exercises.forEach(ex => {
+        if (!ex || !Array.isArray(ex.sets)) return;
+        
         if (!history[ex.name]) {
-          const completedSets = ex.sets.filter(s => s.isCompleted || (s.kg && s.reps));
+          const completedSets = ex.sets.filter(s => s && (s.isCompleted || (s.kg && s.reps)));
           if (completedSets.length > 0) {
             history[ex.name] = completedSets.map(s => ({
               kg: s.kg || '',
@@ -34,7 +33,6 @@ export async function syncUserHistory(userId) {
       });
     }
     
-    // Merge with local history to not lose any pending local changes
     const localHistory = JSON.parse(localStorage.getItem('plateup_exercise_history') || '{}');
     const mergedHistory = { ...history, ...localHistory };
     

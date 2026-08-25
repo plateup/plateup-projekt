@@ -1,0 +1,1 @@
+-v --force --timestamp=none --sign - /Users/landzi/Documents/programs/PlateUp/bin/Debug/net10.0-ios/iossimulator-arm64/PlateUp.app/libmono-component-diagnostics_tracing.dylib

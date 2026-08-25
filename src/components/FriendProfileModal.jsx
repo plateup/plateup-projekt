@@ -40,7 +40,7 @@ export default function FriendProfileModal({ userId, currentUsername, currentUse
       // 3. Fetch Recent Public Posts
       const { data: postsData } = await supabase
         .from('posts')
-        .select('*, profiles!user_id(username, avatar_url)')
+        .select('*, profiles(username, avatar_url)')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(10);

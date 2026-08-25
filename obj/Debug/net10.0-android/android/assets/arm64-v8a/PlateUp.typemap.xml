@@ -1,0 +1,12 @@
+<api type="debug" assembly-name="PlateUp" mvid="8e84972de33e4a4fa507ae186de39dfd">
+  <java-to-managed>
+    <entry java-name="crc64938383cee64b39b0/MainActivity" managed-name="PlateUp.MainActivity, PlateUp" managed-type-token-id="33554456" />
+    <entry java-name="crc64938383cee64b39b0/MainApplication" managed-name="PlateUp.MainApplication, PlateUp" managed-type-token-id="33554457" />
+    <entry java-name="crc64b7230108c1a3c8d8/RestTimerReceiver" managed-name="PlateUp.Platforms.Android.Services.RestTimerReceiver, PlateUp" managed-type-token-id="33554551" />
+  </java-to-managed>
+  <managed-to-java>
+    <entry java-name="crc64938383cee64b39b0/MainActivity" managed-name="PlateUp.MainActivity, PlateUp" managed-type-token-id="33554456" />
+    <entry java-name="crc64938383cee64b39b0/MainApplication" managed-name="PlateUp.MainApplication, PlateUp" managed-type-token-id="33554457" />
+    <entry java-name="crc64b7230108c1a3c8d8/RestTimerReceiver" managed-name="PlateUp.Platforms.Android.Services.RestTimerReceiver, PlateUp" managed-type-token-id="33554551" />
+  </managed-to-java>
+</api>
