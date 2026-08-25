@@ -16,24 +16,20 @@ import Landing from './features/auth/Landing';
 import Auth from './features/auth/Auth';
 import UsernameSetup from './features/auth/UsernameSetup';
 import LiveWorkout from './features/workout/LiveWorkout';
+import { syncUserHistory } from './utils/syncHistory';
 
 function App() {
-  // Stan przechowujący zmienną: session
   const [session, setSession] = useState(null);
-  // Stan przechowujący zmienną: view
-  const [view, setView] = useState('landing'); // landing, auth, onboarding, app
-  // Stan przechowujący zmienną: activeTab
+  const [view, setView] = useState('landing');
   const [activeTab, setActiveTab] = useState('feed');
-  // Stan przechowujący zmienną: isInitializing
   const [isInitializing, setIsInitializing] = useState(true);
-
-  // Efekt uboczny (useEffect) uruchamiany po wyrenderowaniu komponentu lub zmianie zależności
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       handleSessionData(session);
       if (session) {
         syncOfflineQueue(session.user.id);
+        syncUserHistory(session.user.id);
       }
     });
 
@@ -41,6 +37,7 @@ function App() {
       handleSessionData(session);
       if (session) {
         syncOfflineQueue(session.user.id);
+        syncUserHistory(session.user.id);
       }
     });
 
