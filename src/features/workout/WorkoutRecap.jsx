@@ -90,12 +90,16 @@ export default function WorkoutRecap({ workout, onClose, onSave, onDiscard, isHi
     // Save to Supabase
     if (user) {
       try {
-        await supabase.from('posts').insert([{
+        const { error } = await supabase.from('posts').insert([{
           user_id: user.id,
           workout_data: postToSave
         }]);
+        if (error) throw error;
       } catch (e) {
-        console.error('Save to DB failed', e);
+        console.warn('Network error or DB failure. Queuing post for offline sync.', e);
+        const offlineQueue = JSON.parse(localStorage.getItem('plateup_offline_posts') || '[]');
+        offlineQueue.push({ user_id: user.id, workout_data: postToSave });
+        localStorage.setItem('plateup_offline_posts', JSON.stringify(offlineQueue));
       }
     }
 

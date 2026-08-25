@@ -32,16 +32,39 @@ function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       handleSessionData(session);
+      if (session) {
+        syncOfflineQueue(session.user.id);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       handleSessionData(session);
+      if (session) {
+        syncOfflineQueue(session.user.id);
+      }
     });
-
-    // Zwraca interfejs użytkownika (JSX) dla tego komponentu
 
     return () => subscription.unsubscribe();
   }, []);
+
+  async function syncOfflineQueue(userId) {
+    const offlineQueue = JSON.parse(localStorage.getItem('plateup_offline_posts') || '[]');
+    if (offlineQueue.length === 0) return;
+    
+    console.log("Syncing offline posts...", offlineQueue.length);
+    const remainingQueue = [];
+    
+    for (const post of offlineQueue) {
+      post.user_id = userId;
+      const { error } = await supabase.from('posts').insert([post]);
+      if (error) {
+        console.warn("Failed to sync post, keeping in queue", error);
+        remainingQueue.push(post);
+      }
+    }
+    
+    localStorage.setItem('plateup_offline_posts', JSON.stringify(remainingQueue));
+  }
 
   // Asynchroniczna funkcja: handleSessionData - odpowiada za operacje w tle (np. fetchowanie bazy)
 

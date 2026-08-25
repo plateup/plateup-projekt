@@ -1,6 +1,9 @@
 import exercisesDb from '../constants/exercisesDb.json';
+import opengymDb from '../constants/opengym.json';
 
 const BASE_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
+const OPENGYM_IMG_BASE = 'https://cdn.jsdelivr.net/gh/hasaneyldrm/exercises-dataset@7455efae41b330c265e7cd4b78dfa848e7ce5ebd/images/';
+const OPENGYM_GIF_BASE = 'https://cdn.jsdelivr.net/gh/hasaneyldrm/exercises-dataset@7455efae41b330c265e7cd4b78dfa848e7ce5ebd/videos/';
 
 export const EXERCISE_IMAGE_MAP = {
   "Dips": "Dips_-_Chest_Version/0.jpg",
@@ -34,20 +37,31 @@ export const EXERCISE_IMAGE_MAP = {
 export function getExerciseImage(exerciseName) {
   if (!exerciseName) return null;
   
+  const normalizedName = exerciseName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const noEq = exerciseName.replace(/\([^)]+\)/g, '').trim();
+  const normNoEq = noEq.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
+  // 1. Check OpenGym DB first (better images/gifs usually)
+  let ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedName);
+  if (!ogMatch) {
+    ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normNoEq);
+  }
+  if (ogMatch && ogMatch.img) {
+    return OPENGYM_IMG_BASE + ogMatch.img;
+  }
+  
+  // 2. Fallback to existing manual map
   if (EXERCISE_IMAGE_MAP[exerciseName]) {
     return BASE_URL + EXERCISE_IMAGE_MAP[exerciseName];
   }
 
-  const normalizedName = exerciseName.toLowerCase().replace(/[^a-z0-9]/g, '');
-  
+  // 3. Fallback to existing free-exercise-db
   let match = exercisesDb.find(ex => {
     const exName = ex.name.toLowerCase().replace(/[^a-z0-9]/g, '');
     return exName === normalizedName;
   });
 
   if (!match) {
-    const noEq = exerciseName.replace(/\([^)]+\)/g, '').trim();
-    const normNoEq = noEq.toLowerCase().replace(/[^a-z0-9]/g, '');
     match = exercisesDb.find(ex => {
       const exName = ex.name.toLowerCase().replace(/[^a-z0-9]/g, '');
       return exName === normNoEq || exName.includes(normNoEq) || (normNoEq.length > 3 && normNoEq.includes(exName));
@@ -58,5 +72,34 @@ export function getExerciseImage(exerciseName) {
     return BASE_URL + match.images[0];
   }
   
+  return null;
+}
+
+export function getExerciseGif(exerciseName) {
+  if (!exerciseName) return null;
+  
+  const normalizedName = exerciseName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const noEq = exerciseName.replace(/\([^)]+\)/g, '').trim();
+  const normNoEq = noEq.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
+  let ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedName);
+  if (!ogMatch) {
+    ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normNoEq);
+  }
+  if (ogMatch && ogMatch.gif) {
+    return OPENGYM_GIF_BASE + ogMatch.gif;
+  }
+  
+  return null;
+}
+
+export function getExerciseInstructions(exerciseName) {
+  if (!exerciseName) return null;
+  const noEq = exerciseName.replace(/\([^)]+\)/g, '').trim();
+  const normNoEq = noEq.toLowerCase().replace(/[^a-z0-9]/g, '');
+  let ogMatch = opengymDb.find(ex => ex.n.toLowerCase().replace(/[^a-z0-9]/g, '') === normNoEq);
+  if (ogMatch && ogMatch.st) {
+    return ogMatch.st;
+  }
   return null;
 }
